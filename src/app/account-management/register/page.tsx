@@ -3,100 +3,92 @@
 import { useState } from "react";
 
 export default function RegisterPage() {
-  const [workspaceName, setWorkspaceName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    password: "",
+  });
+
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
-    if (password !== confirmPassword) {
-      alert("Passwords do not match");
-      return;
-    }
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL; // ✅ your env
 
-    if (!workspaceName.trim()) {
-      alert("Workspace Name is required");
-      return;
-    }
-
-    // Example: Call your backend API here
     try {
-      const res = await fetch("/api/register", {
+      const res = await fetch(`${apiUrl}/api/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ workspaceName, email, password }),
+        body: JSON.stringify(form),
       });
 
-      if (!res.ok) {
-        throw new Error("Registration failed");
-      }
+      if (!res.ok) throw new Error("Failed to register");
 
       alert("Registration successful!");
-      // Optional: redirect user to login or dashboard
     } catch (err) {
       console.error(err);
-      alert("Something went wrong");
+      alert("Something went wrong!");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <section className="max-w-md mx-auto mt-8 p-6 border border-gray-300 rounded-lg shadow-sm">
-      <h1 className="text-2xl font-bold mb-4">Register</h1>
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-        <label className="flex flex-col">
-          <span className="mb-1">Workspace Name</span>
-          <input
-            type="text"
-            value={workspaceName}
-            onChange={(e) => setWorkspaceName(e.target.value)}
-            required
-            placeholder="Your company or workspace"
-            className="border border-gray-300 p-2 rounded"
-          />
-        </label>
+    <main className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
+      <div className="w-full max-w-md rounded-lg bg-white p-8 shadow-md">
+        <h1 className="mb-6 text-2xl font-bold">Create an Account</h1>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium mb-1">Name</label>
+            <input
+              name="name"
+              type="text"
+              value={form.name}
+              onChange={handleChange}
+              required
+              className="w-full rounded border px-3 py-2"
+            />
+          </div>
 
-        <label className="flex flex-col">
-          <span className="mb-1">Email</span>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className="border border-gray-300 p-2 rounded"
-          />
-        </label>
+          <div>
+            <label className="block text-sm font-medium mb-1">Email</label>
+            <input
+              name="email"
+              type="email"
+              value={form.email}
+              onChange={handleChange}
+              required
+              className="w-full rounded border px-3 py-2"
+            />
+          </div>
 
-        <label className="flex flex-col">
-          <span className="mb-1">Password</span>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            className="border border-gray-300 p-2 rounded"
-          />
-        </label>
+          <div>
+            <label className="block text-sm font-medium mb-1">Password</label>
+            <input
+              name="password"
+              type="password"
+              value={form.password}
+              onChange={handleChange}
+              required
+              className="w-full rounded border px-3 py-2"
+            />
+          </div>
 
-        <label className="flex flex-col">
-          <span className="mb-1">Confirm Password</span>
-          <input
-            type="password"
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
-            required
-            className="border border-gray-300 p-2 rounded"
-          />
-        </label>
-
-        <button
-          type="submit"
-          className="bg-black text-white p-2 rounded hover:bg-gray-800"
-        >
-          Register
-        </button>
-      </form>
-    </section>
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            {loading ? "Registering..." : "Register"}
+          </button>
+        </form>
+      </div>
+    </main>
   );
 }
