@@ -3,7 +3,7 @@ import Cookies from 'js-cookie';
 
 // Create an Axios instance
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://app.saltifysaas.com",
   headers: {
     'Content-Type': 'application/json',
   },
