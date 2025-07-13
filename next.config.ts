@@ -1,7 +1,9 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  // This disables Turbopack, forces classic Webpack
-  webpack: (config) => {
+import type { NextConfig } from 'next';
+import type { Configuration } from 'webpack';
+
+const nextConfig: NextConfig = {
+  webpack: (config: Configuration) => {
+    // Customize webpack here if needed
     return config;
   },
 };
