@@ -44,13 +44,10 @@ export default function RegisterForm() {
       }
     } catch (error: unknown) {
       console.error(error);
-      if (typeof error === "object" && error !== null && "response" in error) {
-        // @ts-ignore
-        setMessage("❌ Error: " + (error.response?.data?.message || "Unknown error"));
-      } else if (error instanceof Error) {
-        setMessage("❌ Error: " + error.message);
+      if (error instanceof Error) {
+        setMessage(`❌ Error: ${error.message}`);
       } else {
-        setMessage("❌ An unexpected error occurred.");
+        setMessage("❌ An unknown error occurred.");
       }
     }
   };
