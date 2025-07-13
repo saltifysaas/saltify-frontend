@@ -24,7 +24,7 @@ export default function RegisterForm() {
     e.preventDefault();
     try {
       const response = await api.post("/auth/register", {
-        businessName,
+        name: businessName,
         ownerName,
         domain,
         email,

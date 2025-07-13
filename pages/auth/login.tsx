@@ -1,7 +1,10 @@
-export default function Login() {
+import LoginForm from "../../components/LoginForm";
+import RegisterForm from "../../components/LoginForm";
+
+export default function LoginPage() {
   return (
-    <main className="flex flex-col items-center justify-center min-h-screen">
-      <h1 className="text-3xl font-bold">Login</h1>
+    <main className="flex min-h-screen flex-col items-center justify-center">
+      <LoginForm/>
     </main>
   );
 }
