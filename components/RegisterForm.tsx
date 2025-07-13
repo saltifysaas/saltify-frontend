@@ -42,64 +42,68 @@ export default function RegisterForm() {
       } else {
         setMessage("❌ Registration failed.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      setMessage(
-        "❌ Error: " + (error.response?.data?.message || error.message)
-      );
+      if (typeof error === "object" && error !== null && "response" in error) {
+        // @ts-ignore
+        setMessage("❌ Error: " + (error.response?.data?.message || "Unknown error"));
+      } else if (error instanceof Error) {
+        setMessage("❌ Error: " + error.message);
+      } else {
+        setMessage("❌ An unexpected error occurred.");
+      }
     }
   };
 
   return (
     <form onSubmit={handleRegister} className="flex flex-col gap-4 w-80">
-  <input
-    type="text"
-    placeholder="Business Name"
-    value={businessName}
-    onChange={(e) => setBusinessName(e.target.value)}
-    className="p-2 border border-gray-300 rounded"
-    required
-  />
-  <input
-    type="text"
-    placeholder="Owner Name"
-    value={ownerName}
-    onChange={(e) => setOwnerName(e.target.value)}
-    className="p-2 border border-gray-300 rounded"
-    required
-  />
-  <input
-    type="text"
-    placeholder="Domain"
-    value={domain}
-    onChange={(e) => setDomain(e.target.value)}
-    className="p-2 border border-gray-300 rounded"
-    required
-  />
-  <input
-    type="email"
-    placeholder="Email"
-    value={email}
-    onChange={(e) => setEmail(e.target.value)}
-    className="p-2 border border-gray-300 rounded"
-    required
-  />
-  <input
-    type="password"
-    placeholder="Password"
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    className="p-2 border border-gray-300 rounded"
-    required
-  />
-  <button
-    type="submit"
-    className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
-  >
-    Register
-  </button>
-  {message && <p className="mt-2">{message}</p>}
-</form>
-
+      <input
+        type="text"
+        placeholder="Business Name"
+        value={businessName}
+        onChange={(e) => setBusinessName(e.target.value)}
+        className="p-2 border border-gray-300 rounded"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Owner Name"
+        value={ownerName}
+        onChange={(e) => setOwnerName(e.target.value)}
+        className="p-2 border border-gray-300 rounded"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Domain"
+        value={domain}
+        onChange={(e) => setDomain(e.target.value)}
+        className="p-2 border border-gray-300 rounded"
+        required
+      />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="p-2 border border-gray-300 rounded"
+        required
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="p-2 border border-gray-300 rounded"
+        required
+      />
+      <button
+        type="submit"
+        className="bg-black text-white px-4 py-2 rounded hover:bg-gray-800"
+      >
+        Register
+      </button>
+      {message && <p className="mt-2">{message}</p>}
+    </form>
   );
 }
