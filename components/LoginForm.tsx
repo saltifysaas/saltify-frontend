@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import api from "../utils/api";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
@@ -11,18 +11,6 @@ export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [subdomain, setSubdomain] = useState("");
-
-  useEffect(() => {
-    const hostname = window.location.hostname;
-    const parts = hostname.split(".");
-    if (parts.length > 2) {
-      setSubdomain(parts[0]);
-    } else {
-      setSubdomain("");
-    }
-    console.log("✅ Client Subdomain:", parts[0]);
-  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,7 +18,6 @@ export default function LoginForm() {
       const response = await api.post("/auth/login", {
         email,
         password,
-        // ✅ Subdomain is NOT sent to backend anymore — this fixes 400!
       });
 
       if (response.status === 200) {
