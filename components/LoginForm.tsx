@@ -30,12 +30,12 @@ export default function LoginForm() {
       const response = await api.post("/auth/login", {
         email,
         password,
-        subdomain,
+        // ✅ Subdomain is NOT sent to backend anymore — this fixes 400!
       });
 
       if (response.status === 200) {
-        if (response.data.token) {
-          Cookies.set("token", response.data.token);
+        if (response.data.access_token) {
+          Cookies.set("token", response.data.access_token);
         }
         setMessage("✅ Login successful! Redirecting...");
         setTimeout(() => {
