@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Optional: Custom styles */
+html, body {
+  min-height: 100%;
+  background-color: #111827;
+  color: #F9FAFB;
+  font-family: "Ubuntu", sans-serif;
+}
