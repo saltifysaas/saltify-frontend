@@ -4,6 +4,7 @@ import { useState } from "react";
 import api from "../utils/api";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -72,9 +73,9 @@ export default function LoginForm() {
 
       <div className="text-center text-sm text-gray-400">
         Don’t have an account?{" "}
-        <a href="/auth/register" className="text-[#3B82F6] hover:underline">
+        <Link href="/auth/register" className="text-[#3B82F6] hover:underline">
           Register
-        </a>
+        </Link>
       </div>
     </form>
   );

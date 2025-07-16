@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import api from "../utils/api";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -111,9 +112,9 @@ export default function RegisterForm() {
 
       <div className="text-center text-sm text-gray-400">
         Already have an account?{" "}
-        <a href="/auth/login" className="text-[#3B82F6] hover:underline">
+        <Link href="/auth/login" className="text-[#3B82F6] hover:underline">
           Login
-        </a>
+        </Link>
       </div>
     </form>
   );
