@@ -1,48 +1,32 @@
 "use client";
 
 import { useState } from "react";
-import api from "../utils/api";
-import Cookies from "js-cookie";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function LoginForm() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState<string>("");
 
-  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      const response = await api.post("/auth/login", { email, password });
-
-      if (response.status === 200 && response.data.access_token) {
-        Cookies.set("token", response.data.access_token);
-        setMessage("✅ Login successful! Redirecting...");
-        setTimeout(() => router.push("/dashboard"), 1000);
-      } else {
-        setMessage("❌ Login failed.");
-      }
-    } catch (error) {
-      console.error(error);
-      setMessage("❌ An error occurred.");
-    }
+    // TODO: wire up Supabase or API login logic
   };
 
   return (
-    <form onSubmit={handleLogin} className="space-y-6">
-      <div>
-        <h2 className="text-xl font-semibold mb-1">Welcome Back</h2>
-        <p className="text-sm text-gray-400">Login to your Saltify account</p>
+    <form onSubmit={handleLogin} className="space-y-5">
+      {/* Headline */}
+      <div className="text-center">
+        <h2 className="text-3xl font-bold text-light">Welcome Back</h2>
+        <p className="text-sm text-shade-soft">Login to your SALTify account</p>
       </div>
 
+      {/* Fields */}
       <input
         type="email"
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+        className="w-full px-4 py-3 rounded bg-light text-primary placeholder-muted border border-shade-green focus:outline-none focus:ring-2 focus:ring-accent"
         required
       />
       <input
@@ -50,22 +34,22 @@ export default function LoginForm() {
         placeholder="Password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+        className="w-full px-4 py-3 rounded bg-light text-primary placeholder-muted border border-shade-green focus:outline-none focus:ring-2 focus:ring-accent"
         required
       />
 
+      {/* Submit Button */}
       <button
         type="submit"
-        className="w-full bg-[#3B82F6] hover:bg-blue-600 text-white py-3 rounded font-medium"
+        className="w-full bg-accent hover:bg-shade-green text-highlight py-3 rounded font-semibold transition"
       >
         Login
       </button>
 
-      {message && <p className="text-sm text-gray-300">{message}</p>}
-
-      <div className="text-center text-sm text-gray-400">
+      {/* Footer */}
+      <div className="text-center text-sm text-muted">
         Don’t have an account?{" "}
-        <Link href="/auth/register" className="text-[#3B82F6] hover:underline">
+        <Link href="/auth/register" className="text-accent hover:underline">
           Register
         </Link>
       </div>
