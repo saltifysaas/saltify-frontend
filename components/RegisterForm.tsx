@@ -44,68 +44,111 @@ export default function RegisterForm() {
   };
 
   return (
-    <form onSubmit={handleRegister} className="space-y-4">
-      <div>
-        <h2 className="text-xl font-semibold mb-1">Create Your Account</h2>
-        <p className="text-sm text-gray-400">Join Saltify in a few clicks</p>
+    <div className="w-full max-w-md p-6 bg-[#0f2b22] rounded-2xl shadow-lg text-[#F9FAFB] mx-auto">
+      {/* Logo */}
+      <div className="flex flex-col items-center mb-6">
+        <div className="flex items-center gap-2">
+          <div className="bg-[#D1FAE5] text-[#065F46] rounded-full p-2">
+            <span className="font-bold text-lg">S</span>
+          </div>
+          <h1 className="text-2xl font-bold">Saltify</h1>
+        </div>
       </div>
 
-      <input
-        type="text"
-        placeholder="Business Name"
-        value={businessName}
-        onChange={(e) => setBusinessName(e.target.value)}
-        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
-        required
-      />
-      <input
-        type="text"
-        placeholder="Owner Name"
-        value={ownerName}
-        onChange={(e) => setOwnerName(e.target.value)}
-        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
-        required
-      />
-      <input
-        type="text"
-        placeholder="Domain"
-        value={domain}
-        onChange={(e) => setDomain(e.target.value)}
-        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
-        required
-      />
-      <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
-        required
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
-        required
-      />
+      {/* Trial Banner */}
+      <div className="bg-[#F9FAFB] text-[#111827] font-semibold text-center rounded-md py-3 mb-6">
+        Sign up for 14 days free trial
+      </div>
 
-      <button
-        type="submit"
-        className="w-full bg-[#3B82F6] hover:bg-blue-600 text-white py-3 rounded font-medium"
-      >
-        Register
-      </button>
+      <form onSubmit={handleRegister} className="space-y-4">
+        <div>
+          <label className="block mb-1 font-medium">Business Name</label>
+          <input
+            type="text"
+            placeholder="Your Brand Name"
+            value={businessName}
+            onChange={(e) => setBusinessName(e.target.value)}
+            className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
+            required
+          />
+        </div>
 
-      {message && <p className="text-sm text-gray-300">{message}</p>}
+        <div>
+          <label className="block mb-1 font-medium">Owner Name</label>
+          <input
+            type="text"
+            placeholder="First Last"
+            value={ownerName}
+            onChange={(e) => setOwnerName(e.target.value)}
+            className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
+            required
+          />
+        </div>
 
-      <div className="text-center text-sm text-gray-400">
+        <div>
+          <label className="block mb-1 font-medium">Domain</label>
+          <input
+            type="text"
+            placeholder="yourbrand.com"
+            value={domain}
+            onChange={(e) => setDomain(e.target.value)}
+            className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium">Work Email</label>
+          <input
+            type="email"
+            placeholder="you@company.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
+            required
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1 font-medium">Password</label>
+          <input
+            type="password"
+            placeholder="••••••••"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          className="w-full bg-[#14532d] text-white font-semibold py-3 rounded-md hover:bg-[#166534] transition"
+        >
+          CONTINUE
+        </button>
+
+        {message && <p className="text-center text-sm mt-2">{message}</p>}
+      </form>
+
+      {/* Social Auth */}
+      <div className="space-y-3 mt-6">
+        <button className="w-full flex items-center justify-center gap-2 bg-[#F9FAFB] text-[#111827] font-medium py-3 rounded-md hover:bg-gray-200 transition">
+          <span className="font-bold">G</span> Sign up with Google
+        </button>
+
+        <button className="w-full flex items-center justify-center gap-2 bg-[#F9FAFB] text-[#111827] font-medium py-3 rounded-md hover:bg-gray-200 transition">
+          <span className="font-bold">in</span> Sign up with LinkedIn
+        </button>
+      </div>
+
+      {/* Footer */}
+      <p className="text-center text-sm mt-6">
         Already have an account?{" "}
-        <Link href="/auth/login" className="text-[#3B82F6] hover:underline">
+        <Link href="/auth/login" className="underline">
           Login
         </Link>
-      </div>
-    </form>
+      </p>
+    </div>
   );
 }
