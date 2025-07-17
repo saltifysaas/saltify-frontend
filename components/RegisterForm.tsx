@@ -44,9 +44,24 @@ export default function RegisterForm() {
       } else {
         setMessage("❌ Registration failed.");
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error);
-      setMessage(`❌ ${error?.response?.data?.message || error.message}`);
+
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "response" in error &&
+        typeof error.response === "object" &&
+        error.response !== null &&
+        "data" in error.response
+      ) {
+        const serverMessage = (error as any).response.data?.message;
+        setMessage(`❌ ${serverMessage || "Server error."}`);
+      } else if (error instanceof Error) {
+        setMessage(`❌ ${error.message}`);
+      } else {
+        setMessage("❌ An unknown error occurred.");
+      }
     } finally {
       setLoading(false);
     }
