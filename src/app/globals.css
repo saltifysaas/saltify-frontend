@@ -17,13 +17,21 @@ body {
   scroll-behavior: smooth;
 }
 
-/* Improve rendering consistency */
+/* Box model consistency */
 *,
 *::before,
 *::after {
   box-sizing: border-box;
 }
 
-/* Smooth typography rendering */
+/* Typography rendering tweaks */
 body {
-  -webkit-font
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optional link reset */
+a {
+  text-decoration: none;
+  color: inherit;
+}

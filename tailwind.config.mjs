@@ -2,7 +2,7 @@
 export default {
   content: [
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",     // ✅ App Router paths
+    "./src/app/**/*.{js,ts,jsx,tsx,mdx}", // ✅ Ensures App Router files are scanned
     "./components/**/*.{js,ts,jsx,tsx}",
     "./pages/**/*.{js,ts,jsx,tsx}",
   ],
@@ -12,8 +12,8 @@ export default {
         sans: ["Ubuntu", "sans-serif"],
       },
       colors: {
-        background: "#111827",   // Tailored to your layout
-        foreground: "#F9FAFB",   // High contrast text
+        background: "#111827",
+        foreground: "#F9FAFB",
       },
     },
   },
