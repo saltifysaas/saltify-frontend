@@ -15,17 +15,14 @@ export default function RegisterForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     console.log("✅ API base URL:", process.env.NEXT_PUBLIC_API_URL);
+    console.log("✅ Axios base URL:", api.defaults.baseURL);
   }, []);
 
-  const handleRegister = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    setMessage("");
-
     try {
       const response = await api.post("/auth/register", {
         businessName,
@@ -35,101 +32,90 @@ export default function RegisterForm() {
         password,
       });
 
-      if (response.status === 200 || response.status === 201) {
+      if (response.status === 201 || response.status === 200) {
         if (response.data.token) {
           Cookies.set("token", response.data.token);
         }
         setMessage("✅ Registered successfully! Redirecting...");
-        setTimeout(() => router.push("/dashboard"), 1500);
+        setTimeout(() => {
+          router.push("/dashboard");
+        }, 1500);
       } else {
         setMessage("❌ Registration failed.");
       }
     } catch (error: unknown) {
-      console.error(error);
-
       if (
         typeof error === "object" &&
         error !== null &&
         "response" in error &&
-        typeof error.response === "object" &&
-        error.response !== null &&
-        "data" in error.response
+        typeof (error as { response?: unknown }).response === "object"
       ) {
-        const serverMessage = (error as any).response.data?.message;
-        setMessage(`❌ ${serverMessage || "Server error."}`);
+        const response = (error as { response?: { data?: { message?: string } } }).response;
+        setMessage(`❌ ${response?.data?.message || "Server error."}`);
       } else if (error instanceof Error) {
         setMessage(`❌ ${error.message}`);
       } else {
         setMessage("❌ An unknown error occurred.");
       }
-    } finally {
-      setLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleRegister} className="space-y-4">
-      <div className="text-center mb-4">
-        <h2 className="text-2xl font-bold">Create Your Account</h2>
+      <div>
+        <h2 className="text-xl font-semibold mb-1">Create Your Account</h2>
         <p className="text-sm text-gray-400">Join Saltify in a few clicks</p>
       </div>
 
-      <div className="space-y-3">
-        <input
-          type="text"
-          placeholder="Business Name"
-          value={businessName}
-          onChange={(e) => setBusinessName(e.target.value)}
-          className="input-field"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Owner Name"
-          value={ownerName}
-          onChange={(e) => setOwnerName(e.target.value)}
-          className="input-field"
-          required
-        />
-        <input
-          type="text"
-          placeholder="Domain"
-          value={domain}
-          onChange={(e) => setDomain(e.target.value)}
-          className="input-field"
-          required
-        />
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="input-field"
-          required
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="input-field"
-          required
-        />
-      </div>
+      <input
+        type="text"
+        placeholder="Business Name"
+        value={businessName}
+        onChange={(e) => setBusinessName(e.target.value)}
+        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Owner Name"
+        value={ownerName}
+        onChange={(e) => setOwnerName(e.target.value)}
+        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+        required
+      />
+      <input
+        type="text"
+        placeholder="Domain"
+        value={domain}
+        onChange={(e) => setDomain(e.target.value)}
+        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+        required
+      />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+        required
+      />
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        className="w-full p-3 rounded bg-[#111827] border border-gray-600 focus:outline-none focus:ring-2 focus:ring-[#3B82F6]"
+        required
+      />
 
       <button
         type="submit"
-        disabled={loading}
-        className={`w-full py-3 rounded-lg font-medium text-white ${
-          loading
-            ? "bg-blue-400 cursor-not-allowed"
-            : "bg-[#3B82F6] hover:bg-blue-600"
-        }`}
+        className="w-full bg-[#3B82F6] hover:bg-blue-600 text-white py-3 rounded font-medium"
       >
-        {loading ? "Registering..." : "Register"}
+        Register
       </button>
 
-      {message && <p className="text-sm text-center text-gray-300">{message}</p>}
+      {message && <p className="text-sm text-gray-300">{message}</p>}
 
       <div className="text-center text-sm text-gray-400">
         Already have an account?{" "}
