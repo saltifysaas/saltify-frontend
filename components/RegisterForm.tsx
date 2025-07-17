@@ -8,17 +8,15 @@ import Link from "next/link";
 
 export default function RegisterForm() {
   const router = useRouter();
-
   const [businessName, setBusinessName] = useState("");
   const [ownerName, setOwnerName] = useState("");
   const [domain, setDomain] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<string>("");
 
   useEffect(() => {
     console.log("✅ API base URL:", process.env.NEXT_PUBLIC_API_URL);
-    console.log("✅ Axios base URL:", api.defaults.baseURL);
   }, []);
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -32,31 +30,16 @@ export default function RegisterForm() {
         password,
       });
 
-      if (response.status === 201 || response.status === 200) {
-        if (response.data.token) {
-          Cookies.set("token", response.data.token);
-        }
+      if ((response.status === 201 || response.status === 200) && response.data.token) {
+        Cookies.set("token", response.data.token);
         setMessage("✅ Registered successfully! Redirecting...");
-        setTimeout(() => {
-          router.push("/dashboard");
-        }, 1500);
+        setTimeout(() => router.push("/dashboard"), 1500);
       } else {
         setMessage("❌ Registration failed.");
       }
-    } catch (error: unknown) {
-      if (
-        typeof error === "object" &&
-        error !== null &&
-        "response" in error &&
-        typeof (error as { response?: unknown }).response === "object"
-      ) {
-        const response = (error as { response?: { data?: { message?: string } } }).response;
-        setMessage(`❌ ${response?.data?.message || "Server error."}`);
-      } else if (error instanceof Error) {
-        setMessage(`❌ ${error.message}`);
-      } else {
-        setMessage("❌ An unknown error occurred.");
-      }
+    } catch (error) {
+      console.error(error);
+      setMessage("❌ An unknown error occurred.");
     }
   };
 
