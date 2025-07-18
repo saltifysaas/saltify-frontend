@@ -1,15 +1,17 @@
 import "./globals.css";
-import { ReactNode } from "react";
+import { Ubuntu } from "next/font/google";
+
+const ubuntu = Ubuntu({ subsets: ["latin"], weight: ["400", "700"] });
 
 export const metadata = {
   title: "Saltify",
   description: "AI Commerce SaaS Platform",
 };
 
-export default function RootLayout({ children }: { children: ReactNode }) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="font-sans bg-[#111827] text-[#F9FAFB]">
+      <body className={`${ubuntu.className} font-ubuntu bg-background text-foreground`}>
         {children}
       </body>
     </html>

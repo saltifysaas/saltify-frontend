@@ -1,29 +1,19 @@
-/** @type {import('tailwindcss').Config} */
-export default {
+module.exports = {
   content: [
-    "./src/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/app/**/*.{js,ts,jsx,tsx,mdx}", // ✅ App Router coverage
-    "./components/**/*.{js,ts,jsx,tsx}",
-    "./pages/**/*.{js,ts,jsx,tsx}",
+    "./src/app/**/*.{js,ts,jsx,tsx}",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
-      fontFamily: {
-        sans: ["Ubuntu", "sans-serif"],
-      },
       colors: {
         background: "#111827",
         foreground: "#F9FAFB",
-        primary: "#272727",
-        accent: "#1f5014",
-        shade: {
-          green: "#457d58",
-          soft: "#7d9b76",
-        },
-        light: "#cbddd1",
-        highlight: "#f6f6e9",
+        primary: "#3B82F6",
+      },
+      fontFamily: {
+        ubuntu: ["Ubuntu", "sans-serif"],
       },
     },
   },
   plugins: [],
-}
+};

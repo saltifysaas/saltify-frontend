@@ -4,55 +4,52 @@ import { useState } from "react";
 import Link from "next/link";
 
 export default function LoginForm() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({ email: "", password: "" });
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: wire up Supabase or API login logic
+    console.log("Login submit:", form);
   };
 
   return (
-    <form onSubmit={handleLogin} className="space-y-5">
-      {/* Headline */}
-      <div className="text-center">
-        <h2 className="text-3xl font-bold text-light">Welcome Back</h2>
-        <p className="text-sm text-shade-soft">Login to your SALTify account</p>
-      </div>
-
-      {/* Fields */}
+    <form onSubmit={handleSubmit} className="space-y-4">
       <input
+        name="email"
         type="email"
         placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        className="w-full px-4 py-3 rounded bg-light text-primary placeholder-muted border border-shade-green focus:outline-none focus:ring-2 focus:ring-accent"
+        value={form.email}
+        onChange={handleChange}
         required
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        className="w-full px-4 py-3 rounded bg-light text-primary placeholder-muted border border-shade-green focus:outline-none focus:ring-2 focus:ring-accent"
-        required
+        className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
       />
 
-      {/* Submit Button */}
+      <input
+        name="password"
+        type="password"
+        placeholder="Password"
+        value={form.password}
+        onChange={handleChange}
+        required
+        className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
+      />
+
       <button
         type="submit"
-        className="w-full bg-accent hover:bg-shade-green text-highlight py-3 rounded font-semibold transition"
+        className="w-full bg-[#14532d] text-white font-semibold py-3 rounded-md hover:bg-[#166534] transition"
       >
         Login
       </button>
 
-      {/* Footer */}
-      <div className="text-center text-sm text-muted">
+      <p className="text-center text-sm mt-4 text-gray-400">
         Don’t have an account?{" "}
-        <Link href="/auth/register" className="text-accent hover:underline">
+        <Link href="/auth/register" className="text-white underline">
           Register
         </Link>
-      </div>
+      </p>
     </form>
   );
 }
