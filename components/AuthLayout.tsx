@@ -9,7 +9,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
         {/* Brand Header */}
         <div className="flex justify-center mb-8">
           <Image
-            src="/yuvraj/saltify-frontend/public/logo/saltify.png"
+            src="/saltify-frontend/public/logo/saltify.png"
             alt="Saltify Logo"
             width={180}
             height={60}
