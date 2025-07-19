@@ -4,16 +4,14 @@ import { Ubuntu } from "next/font/google";
 const ubuntu = Ubuntu({ subsets: ["latin"], weight: ["400", "700"] });
 
 export const metadata = {
-  title: "Saltify",
-  description: "AI Commerce SaaS Platform",
+  title: "Register - Saltify",
+  description: "Register for Saltify",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className={`${ubuntu.className} font-ubuntu bg-background text-foreground`}>
-        {children}
-      </body>
+      <body className={ubuntu.className}>{children}</body>
     </html>
   );
 }
