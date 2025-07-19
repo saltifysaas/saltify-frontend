@@ -4,54 +4,59 @@ import { useState } from "react";
 import Link from "next/link";
 
 export default function RegisterForm() {
-  const [fullName, setFullName] = useState("");
-  const [mobileNumber, setMobileNumber] = useState("");
-  const [workEmail, setWorkEmail] = useState("");
-  const [subdomain, setSubdomain] = useState("");
-  const [password, setPassword] = useState("");
+  const [form, setForm] = useState({
+    fullName: "",
+    mobile: "",
+    email: "",
+    subdomain: "",
+    password: "",
+  });
 
-  const handleRegister = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log({ fullName, mobileNumber, workEmail, subdomain, password });
+    console.log("Form submitted:", form);
   };
 
   return (
-    <form onSubmit={handleRegister} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-2.5">
+      {/* Fields */}
       {[
-        { label: "Full Name", value: fullName, setValue: setFullName, placeholder: "First and Last" },
-        { label: "Mobile Number", value: mobileNumber, setValue: setMobileNumber, placeholder: "+91" },
-        { label: "Work Email", value: workEmail, setValue: setWorkEmail, placeholder: "you@company.com" },
-        { label: "Subdomain", value: subdomain, setValue: setSubdomain, placeholder: "yourbrand" },
-        { label: "Password", value: password, setValue: setPassword, placeholder: "••••••••", type: "password" },
-      ].map((field, idx) => (
-        <div key={idx}>
-          <label className="block mb-1 font-medium">{field.label}</label>
+        { label: "Subdomain", name: "subdomain", placeholder: "yourbrand", type: "text" },
+        { label: "Full Name", name: "fullName", placeholder: "First and Last", type: "text" },
+        { label: "Mobile Number", name: "mobile", placeholder: "+91", type: "tel" },
+        { label: "Work Email", name: "email", placeholder: "you@company.com", type: "email" },
+        { label: "Password", name: "password", placeholder: "••••••••", type: "password" },
+      ].map((field) => (
+        <div key={field.name}>
+          <label className="block mb-.5 font-medium">{field.label}</label>
           <input
-            type={field.type || "text"}
+            type={field.type}
+            name={field.name}
+            value={form[field.name as keyof typeof form]}
+            onChange={handleChange}
             placeholder={field.placeholder}
-            value={field.value}
-            onChange={(e) => field.setValue(e.target.value)}
-            className="w-full p-3 rounded-md bg-transparent border border-[#000000] rounded 2xl text-white placeholder-gray-400 focus:outline-none"
+            className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
           />
         </div>
       ))}
 
-      <button
-        type="submit"
-        className="w-full bg-[#14532d] text-white font-block py-3 rounded-2xl hover:bg-[#166534] transition"
-      >
-        Regiser Kar
-      </button>
+      {/* Submit Button */}
+     <div className="flex justify-center">
+  <button
+    className="w-[200px] bg-[#14532d] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
+  >
+    Register
+  </button>
+</div>
 
-      <div className="space-y-3 mt-6">
-        <button className="w-full flex items-center justify-center gap-2 bg-[#F9FAFB] text-[#111827] font-medium py-3 rounded-md hover:bg-gray-200 transition">
-          <span className="font-bold">G</span> Sign up with Google
-        </button>
-        <button className="w-full flex items-center justify-center gap-2 bg-[#F9FAFB] text-[#111827] font-medium py-3 rounded-md hover:bg-gray-200 transition">
-          <span className="font-bold">in</span> Sign up with LinkedIn
-        </button>
-      </div>
+      {/* Social Auth */}
+    
 
+      {/* Footer */}
       <p className="text-center text-sm mt-6">
         Already have an account?{" "}
         <Link href="/auth/login" className="underline">

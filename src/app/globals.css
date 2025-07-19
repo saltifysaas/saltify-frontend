@@ -2,11 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-input, button, textarea {
-  border-radius: inherit !important;
+/* Optional: Reset styles */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-/* Remove default form element outlines */
+/* Smooth fonts */
+body {
+  font-family: 'Ubuntu', sans-serif;
+}
+
+/* Remove form element default styles for consistency */
 input, button {
   @apply focus:outline-none;
 }
