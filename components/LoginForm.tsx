@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import api from "@/utils/api"; // adjust path if needed
 
 export default function LoginForm() {
   const [form, setForm] = useState({ email: "", password: "" });
@@ -18,27 +19,13 @@ export default function LoginForm() {
     setError("");
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include", // Only needed if using cookies/sessions
-        body: JSON.stringify(form),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || "Login failed");
-      }
-
-      const data = await res.json();
-      console.log("✅ Login success:", data);
-
+      const res = await api.post("/auth/login", form);
+      console.log("✅ Login success:", res.data);
       // Optional: redirect to dashboard
       // router.push("/dashboard");
-    } catch (err) {
-      const error = err as Error;
-      console.error("❌ Login error:", error);
-      setError(error.message || "Something went wrong");
+    } catch (err: any) {
+      console.error("❌ Login error:", err);
+      setError(err?.response?.data?.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
