@@ -1,22 +1,24 @@
-import "./globals.css";
-import type { Metadata } from "next";
-import { Ubuntu } from "next/font/google";
+"use client";
 
-const ubuntu = Ubuntu({ subsets: ["latin"], weight: "400" });
+import Image from "next/image";
 
-export const metadata: Metadata = {
-  title: "Saltify",
-  description: "Multi-tenant CRM SaaS",
-  icons: {
-    icon: "/favicon.svg", // <<== use your SVG favicon here
-  },
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <head />
-      <body className={ubuntu.className}>{children}</body>
-    </html>
+    <main className="min-h-screen bg-[#cbddd1] flex items-center justify-center">
+      <div className="w-[450px] p-8 rounded-md bg-[#ffffff] text-[#00380e]">
+        {/* Brand Header */}
+        <div className="flex justify-center mb-2">
+          <Image
+            src="/logo/logo-green.svg"
+            alt="Saltify Logo"
+            width={180}
+            height={45.778}
+            priority
+          />
+        </div>
+
+        {children}
+      </div>
+    </main>
   );
 }
