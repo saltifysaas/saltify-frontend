@@ -1,3 +1,8 @@
+"use client";
+
+import { useState } from "react";
+import api from "@/lib/api";
+
 export default function LoginForm() {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
@@ -22,4 +27,22 @@ export default function LoginForm() {
       setLoading(false);
     }
   };
-}
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div>
+        <label>Email</label>
+        <input
+          type="email"
+          name="email"
+          value={form.email}
+          onChange={handleChange}
+          required
+          className="w-full p-2 rounded border"
+        />
+      </div>
+
+      <div>
+        <label>Password</label>
+        <input
+          type="password"
