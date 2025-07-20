@@ -24,9 +24,22 @@ export default function LoginForm() {
 
       // Optional: Redirect to dashboard
       // router.push("/dashboard");
-    } catch (err: any) {
-      console.error("❌ Login error:", err);
-      setError(err?.response?.data?.message || "Something went wrong");
+    } catch (err) {
+  const errorMessage =
+    typeof err === "object" &&
+    err !== null &&
+    "response" in err &&
+    typeof err.response === "object" &&
+    err.response !== null &&
+    "data" in err.response &&
+    typeof err.response.data === "object" &&
+    err.response.data !== null &&
+    "message" in err.response.data
+      ? (err.response.data.message as string)
+      : "Something went wrong";
+
+  console.error("❌ Login error:", err);
+  setError(errorMessage);
     } finally {
       setLoading(false);
     }
