@@ -25,7 +25,7 @@ export default function RegisterForm() {
     <form onSubmit={handleSubmit} className="space-y-2.5">
       {/* Fields */}
       {[
-        { label: "Subdomain", name: "subdomain", placeholder: "yourbrand", type: "text" },
+        { label: "Domain", name: "domain", placeholder: "domain.saltifysaas.com", type: "text" },
         { label: "Full Name", name: "fullName", placeholder: "First and Last", type: "text" },
         { label: "Mobile Number", name: "mobile", placeholder: "+91", type: "tel" },
         { label: "Work Email", name: "email", placeholder: "you@company.com", type: "email" },
@@ -39,7 +39,7 @@ export default function RegisterForm() {
             value={form[field.name as keyof typeof form]}
             onChange={handleChange}
             placeholder={field.placeholder}
-            className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
+            className="w-full p-3 rounded-md bg-transparent border border-[#00380e] text-[#00380e] placeholder-gray-400 focus:outline-none"
           />
         </div>
       ))}
@@ -47,7 +47,7 @@ export default function RegisterForm() {
       {/* Submit Button */}
      <div className="flex justify-center">
   <button
-    className="w-[200px] bg-[#14532d] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
+    className="w-[200px] bg-[#00380e] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
   >
     Register
   </button>
