@@ -5,14 +5,43 @@ import Link from "next/link";
 
 export default function LoginForm() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login submit:", form);
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include", // Only needed if using cookies/sessions
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.message || "Login failed");
+      }
+
+      const data = await res.json();
+      console.log("✅ Login success:", data);
+
+      // Optional: redirect to dashboard
+      // router.push("/dashboard");
+    } catch (err) {
+      const error = err as Error;
+      console.error("❌ Login error:", error);
+      setError(error.message || "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -37,11 +66,14 @@ export default function LoginForm() {
         className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
       />
 
+      {error && <p className="text-red-500 text-sm">{error}</p>}
+
       <button
         type="submit"
+        disabled={loading}
         className="w-full bg-[#14532d] text-white font-semibold py-3 rounded-md hover:bg-[#166534] transition"
       >
-        Login
+        {loading ? "Logging in..." : "Login"}
       </button>
 
       <p className="text-center text-sm mt-4 text-[#00380e]">
