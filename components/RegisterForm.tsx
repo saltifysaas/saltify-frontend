@@ -22,7 +22,7 @@ export default function RegisterForm() {
     console.log("Form submitted:", form);
     
     try {
-      const res = await api.post("/register", form);
+      const res = await api.post("auth/register", form);
       console.log("API response:", res.data);
       // 🔁 Optionally handle success UI or redirect
     } catch (err) {
