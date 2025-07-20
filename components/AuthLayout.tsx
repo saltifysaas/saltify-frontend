@@ -5,14 +5,14 @@ import Image from "next/image";
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
     <main className="min-h-screen bg-[#cbddd1] flex items-center justify-center">
-      <div className="w-[500px] p-4 rounded-xl bg-[#00390d] text-white">
+      <div className="w-[500px] p-8 rounded-md bg-[#ffffff] text-[#00380e]">
         {/* Brand Header */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-2">
           <Image
-            src="/logo/inverse-logo.png"
+            src="/logo/logo-green.svg"
             alt="Saltify Logo"
             width={180}
-            height={60}
+            height={45.778}
             priority
           />
         </div>
