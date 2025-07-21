@@ -8,7 +8,7 @@ export default function RegisterForm() {
     fullName: "",
     mobile: "",
     email: "",
-    subdomain: "",
+    domain: "", // was subdomain, renamed to match form config
     password: "",
   });
 
@@ -16,14 +16,29 @@ export default function RegisterForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", form);
+
+    try {
+      const res = await fetch("https://pi.demo.saltifysaas.com/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+      console.log("Response from backend:", data);
+      // Optionally show success UI or redirect user here
+
+    } catch (err) {
+      console.error("Register failed:", err);
+      // Optionally show error message to user here
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2.5">
-      {/* Fields */}
       {[
         { label: "Domain", name: "domain", placeholder: "domain.saltifysaas.com", type: "text" },
         { label: "Full Name", name: "fullName", placeholder: "First and Last", type: "text" },
@@ -44,19 +59,14 @@ export default function RegisterForm() {
         </div>
       ))}
 
-      {/* Submit Button */}
-     <div className="flex justify-center">
-  <button
-    className="w-[200px] bg-[#00380e] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
-  >
-    Register
-  </button>
-</div>
+      <div className="flex justify-center">
+        <button
+          className="w-[200px] bg-[#00380e] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
+        >
+          Register
+        </button>
+      </div>
 
-      {/* Social Auth */}
-    
-
-      {/* Footer */}
       <p className="text-center text-sm mt-6">
         Already have an account?{" "}
         <Link href="/auth/login" className="underline">
