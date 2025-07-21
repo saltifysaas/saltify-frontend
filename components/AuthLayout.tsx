@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { ReactNode } from "react";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
  return (

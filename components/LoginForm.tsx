@@ -24,10 +24,10 @@ export default function LoginForm() {
 
       console.log("✅ Login success:", res.data);
       // Optionally redirect, store token, or show success toast
-    } catch (err: any) {
-      console.error("❌ Login failed:", err?.response?.data || err.message);
-      // Optionally show validation error or highlight fields
-    } finally {
+    } catch (err: unknown) {
+  const error = err as { response?: { data?: any }; message?: string };
+  console.error("Login failed:", error.response?.data || error.message);
+} finally {
       setLoading(false);
     }
   };

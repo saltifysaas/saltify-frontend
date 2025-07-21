@@ -32,9 +32,9 @@ export default function RegisterForm() {
       const res = await api.post("/auth/register", payload);
       console.log("✅ Registration successful:", res.data);
       // Optional: redirect, toast, or login flow
-    } catch (err: any) {
-      console.error("❌ Registration failed:", err?.response?.data || err.message);
-      // Optional: UI feedback here
+    } catch (err: unknown) {
+  const error = err as { response?: { data?: any }; message?: string };
+  console.error("Login failed:", error.response?.data || error.message);
     }
   };
 
