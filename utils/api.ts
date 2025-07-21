@@ -1,27 +1,36 @@
-import axios from 'axios';
-import Cookies from 'js-cookie';
+import axios from "axios";
+import Cookies from "js-cookie";
 
-// Create an Axios instance
+// Dynamically choose base URL based on env
+const getBaseUrl = () => {
+  const env = process.env.NEXT_PUBLIC_APP_ENV;
+
+  if (env === "production") {
+    return "https://pi.saltifysaas.com";
+  }
+
+  // Default to staging
+  return "https://pi.demo.saltifysaas.com";
+};
+
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || "https://api.saltifysaas.com",
-  withCredentials: true, // ✅ IMPORTANT: allows cookies!
+  baseURL: getBaseUrl(),
+  withCredentials: true, // ✅ allows sending cookies
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
 });
 
-// Optional: Add an interceptor to include JWT if available
+// Optional: Attach JWT from cookies
 api.interceptors.request.use(
   (config) => {
-    const token = Cookies.get('token'); // Adjust cookie name if needed
+    const token = Cookies.get("token");
     if (token) {
-      config.headers['Authorization'] = `Bearer ${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
 export default api;

@@ -2,16 +2,17 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import api from "@/utils/api"; // ✅ Axios instance with dynamic baseURL
 
 export default function RegisterForm() {
   const [form, setForm] = useState({
     businessName: "",
-  ownerName: "",
-  mobile: "",         // Optional — not in DTO
-  email: "",
-  domain: "",
-  password: "",
-});
+    ownerName: "",
+    mobile: "", // Optional — not in DTO
+    email: "",
+    domain: "",
+    password: "",
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -22,19 +23,12 @@ export default function RegisterForm() {
     console.log("Form submitted:", form);
 
     try {
-      const res = await fetch("https://pi.demo.saltifysaas.com/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-      console.log("Response from backend:", data);
-      // Optionally show success UI or redirect user here
-
+      const res = await api.post("/auth/register", form); // ✅ uses dynamic baseURL
+      console.log("Response from backend:", res.data);
+      // TODO: handle success state or redirect here
     } catch (err) {
       console.error("Register failed:", err);
-      // Optionally show error message to user here
+      // TODO: show error message to user
     }
   };
 
