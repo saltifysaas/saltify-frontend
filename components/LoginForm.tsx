@@ -64,9 +64,9 @@ export default function LoginForm() {
         {loading ? "Logging in..." : "Login"}
       </button>
 
-      <p className="text-center text-sm mt-4 text-gray-400">
+      <p className="text-center text-sm mt-4 text-[#00380e]">
         Don’t have an account?{" "}
-        <Link href="/auth/register" className="text-white underline">
+        <Link href="/auth/register" className="text-[#00380e] underline">
           Register
         </Link>
       </p>

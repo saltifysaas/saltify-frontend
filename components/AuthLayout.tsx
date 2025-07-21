@@ -1,15 +1,24 @@
 import Link from "next/link";
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
- return (
-  <main className="min-h-screen flex items-center justify-center bg-[#111827] text-[#F9FAFB] font-sans">
-    <div className="w-full max-w-md p-8 bg-[#1F2937] rounded-xl shadow-lg">
-      <div className="flex flex-col items-center mb-6">
-        <Link href="/" className="text-2xl font-bold text-[#3B82F6]">Saltify</Link>
-      </div>
+import Image from "next/image";
 
-      {children}
-    </div>
-  </main>
-);
+export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <main className="min-h-screen bg-[#cbddd1] flex items-center justify-center">
+      <div className="w-[450px] p-8 rounded-md bg-[#ffffff] text-[#00380e]">
+        {/* Brand Header */}
+        <div className="flex justify-center mb-2">
+          <Image
+            src="/logo/logo-green.svg"
+            alt="Saltify Logo"
+            width={180}
+            height={45.778}
+            priority
+          />
+        </div>
+
+        {children}
+      </div>
+    </main>
+  );
 }
