@@ -1,63 +1,80 @@
 "use client";
+
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import axios from "axios";
+import Link from "next/link";
 
 export default function RegisterForm() {
-  const router = useRouter();
   const [form, setForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-  });
+    businessName: "",
+  ownerName: "",
+  mobile: "",         // Optional — not in DTO
+  email: "",
+  domain: "",
+  password: "",
+});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submitted:", form);
+
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, form);
-      router.push("/login");
-    } catch (err: unknown) {
-      const error = err as { response?: { data?: unknown }; message?: string };
-      console.error("❌ Register failed:", error.response?.data || error.message);
+      const res = await fetch("https://pi.demo.saltifysaas.com/auth/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json();
+      console.log("Response from backend:", data);
+      // Optionally show success UI or redirect user here
+
+    } catch (err) {
+      console.error("Register failed:", err);
+      // Optionally show error message to user here
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <input
-        type="text"
-        name="name"
-        value={form.name}
-        onChange={handleChange}
-        placeholder="Name"
-        className="input"
-        required
-      />
-      <input
-        type="email"
-        name="email"
-        value={form.email}
-        onChange={handleChange}
-        placeholder="Email"
-        className="input"
-        required
-      />
-      <input
-        type="password"
-        name="password"
-        value={form.password}
-        onChange={handleChange}
-        placeholder="Password"
-        className="input"
-        required
-      />
-      <button type="submit" className="btn btn-primary w-full">
-        Register
-      </button>
+    <form onSubmit={handleSubmit} className="space-y-2.5">
+      {[
+        { label: "Business Name", name: "businessName", placeholder: "domain.saltifysaas.com", type: "text" },
+        { label: "Owner Name", name: "ownerName", placeholder: "First and Last", type: "text" },
+        { label: "Mobile Number", name: "mobile", placeholder: "+91", type: "tel" },
+        { label: "Work Email", name: "email", placeholder: "you@company.com", type: "email" },
+        { label: "Domain", name: "domain", placeholder: "company.com", type: "text" },
+        { label: "Password", name: "password", placeholder: "••••••••", type: "password" },
+      ].map((field) => (
+        <div key={field.name}>
+          <label className="block mb-.5 font-medium">{field.label}</label>
+          <input
+            type={field.type}
+            name={field.name}
+            value={form[field.name as keyof typeof form]}
+            onChange={handleChange}
+            placeholder={field.placeholder}
+            className="w-full p-3 rounded-md bg-transparent border border-[#00380e] text-[#00380e] placeholder-gray-400 focus:outline-none"
+          />
+        </div>
+      ))}
+
+      <div className="flex justify-center">
+        <button
+          className="w-[200px] bg-[#00380e] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
+        >
+          Register
+        </button>
+      </div>
+
+      <p className="text-center text-sm mt-6">
+        Already have an account?{" "}
+        <Link href="/auth/login" className="underline">
+          Login
+        </Link>
+      </p>
     </form>
   );
 }
