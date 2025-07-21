@@ -2,16 +2,16 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import api from "@/utils/api";
 
 export default function RegisterForm() {
   const [form, setForm] = useState({
-    businessName: "",
-  ownerName: "",
-  mobile: "",         // Optional — not in DTO
-  email: "",
-  domain: "",
-  password: "",
-});
+    fullName: "",
+    mobile: "",
+    email: "",
+    subdomain: "",
+    password: "",
+  });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -19,33 +19,35 @@ export default function RegisterForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", form);
+
+    const payload = {
+      businessName: form.subdomain,
+      ownerName: form.fullName,
+      email: form.email,
+      domain: form.subdomain,
+      password: form.password,
+    };
 
     try {
-      const res = await fetch("https://pi.demo.saltifysaas.com/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json();
-      console.log("Response from backend:", data);
-      // Optionally show success UI or redirect user here
-
-    } catch (err) {
-      console.error("Register failed:", err);
-      // Optionally show error message to user here
+      const res = await api.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/register`,
+        payload
+      );
+      console.log("✅ Registration successful:", res.data);
+      // Optional: toast, login redirect, or onboarding steps
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: unknown }; message?: string };
+      console.error("❌ Register failed:", error.response?.data || error.message);
     }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2.5">
       {[
-        { label: "Business Name", name: "businessName", placeholder: "domain.saltifysaas.com", type: "text" },
-        { label: "Owner Name", name: "ownerName", placeholder: "First and Last", type: "text" },
+        { label: "Subdomain", name: "subdomain", placeholder: "yourbrand", type: "text" },
+        { label: "Full Name", name: "fullName", placeholder: "First and Last", type: "text" },
         { label: "Mobile Number", name: "mobile", placeholder: "+91", type: "tel" },
         { label: "Work Email", name: "email", placeholder: "you@company.com", type: "email" },
-        { label: "Domain", name: "domain", placeholder: "company.com", type: "text" },
         { label: "Password", name: "password", placeholder: "••••••••", type: "password" },
       ].map((field) => (
         <div key={field.name}>
@@ -56,14 +58,16 @@ export default function RegisterForm() {
             value={form[field.name as keyof typeof form]}
             onChange={handleChange}
             placeholder={field.placeholder}
-            className="w-full p-3 rounded-md bg-transparent border border-[#00380e] text-[#00380e] placeholder-gray-400 focus:outline-none"
+            className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
+            required
           />
         </div>
       ))}
 
       <div className="flex justify-center">
         <button
-          className="w-[200px] bg-[#00380e] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
+          type="submit"
+          className="w-[200px] bg-[#14532d] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
         >
           Register
         </button>
