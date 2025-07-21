@@ -6,10 +6,10 @@ import api from "@/utils/api"; // adjust path if needed
 
 export default function RegisterForm() {
   const [form, setForm] = useState({
-    domain: "",       // 🔁 renamed from 'subdomain' for consistency
     fullName: "",
     mobile: "",
     email: "",
+    subdomain: "",
     password: "",
   });
 
@@ -17,25 +17,16 @@ export default function RegisterForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("Form submitted:", form);
-    
-    try {
-      const res = await api.post("auth/register", form);
-      console.log("API response:", res.data);
-      // 🔁 Optionally handle success UI or redirect
-    } catch (err) {
-      console.error("Registration failed:", err);
-      // 🔁 Optionally show error toast
-    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2.5">
       {/* Fields */}
       {[
-        { label: "Domain", name: "domain", placeholder: "domain.saltifysaas.com", type: "text" },
+        { label: "Subdomain", name: "subdomain", placeholder: "yourbrand", type: "text" },
         { label: "Full Name", name: "fullName", placeholder: "First and Last", type: "text" },
         { label: "Mobile Number", name: "mobile", placeholder: "+91", type: "tel" },
         { label: "Work Email", name: "email", placeholder: "you@company.com", type: "email" },
@@ -49,20 +40,22 @@ export default function RegisterForm() {
             value={form[field.name as keyof typeof form]}
             onChange={handleChange}
             placeholder={field.placeholder}
-            className="w-full p-3 rounded-md bg-transparent border border-[#00380e] text-[#00380e] placeholder-gray-400 focus:outline-none"
+            className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
           />
         </div>
       ))}
 
       {/* Submit Button */}
-      <div className="flex justify-center">
-        <button
-          type="submit"
-          className="w-[200px] bg-[#00380e] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
-        >
-          Register
-        </button>
-      </div>
+     <div className="flex justify-center">
+  <button
+    className="w-[200px] bg-[#14532d] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
+  >
+    Register
+  </button>
+</div>
+
+      {/* Social Auth */}
+    
 
       {/* Footer */}
       <p className="text-center text-sm mt-6">
