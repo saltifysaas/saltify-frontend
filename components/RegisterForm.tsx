@@ -5,12 +5,14 @@ import Link from "next/link";
 
 export default function RegisterForm() {
   const [form, setForm] = useState({
-    fullName: "",
-    mobile: "",
-    email: "",
-    domain: "", // was subdomain, renamed to match form config
-    password: "",
-  });
+    businessName: "",
+  ownerName: "",
+  fullName: "",       // Optional — backend uses ownerName
+  mobile: "",         // Optional — not in DTO
+  email: "",
+  domain: "",
+  password: "",
+});
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
