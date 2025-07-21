@@ -2,18 +2,34 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import api from "@/lib/api"; // assuming you have an Axios instance setup here
+import api from "@/lib/api"; // Axios instance with baseURL set from NEXT_PUBLIC_API_URL
 
 export default function LoginForm() {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login submit:", form);
+    setLoading(true);
+
+    try {
+      const res = await api.post("/auth/login", {
+        email: form.email,
+        password: form.password,
+      });
+
+      console.log("✅ Login success:", res.data);
+      // Optionally redirect, store token, or show success toast
+    } catch (err: any) {
+      console.error("❌ Login failed:", err?.response?.data || err.message);
+      // Optionally show validation error or highlight fields
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -40,7 +56,10 @@ export default function LoginForm() {
 
       <button
         type="submit"
-        className="w-full bg-[#14532d] text-white font-semibold py-3 rounded-md hover:bg-[#166534] transition"
+        disabled={loading}
+        className={`w-full bg-[#14532d] text-white font-semibold py-3 rounded-md hover:bg-[#166534] transition ${
+          loading && "opacity-70 cursor-not-allowed"
+        }`}
       >
         {loading ? "Logging in..." : "Login"}
       </button>

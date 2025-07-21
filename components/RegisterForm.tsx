@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import api from "@/utils/api"; // adjust path if needed
+import api from "@/utils/api";
 
 export default function RegisterForm() {
   const [form, setForm] = useState({
@@ -17,14 +17,30 @@ export default function RegisterForm() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Form submitted:", form);
+
+    const payload = {
+      businessName: form.subdomain,
+      ownerName: form.fullName,
+      email: form.email,
+      domain: form.subdomain,
+      password: form.password,
+    };
+
+    try {
+      const res = await api.post("/auth/register", payload);
+      console.log("✅ Registration successful:", res.data);
+      // Optional: redirect, toast, or login flow
+    } catch (err: any) {
+      console.error("❌ Registration failed:", err?.response?.data || err.message);
+      // Optional: UI feedback here
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-2.5">
-      {/* Fields */}
+      {/* Input Fields */}
       {[
         { label: "Subdomain", name: "subdomain", placeholder: "yourbrand", type: "text" },
         { label: "Full Name", name: "fullName", placeholder: "First and Last", type: "text" },
@@ -46,16 +62,14 @@ export default function RegisterForm() {
       ))}
 
       {/* Submit Button */}
-     <div className="flex justify-center">
-  <button
-    className="w-[200px] bg-[#14532d] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
-  >
-    Register
-  </button>
-</div>
-
-      {/* Social Auth */}
-    
+      <div className="flex justify-center">
+        <button
+          type="submit"
+          className="w-[200px] bg-[#14532d] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
+        >
+          Register
+        </button>
+      </div>
 
       {/* Footer */}
       <p className="text-center text-sm mt-6">
