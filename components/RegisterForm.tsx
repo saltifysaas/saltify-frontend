@@ -33,7 +33,7 @@ export default function RegisterForm() {
       console.log("✅ Registration successful:", res.data);
       // Optional: redirect, toast, or login flow
     } catch (err: unknown) {
-  const error = err as { response?: { data?: any }; message?: string };
+  const error = err as { response?: { data?: unknown }; message?: string };
   console.error("Login failed:", error.response?.data || error.message);
     }
   };

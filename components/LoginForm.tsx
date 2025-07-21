@@ -25,7 +25,7 @@ export default function LoginForm() {
       console.log("✅ Login success:", res.data);
       // Optionally redirect, store token, or show success toast
     } catch (err: unknown) {
-  const error = err as { response?: { data?: any }; message?: string };
+  const error = err as { response?: { data?: unknown }; message?: string };
   console.error("Login failed:", error.response?.data || error.message);
 } finally {
       setLoading(false);
