@@ -7,7 +7,6 @@ export default function RegisterForm() {
   const [form, setForm] = useState({
     businessName: "",
   ownerName: "",
-  fullName: "",       // Optional — backend uses ownerName
   mobile: "",         // Optional — not in DTO
   email: "",
   domain: "",
@@ -46,7 +45,7 @@ export default function RegisterForm() {
         { label: "Owner Name", name: "ownerName", placeholder: "First and Last", type: "text" },
         { label: "Mobile Number", name: "mobile", placeholder: "+91", type: "tel" },
         { label: "Work Email", name: "email", placeholder: "you@company.com", type: "email" },
-        { label: "Domain", name: "domain", placeholder: "you@company.com", type: "email" },
+        { label: "Domain", name: "domain", placeholder: "company.com", type: "text" },
         { label: "Password", name: "password", placeholder: "••••••••", type: "password" },
       ].map((field) => (
         <div key={field.name}>
