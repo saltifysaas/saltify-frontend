@@ -42,10 +42,11 @@ export default function RegisterForm() {
   return (
     <form onSubmit={handleSubmit} className="space-y-2.5">
       {[
-        { label: "Busines sName", name: "businessName", placeholder: "domain.saltifysaas.com", type: "text" },
-        { label: "Full Name", name: "ownerName", placeholder: "First and Last", type: "text" },
+        { label: "Business Name", name: "businessName", placeholder: "domain.saltifysaas.com", type: "text" },
+        { label: "Owner Name", name: "ownerName", placeholder: "First and Last", type: "text" },
         { label: "Mobile Number", name: "mobile", placeholder: "+91", type: "tel" },
         { label: "Work Email", name: "email", placeholder: "you@company.com", type: "email" },
+        { label: "Domain", name: "domain", placeholder: "you@company.com", type: "email" },
         { label: "Password", name: "password", placeholder: "••••••••", type: "password" },
       ].map((field) => (
         <div key={field.name}>
