@@ -4,10 +4,10 @@ import Image from "next/image";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
   return (
-    <main className="min-h-screen bg-[#cbddd1] flex items-center justify-center">
-      <div className="w-[450px] p-8 rounded-md bg-[#ffffff] text-[#00380e]">
+    <main className="min-h-screen bg-[#CBDDD1] flex items-center justify-center">
+      <div className="w-[450px] p-8 rounded-md bg-[#ffffff] text-[#00332D]">
         {/* Brand Header */}
-        <div className="flex justify-center mb-2">
+        <div className="flex justify-center mb-4">
           <Image
             src="/logo/logo-green.svg"
             alt="Saltify Logo"
