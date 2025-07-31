@@ -13,11 +13,12 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
+import Image from "next/image"; // ✅ fix: for optimized images
 
 export default function DashboardHome() {
   const [showAppMenu, setShowAppMenu] = useState(false);
   const [favorites, setFavorites] = useState<string[]>(["Create Page", "Responses"]);
-  ([
+  const [recent] = useState<string[]>([
     "Create Page",
     "Responses",
     "Branding",
@@ -59,7 +60,7 @@ export default function DashboardHome() {
   };
 
   return (
-    <div className={clsx("min-h-screen text-[#111827]", isDarkMode ? "bg-white" : "bg-white")}>      
+    <div className={clsx("min-h-screen text-[#111827]", isDarkMode ? "bg-white" : "bg-white")}>
       {/* Top Navigation Bar */}
       <div className={clsx(
         "flex items-center justify-between px-4 py-6 border-b border-gray-200 sticky top-0 z-50 w-full",
@@ -67,10 +68,12 @@ export default function DashboardHome() {
       )}>
         {/* Left: Saltify Logo */}
         <div className="flex items-center gap-4">
-          <img
+          <Image
             src={isDarkMode ? "/logo/logo-white.svg" : "/logo/logo-green.svg"}
             alt="Saltify Logo"
-            className="h-8"
+            width={140}
+            height={32}
+            priority
           />
         </div>
 
@@ -79,9 +82,9 @@ export default function DashboardHome() {
           {favorites.slice(0, 4).map((item) => (
             <div key={item} className="relative group">
               <button className={clsx(
-                  "px-2 py-1 text-sm font-medium hover:bg-gray-100 flex items-center gap-1",
-                  isDarkMode ? "text-white" : "text-gray-800"
-                )}
+                "px-2 py-1 text-sm font-medium hover:bg-gray-100 flex items-center gap-1",
+                isDarkMode ? "text-white" : "text-gray-800"
+              )}
                 onClick={() => alert(`Viewing recent ${item}`)}
               >
                 {item}
@@ -165,6 +168,7 @@ export default function DashboardHome() {
               </div>
             )}
           </div>
+
           {/* App Launcher */}
           <div className="relative">
             <button
