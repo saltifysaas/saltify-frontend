@@ -3,8 +3,6 @@
 import { useState, useEffect, useRef } from "react";
 import StarterGrid from "@/components/ui/StarterGrid";
 import {
-  AppWindowIcon,
-  MoreVertical,
   ChevronDownIcon,
   Settings,
   ChevronLeft,
@@ -17,10 +15,9 @@ import clsx from "clsx";
 import { useRouter } from "next/navigation";
 
 export default function DashboardHome() {
-  const [currentApp, setCurrentApp] = useState("LeadPages");
   const [showAppMenu, setShowAppMenu] = useState(false);
   const [favorites, setFavorites] = useState<string[]>(["Create Page", "Responses"]);
-  const [recent, setRecent] = useState<string[]>([
+  ([
     "Create Page",
     "Responses",
     "Branding",
@@ -196,7 +193,6 @@ export default function DashboardHome() {
                     key={app}
                     className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
                     onClick={() => {
-                      setCurrentApp(app);
                       setShowAppMenu(false);
                     }}
                   >

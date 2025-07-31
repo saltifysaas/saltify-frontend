@@ -16,7 +16,6 @@ import {
   FormInput,
   LayoutTemplate,
   Text,
-  UploadCloud,
   Code2,
   Trash2,
   ArrowUp,
