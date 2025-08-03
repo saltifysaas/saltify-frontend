@@ -1,7 +1,7 @@
 // components/de/CreateDataExtensionModal.tsx
 'use client';
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Plus, X, Save } from 'lucide-react';
 
 interface Attribute {
@@ -41,7 +41,7 @@ export default function CreateDataExtensionModal({ onClose }: { onClose: () => v
     ]);
   };
 
-  const updateAttribute = (id: string, key: keyof Attribute, value: any) => {
+  const updateAttribute = <K extends keyof Attribute>(id: string, key: K, value: Attribute[K]) => {
     setAttributes((prev) =>
       prev.map((attr) => (attr.id === id ? { ...attr, [key]: value } : attr))
     );
@@ -62,7 +62,7 @@ export default function CreateDataExtensionModal({ onClose }: { onClose: () => v
 
   return (
     <div className="fixed inset-0 z-[9999] bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="w-full max-w-4xl bg-white dark:bg-[#1f1f1f] rounded-xl p-6 relative">
+      <div className="w-full max-w-6xl bg-white dark:bg-[#1f1f1f] rounded-xl p-6 relative">
         <button className="absolute top-4 right-4" onClick={onClose}>
           <X className="w-6 h-6 text-gray-600 dark:text-gray-300" />
         </button>
