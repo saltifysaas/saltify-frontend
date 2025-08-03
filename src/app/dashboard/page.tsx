@@ -1,39 +1,34 @@
+// Canvas created for Dashboard Page (Form Builder UI)
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
 import StarterGrid from "@/components/ui/StarterGrid";
+import CreateFormModal from "@/components/forms/CreateFormModal";
+import DarkModeToggle from "@/components/DarkModeToggle";
 import {
   ChevronDownIcon,
   Settings,
   ChevronLeft,
   ChevronRight,
   Plus,
-  X,
-  User
+  X
 } from "lucide-react";
 import clsx from "clsx";
 import { useRouter } from "next/navigation";
-import Image from "next/image"; // ✅ fix: for optimized images
+import Image from "next/image";
 
 export default function DashboardHome() {
   const [showAppMenu, setShowAppMenu] = useState(false);
   const [favorites, setFavorites] = useState<string[]>(["Create Page", "Responses"]);
   const [recent] = useState<string[]>([
-    "Create Page",
-    "Responses",
-    "Branding",
-    "LeadPages",
-    "Automations",
-    "Settings",
-    "Forms",
-    "Editor",
-    "Overview"
+    "Create Page", "Responses", "Branding", "LeadPages", "Automations",
+    "Settings", "Forms", "Editor", "Overview"
   ]);
   const [collapsed, setCollapsed] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
   const [showCreateMenu, setShowCreateMenu] = useState(false);
+  const [showCreateFormModal, setShowCreateFormModal] = useState(false);
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
-  const [showProfileDropdown, setShowProfileDropdown] = useState(false);
   const [search, setSearch] = useState("");
   const router = useRouter();
   const createMenuRef = useRef<HTMLDivElement>(null);
@@ -44,7 +39,6 @@ export default function DashboardHome() {
         setShowCreateMenu(false);
         setShowAppMenu(false);
         setShowMoreDropdown(false);
-        setShowProfileDropdown(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -60,52 +54,55 @@ export default function DashboardHome() {
   };
 
   return (
-    <div className={clsx("min-h-screen text-[#111827]", isDarkMode ? "bg-white" : "bg-white")}>
-      {/* Top Navigation Bar */}
-      <div className={clsx(
-        "flex items-center justify-between px-4 py-6 border-b border-gray-200 sticky top-0 z-50 w-full",
-        isDarkMode ? "bg-[#00332D]" : "bg-white"
-      )}>
-        {/* Left: Saltify Logo */}
-        <div className="flex items-center gap-4">
-          <Image
-            src={isDarkMode ? "/logo/logo-white.svg" : "/logo/logo-green.svg"}
-            alt="Saltify Logo"
-            width={140}
-            height={32}
-            priority
-          />
-        </div>
+    <div className="min-h-screen bg-lightBase text-textDark dark:bg-[#CBDDD1] dark:text-white relative">
+      {/* Top Navigation */}
+      <div className="flex items-center justify-between px-4 py-6 border-b border-gray-200 sticky top-0 z-50 w-full dark:border-[#14532D]">
+        <Image
+          src="/logo/logo-green.svg"
+          alt="Saltify Logo"
+          width={140}
+          height={32}
+          priority
+          className="dark:hidden"
+        />
+        <Image
+          src="/logo/logo-white.svg"
+          alt="Saltify Logo"
+          width={140}
+          height={32}
+          priority
+          className="hidden dark:block"
+        />
 
-        {/* Center: Shortcuts */}
+        {/* Favorites */}
         <div className="flex items-center gap-2 overflow-x-auto max-w-[50%]">
           {favorites.slice(0, 4).map((item) => (
             <div key={item} className="relative group">
-              <button className={clsx(
-                "px-2 py-1 text-sm font-medium hover:bg-gray-100 flex items-center gap-1",
-                isDarkMode ? "text-white" : "text-gray-800"
-              )}
+              <button
                 onClick={() => alert(`Viewing recent ${item}`)}
+                className="px-2 py-1 text-sm font-medium hover:bg-gray-100 dark:hover:bg-[#1f332e] flex items-center gap-1 text-black dark:text-white"
               >
                 {item}
                 <ChevronDownIcon className="w-4 h-4 text-gray-500" />
               </button>
             </div>
           ))}
+
+          {/* More Dropdown */}
           {favorites.length > 4 && (
             <div className="relative">
               <button
-                className="px-3 py-1 flex items-center gap-1 text-sm font-medium rounded hover:bg-gray-100"
+                className="px-3 py-1 flex items-center gap-1 text-sm font-medium rounded hover:bg-gray-100 dark:hover:bg-[#1f332e]"
                 onClick={() => setShowMoreDropdown((prev) => !prev)}
               >
                 More <ChevronDownIcon className="w-4 h-4 text-gray-500" />
               </button>
               {showMoreDropdown && (
-                <div className="absolute top-full mt-2 left-0 bg-white border border-gray-200 shadow-md rounded-md z-50 w-48">
+                <div className="absolute top-full mt-2 left-0 bg-white dark:bg-[#1f332e] border border-gray-200 dark:border-[#2c4b41] shadow-md rounded-md z-50 w-48 max-h-64 overflow-auto">
                   {favorites.slice(4).map((item) => (
                     <div
                       key={item}
-                      className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex items-center justify-between"
+                      className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#345a4f] cursor-pointer flex items-center justify-between"
                       onClick={() => alert(`Navigating to ${item}`)}
                     >
                       <span>{item}</span>
@@ -126,9 +123,8 @@ export default function DashboardHome() {
           )}
         </div>
 
-        {/* Right: Search + Create + App Launcher + Profile */}
+        {/* Search + Create + App Launcher */}
         <div className="flex items-center gap-4 relative" ref={createMenuRef}>
-          {/* 🔍 Search Bar */}
           <input
             type="text"
             placeholder="Search..."
@@ -137,66 +133,65 @@ export default function DashboardHome() {
             className="px-3 py-1.5 text-sm border rounded-md outline-none focus:ring w-48"
           />
 
-          {/* Create Button */}
-          <div className="relative">
-            <button
-              onClick={() => setShowCreateMenu(!showCreateMenu)}
-              className={clsx(
-                "flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-semibold border transition",
-                isDarkMode
-                  ? "bg-white text-[#00332D] border-white hover:bg-gray-100"
-                  : "bg-[#00332D] text-white border-[#00332D] hover:bg-[#002721]"
-              )}
-            >
-              <Plus className="w-4 h-4" />
-              Create
-            </button>
-            {showCreateMenu && (
-              <div className="absolute right-0 mt-2 bg-white border border-gray-200 rounded-md shadow-md z-50 w-48">
-                {["Form", "Landing Page", "E-sign", "Product Page", "AI Agent", "HTML Email", "Dashboard"].map((label) => (
-                  <div
-                    key={label}
-                    className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 cursor-pointer"
-                    onClick={() => {
-                      router.push(`/${label.toLowerCase().replace(/\s+/g, "-")}`);
-                      setShowCreateMenu(false);
+          <button
+            onClick={() => setShowCreateMenu(!showCreateMenu)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-semibold border transition bg-[#00332D] text-white border-[#00332D] hover:bg-[#002721] dark:bg-white dark:text-[#00332D] dark:border-white dark:hover:bg-gray-100"
+          >
+            <Plus className="w-4 h-4" />
+            Create
+          </button>
+
+          {showCreateMenu && (
+            <div className="absolute right-0 mt-2 bg-white dark:bg-[#1f332e] border border-gray-200 dark:border-[#2c4b41] rounded-md shadow-md z-50 w-48 max-h-64 overflow-auto">
+              {recent.map((app) => (
+                <div
+                  key={app}
+                  className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#345a4f] cursor-pointer flex justify-between items-center"
+                  onClick={() => {
+                    if (app === "Forms") setShowCreateFormModal(true);
+                    else router.push(`/${app.toLowerCase().replace(/\s+/g, "-")}`);
+                    setShowCreateMenu(false);
+                  }}
+                >
+                  {app}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(app);
                     }}
+                    className="text-blue-500"
                   >
-                    {label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                    {favorites.includes(app) ? <X className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* App Launcher */}
           <div className="relative">
             <button
               onClick={() => setShowAppMenu(!showAppMenu)}
-              className={clsx(
-                "w-10 h-10 grid place-content-center border border-gray-300 rounded-md hover:bg-gray-100",
-                isDarkMode ? "bg-[#00332D]" : ""
-              )}
+              className="w-10 h-10 grid place-content-center border border-gray-300 rounded-md hover:bg-gray-100 dark:bg-[#00332D]"
             >
               <div className="grid grid-cols-3 grid-rows-3 gap-[2px]">
                 {[...Array(9)].map((_, i) => (
                   <span
                     key={i}
-                    className={clsx(
-                      "w-1.5 h-1.5 rounded-full",
-                      isDarkMode ? "bg-white" : "bg-[#00332D]"
-                    )}
+                    className="w-1.5 h-1.5 rounded-full bg-[#00332D] dark:bg-white"
                   />
                 ))}
               </div>
             </button>
+
             {showAppMenu && (
-              <div className="absolute top-12 right-0 bg-white border border-gray-200 rounded-md shadow-md z-50 w-48">
+              <div className="absolute top-12 right-0 bg-white dark:bg-[#1f332e] border border-gray-200 dark:border-[#2c4b41] rounded-md shadow-md z-50 w-48">
                 {recent.map((app) => (
                   <div
                     key={app}
-                    className="px-4 py-2 hover:bg-gray-100 cursor-pointer flex justify-between items-center"
+                    className="px-4 py-2 hover:bg-gray-100 dark:hover:bg-[#345a4f] cursor-pointer flex justify-between items-center"
                     onClick={() => {
+                      router.push(`/${app.toLowerCase().replace(/\s+/g, "-")}`);
                       setShowAppMenu(false);
                     }}
                   >
@@ -215,90 +210,43 @@ export default function DashboardHome() {
               </div>
             )}
           </div>
-
-          {/* Profile */}
-          <div className="relative">
-            <button
-              onClick={() => setShowProfileDropdown(!showProfileDropdown)}
-              className={clsx(
-                "w-10 h-10 flex items-center justify-center rounded-full border border-gray-300",
-                isDarkMode ? "bg-[#00332D] text-white" : "text-[#00332D]"
-              )}
-            >
-              <User className="w-5 h-5" />
-            </button>
-            {showProfileDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-200 shadow-md rounded-md z-50">
-                {[
-                  { label: "Create Login PIN", action: () => alert("Create PIN") },
-                  { label: "Logout", action: () => alert("Logging out") },
-                  { label: "Profile", action: () => alert("View Profile") }
-                ].map((item) => (
-                  <div
-                    key={item.label}
-                    className="px-4 py-2 text-sm hover:bg-gray-100 cursor-pointer"
-                    onClick={item.action}
-                  >
-                    {item.label}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
         </div>
       </div>
 
+      {/* Create Form Modal */}
+      {showCreateFormModal && <CreateFormModal onClose={() => setShowCreateFormModal(false)} />}
+
+      {/* Main Layout */}
       <div className="flex flex-1 h-[calc(100vh-88px)]">
-        {/* Sidebar */}
-        <aside
-          className={clsx(
-            "border-r border-gray-200 flex-shrink-0 flex flex-col justify-between transition-all duration-200 h-full overflow-y-auto",
-            collapsed ? "w-35" : "w-56",
-            isDarkMode ? "bg-[#00332D]" : "bg-white"
-          )}
-        >
+        <aside className={clsx(
+          "border-r border-gray-200 dark:border-[#14532D] flex-shrink-0 flex flex-col justify-between transition-all duration-200 h-full overflow-y-auto",
+          collapsed ? "w-35" : "w-56",
+          "bg-white dark:bg-[#00332D]"
+        )}>
           <ul className="space-y-1 px-4 mt-4 mb-2">
             {recent.slice(0, 10).map((item) => (
               <li
                 key={item}
-                className={clsx(
-                  "text-sm hover:bg-gray-100 px-3 py-2 rounded-md cursor-pointer flex items-center",
-                  isDarkMode ? "text-white" : "text-gray-800"
-                )}
+                className="text-sm hover:bg-gray-100 dark:hover:bg-[#1f332e] px-3 py-2 rounded-md cursor-pointer flex items-center text-gray-800 dark:text-white"
               >
                 {collapsed ? (
-                  <span
-                    className="w-10 h-10 rounded-md border border-[#00332D] text-[#00332D] text-sm font-semibold flex items-center justify-center bg-white"
-                    title={item}
-                  >
+                  <span className="w-10 h-10 rounded-md border border-[#00332D] text-[#00332D] text-sm font-semibold flex items-center justify-center bg-white" title={item}>
                     {item.slice(0, 2)}
                   </span>
-                ) : (
-                  item
-                )}
+                ) : item}
               </li>
             ))}
           </ul>
 
-          {/* Sidebar Footer */}
-          <div className="px-4 py-3 border-t border-gray-200">
+          <div className="px-4 py-3 border-t border-gray-200 dark:border-[#2c4b41]">
             <div className="flex items-center justify-between gap-2">
-              <div
-                className={clsx(
-                  "flex items-center gap-2 cursor-pointer",
-                  isDarkMode
-                    ? "text-white hover:text-green-200"
-                    : "text-[#00332D] hover:text-green-800"
-                )}
-              >
+              <div className="flex items-center gap-2 text-[#00332D] dark:text-white hover:text-green-800 dark:hover:text-green-200 cursor-pointer">
                 <Settings className="w-5 h-5" />
                 {!collapsed && <span className="text-sm">Settings</span>}
               </div>
-
               <button
                 onClick={() => setCollapsed(!collapsed)}
-                className="text-gray-500 hover:text-gray-800"
-                title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+                className="text-gray-500 hover:text-gray-800 dark:text-gray-300 dark:hover:text-white"
               >
                 {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
               </button>
@@ -306,22 +254,15 @@ export default function DashboardHome() {
           </div>
         </aside>
 
-        {/* Main Canvas */}
-        <main className="flex-1 p-6 bg-[#ffffff] overflow-y-auto">
-          <StarterGrid />
+        <main className="flex-1 p-6 overflow-y-auto bg-lightBase text-textLight dark:bg-[#CBDDD1] dark:text-white">
+          <StarterGrid onFormTileClick={() => setShowCreateFormModal(true)} />
         </main>
       </div>
 
-      {/* Dark Mode Toggle Button */}
-      <button
-        onClick={() => setIsDarkMode(!isDarkMode)}
-        className={clsx(
-          "fixed bottom-4 right-4 px-4 py-2 rounded-2xl text-sm font-semibold shadow-md transition-all duration-200 z-50",
-          isDarkMode ? "bg-white text-[#00332D]" : "bg-[#00332D] text-white"
-        )}
-      >
-        {isDarkMode ? "☀️ Light Mode" : "🌙 Dark Mode"}
-      </button>
+      {/* Dark Mode Toggle */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <DarkModeToggle />
+      </div>
     </div>
   );
 }

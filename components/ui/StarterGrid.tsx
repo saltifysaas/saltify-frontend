@@ -9,8 +9,11 @@ import {
   AppWindow,
   Mail,
   LayoutDashboard,
-  MoreHorizontal,
+  MoreHorizontal
 } from "lucide-react";
+import AppLauncher from "@/components/navigation/AppLauncher";
+import SearchInput from "@/components/ui/SearchInput";
+import { useState } from "react";
 
 const options = [
   {
@@ -71,15 +74,24 @@ const options = [
   },
 ];
 
-export default function StarterGrid() {
+export default function StarterGrid({
+  onFormTileClick,
+}: {
+  onFormTileClick: () => void;
+}) {
   const router = useRouter();
+  const [search, setSearch] = useState("");
 
   return (
-    <div className="bg-[#F8FAFC] rounded-xl p-8 shadow-sm">
+    <div className="bg-[#F8FAFC] dark:bg-[#CBDDD1] rounded-xl p-8 shadow-sm">
+      <div className="flex items-center justify-between mb-4">
+        <AppLauncher />
+        <SearchInput value={search} onChange={setSearch} />
+      </div>
       <h2 className="text-2xl font-semibold text-center text-[#00332D] mb-2">
         How would you like to start, Saltify?
       </h2>
-      <p className="text-center text-gray-500 mb-6 max-w-lg mx-auto">
+      <p className="text-center text-gray-500 dark:text-[#009966] mb-6 max-w-lg mx-auto">
         Create smarter forms, build landing pages, manage data, automate workflows — all in one place.
       </p>
 
@@ -87,8 +99,14 @@ export default function StarterGrid() {
         {options.map((opt) => (
           <button
             key={opt.label}
-            onClick={() => router.push(opt.href)}
-            className="bg-white hover:shadow-md rounded-lg aspect-square p-5 flex flex-col items-center justify-center text-center transition border border-gray-200 group"
+            onClick={() => {
+              if (opt.label === "Form") {
+                onFormTileClick();
+              } else {
+                router.push(opt.href);
+              }
+            }}
+            className="bg-white dark:bg-white hover:shadow-md rounded-lg aspect-square p-5 flex flex-col items-center justify-center text-center transition border border-gray-200 group"
           >
             <div className={`w-14 h-14 rounded-md flex items-center justify-center mb-4 ${opt.color}`}>
               <opt.icon className="w-7 h-7" />
@@ -96,7 +114,7 @@ export default function StarterGrid() {
             <h3 className="text-base font-semibold text-[#111827] group-hover:underline">
               {opt.label}
             </h3>
-            <p className="text-sm text-gray-500 mt-1">{opt.description}</p>
+            <p className="text-sm text-gray-500 dark:text-[#009966] mt-1">{opt.description}</p>
           </button>
         ))}
       </div>
