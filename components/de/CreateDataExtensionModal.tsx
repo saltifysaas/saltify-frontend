@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, X, Save, User } from 'lucide-react';
+import { Plus, X, Save } from 'lucide-react';
 
 interface Attribute {
   id: string;
