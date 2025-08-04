@@ -91,7 +91,10 @@ export default function CreateFormModal({ onClose }: CreateFormModalProps) {
             <h2 className="text-xl font-bold text-[#00332D] mb-4">Select Form Layout</h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
               <div
-                onClick={() => setStep(3) || setLayout("single")}
+onClick={() => {
+  setStep(3);
+  setLayout("single");
+}}
                 className={clsx(
                   "cursor-pointer border p-4 rounded-lg text-center",
                   layout === "single" ? "border-[#00332D] bg-[#F0F9F5]" : "border-gray-300"
