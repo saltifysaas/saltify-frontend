@@ -3,9 +3,6 @@
 import { useState, useRef } from 'react';
 import {
   ImageIcon,
-  LayoutDashboard,
-  Puzzle,
-  BrickWall,
   Maximize2,
   Minimize2,
   Expand,
@@ -24,8 +21,6 @@ export default function FieldPalette() {
   const [expanded, setExpanded] = useState(false);
   const [iconExpanded, setIconExpanded] = useState(false);
   const [previewLogo, setPreviewLogo] = useState<string | null>(null);
-  const logoInputRef = useRef<HTMLInputElement>(null);
-  const iconInputRef = useRef<HTMLInputElement>(null);
 
   const { selectedDE, setSelectedDE, clearSelectedDE } = useFormBuilderStore();
 

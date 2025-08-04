@@ -24,7 +24,7 @@ import { usePathname } from 'next/navigation';
 
 interface NavItem {
   label: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   href: string;
   children?: NavItem[];
 }
@@ -59,8 +59,7 @@ export default function LeftNavigationBar({ onCreateData }: LeftNavigationBarPro
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [hoverMenu, setHoverMenu] = useState<string | null>(null);
   const pathname = usePathname();
-  const timeoutRef = useRef<any>(null);
-
+const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const handleMouseEnter = (label: string) => {
     clearTimeout(timeoutRef.current);
     setHoverMenu(label);

@@ -13,7 +13,6 @@ interface SidebarGroupProps {
 export default function SidebarGroup({
   icon,
   label,
-  children,
   collapsed = false,
 }: SidebarGroupProps) {
   const [hovered, setHovered] = useState(false);

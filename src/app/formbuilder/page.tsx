@@ -6,7 +6,6 @@ import clsx from 'clsx';
 import TopNavigationBar from '@/components/navigation/TopNavigationBar';
 
 export default function FormBuilderPage() {
-  const [mode, setMode] = useState<'drag' | 'code'>('drag');
   const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {

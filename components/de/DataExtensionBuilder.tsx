@@ -3,7 +3,6 @@
 import { useState } from 'react';
 import {
   Search,
-  Trash2,
   CalendarClock,
   Contact2,
   SlidersHorizontal,
