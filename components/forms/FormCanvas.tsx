@@ -30,9 +30,7 @@ function SortableField({ field }: { field: Field }) {
     setNodeRef,
     transform,
     transition,
-  } = useSortable({
-    id: field.id,
-  });
+  } = useSortable({ id: field.id });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -46,11 +44,7 @@ function SortableField({ field }: { field: Field }) {
       className="bg-white text-[#00332D] px-4 py-3 rounded-md shadow flex items-center justify-between mb-2"
     >
       <span>{field.label}</span>
-      <button
-        {...attributes}
-        {...listeners}
-        className="cursor-grab text-gray-400"
-      >
+      <button {...attributes} {...listeners} className="cursor-grab text-gray-400">
         <GripVertical />
       </button>
     </div>
@@ -69,13 +63,14 @@ export default function FormCanvas() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
 
-    if (over && active.id !== over.id) {
-      const oldIndex = fields.findIndex((f) => f.id === active.id);
-      const newIndex = fields.findIndex((f) => f.id === over.id);
+    // ✅ Safe check for null and same-id case
+    if (!over || active.id === over.id) return;
 
-      if (oldIndex !== -1 && newIndex !== -1) {
-        setFields(arrayMove(fields, oldIndex, newIndex));
-      }
+    const oldIndex = fields.findIndex((f) => f.id === active.id);
+    const newIndex = fields.findIndex((f) => f.id === over.id);
+
+    if (oldIndex !== -1 && newIndex !== -1) {
+      setFields(arrayMove(fields, oldIndex, newIndex));
     }
   };
 
