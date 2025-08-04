@@ -7,6 +7,7 @@ import TopNavigationBar from '@/components/navigation/TopNavigationBar';
 
 export default function FormBuilderPage() {
   const [darkMode, setDarkMode] = useState(false);
+  const [mode, setMode] = useState<'drag' | 'code'>('drag'); // ✅ ADD THIS LINE
 
   useEffect(() => {
     const html = document.documentElement;
