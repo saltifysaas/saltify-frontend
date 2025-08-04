@@ -1,4 +1,3 @@
-// components/navigation/LeftNavigationBar.tsx
 'use client';
 
 import { useState, useRef } from 'react';
@@ -59,9 +58,12 @@ export default function LeftNavigationBar({ onCreateData }: LeftNavigationBarPro
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [hoverMenu, setHoverMenu] = useState<string | null>(null);
   const pathname = usePathname();
-const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const handleMouseEnter = (label: string) => {
-    clearTimeout(timeoutRef.current);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
     setHoverMenu(label);
   };
 
