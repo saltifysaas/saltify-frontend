@@ -7,6 +7,7 @@ import TopNavigationBar from '@/components/navigation/TopNavigationBar';
 
 export default function FormBuilderPage() {
   const [darkMode, setDarkMode] = useState(false);
+  const [mode, setMode] = useState<'drag' | 'code'>('drag'); // ✅ Added mode state
 
   useEffect(() => {
     const html = document.documentElement;
@@ -26,14 +27,13 @@ export default function FormBuilderPage() {
 
       {/* 🧩 Builder Body */}
       <div className="flex flex-1 gap-[1px] px-2 pb-2">
-       {/* Left: Field Palette */}
-<div className={clsx(
-  "w-[250px] rounded-md border overflow-y-auto",
-  darkMode ? "bg-[#1A1A1A] border-gray-700" : "bg-white border-gray-200"
-)}>
-  <FieldPalette />
-</div>
-
+        {/* Left: Field Palette */}
+        <div className={clsx(
+          "w-[250px] rounded-md border overflow-y-auto",
+          darkMode ? "bg-[#1A1A1A] border-gray-700" : "bg-white border-gray-200"
+        )}>
+          <FieldPalette />
+        </div>
 
         {/* Center: Canvas or Code */}
         <div className={clsx(
