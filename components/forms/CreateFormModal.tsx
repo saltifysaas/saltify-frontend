@@ -105,7 +105,10 @@ onClick={() => {
                 <div className="text-sm text-gray-500">Show all questions on one page</div>
               </div>
               <div
-                onClick={() => setStep(3) || setLayout("multi")}
+onClick={() => {
+  setStep(3);
+  setLayout("multi");
+}}
                 className={clsx(
                   "cursor-pointer border p-4 rounded-lg text-center",
                   layout === "multi" ? "border-[#00332D] bg-[#F0F9F5]" : "border-gray-300"
@@ -116,7 +119,10 @@ onClick={() => {
                 <div className="text-sm text-gray-500">Segment questions over steps</div>
               </div>
               <div
-                onClick={() => setStep(3) || setLayout("card")}
+onClick={() => {
+  setStep(3);
+  setLayout("card");
+}}
                 className={clsx(
                   "cursor-pointer border p-4 rounded-lg text-center",
                   layout === "card" ? "border-[#00332D] bg-[#F0F9F5]" : "border-gray-300"
