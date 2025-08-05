@@ -3,12 +3,21 @@
 import { Dialog } from '@headlessui/react';
 import CreateContactPage from './CreateContactPage';
 
+// Define a proper Contact type (adjust fields as per your real data model)
+interface Contact {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  // Add any other fields your contact object has
+}
+
 export default function CreateContactModal({
   onClose,
   onSave
 }: {
   onClose: () => void;
-  onSave?: (contact: any) => void;
+  onSave?: (contact: Contact) => void;
 }) {
   return (
     <Dialog open={true} onClose={onClose} className="relative z-50">
