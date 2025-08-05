@@ -3,14 +3,7 @@
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-
-interface Contact {
-  firstName: string;
-  lastName: string;
-  email: string;
-  phone: string;
-  company: string;
-}
+import { Contact } from '@/types/contact';
 
 export default function CreateContactPage({
   onSave,
