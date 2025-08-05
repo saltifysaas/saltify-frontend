@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle, Circle } from 'lucide-react';
+import { CheckCircle } from 'lucide-react';
 import clsx from 'clsx';
 
 interface WizardStep {
