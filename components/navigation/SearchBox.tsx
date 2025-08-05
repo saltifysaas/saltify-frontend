@@ -1,12 +1,12 @@
 // file: components/navigation/SearchBox.tsx
 'use client';
 
-export default function SearchBox({ className = '' }: { className?: string }) {
+export default function SearchBox({ className = '' }: {className?: string}) {
   return (
     <input
       type="text"
       placeholder="Search your asset or feature here"
-className={`w-[600px] px-3 py-1.5 text-sm rounded-2xl border 
+className={`w-[700px] h-[38px] px-4 py-1.5 text-sm rounded-xl border 
   bg-white text-[#00332D] placeholder:text-gray-400 
   focus:outline-none 
   border-[#00332d]

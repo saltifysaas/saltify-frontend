@@ -39,8 +39,8 @@ export default function TopNavigationBar() {
         </div>
 
         {/* Center: Search Box */}
-        <div className="flex justify-center flex-[2] px-4">
-          <div className="w-full max-w-xl">
+        <div className="flex justify-center">
+          <div className="w-full max-w-screen-xl">
             <SearchBox />
           </div>
         </div>

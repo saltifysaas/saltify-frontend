@@ -53,7 +53,7 @@ export default function FormBuilderPage() {
               </p>
             </div>
           ) : (
-            <div className="h-full bg-black text-green-300 p-4 rounded-lg font-mono text-sm">
+            <div className="h-full bg-[#1f1f1f] text-green-300 p-4 rounded-lg font-mono text-sm">
               <pre>
 {`// SaltScript mode
 export default function MyForm() {

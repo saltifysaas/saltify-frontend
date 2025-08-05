@@ -1,61 +1,92 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  darkMode: 'class', // Enable dark mode via 'class'
+  darkMode: ['class', 'class'], // Enable dark mode via 'class'
   content: [
     "./src/app/**/*.{js,ts,jsx,tsx}",
     "./components/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {
-      colors: {
-        // Base Branding
-        primary: "#009966", // Cyan-Lime Green
-        lightBase: "#FFFFFF", // Milky White
-        darkBase: "#00332D", // Dark mode background
-
-        // Accents
-        accent: "#00A870", // Emerald Green
-        hover: "#24A77B",  // Mint
-
-        // Text Colors
-        textLight: "#1A1A1A", // Charcoal
-        textDark: "#00332D",  // Off White
-
-        // Alerts
-        warning: "#F4A259", // Mango Yellow
-
-        // Additional Palette Options
-        deepGreen: "#14532D",
-        midGreen: "#3CB371",
-        softGreen: "#8ACB8A",
-        lightMint: "#CBDDD1",
-        ghostWhite: "#F8FFFA",
-
-
-        extend: {
-  colors: {
-    primary: "#009966",           // Cyan-Lime Green
-    lightBase: "#FFFFFF",         // Milky White
-    darkBase: "#00332D",          // Deep background
-    accent: "#00A870",            // Emerald Green
-    hoverAccent: "#24A77B",       // Mint
-    textDark: "#F1F5F4",          // Off White
-    textLight: "#1A1A1A",         // Charcoal
-    warning: "#F4A259",           // Mango Yellow
+  	extend: {
+  		colors: {
+  			primary: {
+  				DEFAULT: 'hsl(var(--primary))',
+  				foreground: 'hsl(var(--primary-foreground))'
+  			},
+  			lightBase: '#FFFFFF',
+  			darkBase: '#00332D',
+  			accent: {
+  				DEFAULT: 'hsl(var(--accent))',
+  				foreground: 'hsl(var(--accent-foreground))'
+  			},
+  			hover: '#24A77B',
+  			textLight: '#1A1A1A',
+  			textDark: '#00332D',
+  			warning: '#F4A259',
+  			deepGreen: '#14532D',
+  			midGreen: '#3CB371',
+  			softGreen: '#8ACB8A',
+  			lightMint: '#CBDDD1',
+  			ghostWhite: '#F8FFFA',
+  			extend: {
+  				colors: {
+  					primary: '#009966',
+  					lightBase: '#FFFFFF',
+  					darkBase: '#00332D',
+  					accent: '#00A870',
+  					hoverAccent: '#24A77B',
+  					textDark: '#F1F5F4',
+  					textLight: '#1A1A1A',
+  					warning: '#F4A259'
+  				}
+  			},
+  			background: 'hsl(var(--background))',
+  			foreground: 'hsl(var(--foreground))',
+  			card: {
+  				DEFAULT: 'hsl(var(--card))',
+  				foreground: 'hsl(var(--card-foreground))'
+  			},
+  			popover: {
+  				DEFAULT: 'hsl(var(--popover))',
+  				foreground: 'hsl(var(--popover-foreground))'
+  			},
+  			secondary: {
+  				DEFAULT: 'hsl(var(--secondary))',
+  				foreground: 'hsl(var(--secondary-foreground))'
+  			},
+  			muted: {
+  				DEFAULT: 'hsl(var(--muted))',
+  				foreground: 'hsl(var(--muted-foreground))'
+  			},
+  			destructive: {
+  				DEFAULT: 'hsl(var(--destructive))',
+  				foreground: 'hsl(var(--destructive-foreground))'
+  			},
+  			border: 'hsl(var(--border))',
+  			input: 'hsl(var(--input))',
+  			ring: 'hsl(var(--ring))',
+  			chart: {
+  				'1': 'hsl(var(--chart-1))',
+  				'2': 'hsl(var(--chart-2))',
+  				'3': 'hsl(var(--chart-3))',
+  				'4': 'hsl(var(--chart-4))',
+  				'5': 'hsl(var(--chart-5))'
+  			}
+  		},
+  		fontFamily: {
+  			sans: [
+  				'Ubuntu',
+  				'sans-serif'
+  			]
+  		},
+  		borderRadius: {
+  			DEFAULT: '0.5rem',
+  			lg: 'var(--radius)',
+  			xl: '1.5rem',
+  			'2xl': '2rem',
+  			md: 'calc(var(--radius) - 2px)',
+  			sm: 'calc(var(--radius) - 4px)'
+  		}
+  	}
   },
-}
-
-      },
-      fontFamily: {
-        sans: ['Ubuntu', 'sans-serif'],
-      },
-      borderRadius: {
-        DEFAULT: "0.5rem",
-        lg: "1rem",
-        xl: "1.5rem",
-        "2xl": "2rem",
-      },
-    },
-  },
-  plugins: [],
+  plugins: [require("tailwindcss-animate")],
 };

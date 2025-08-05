@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   LayoutTemplate,
   FileText,
@@ -9,17 +9,18 @@ import {
   Users,
   BarChart2,
   LayoutDashboard,
-  Settings,
-  ChevronLeft,
-  ChevronRight,
-  PlusSquare,
   FolderClosed,
   Layers2,
   BarChart,
-  UsersRound
+  PlusSquare,
+  Settings,
+  SunMoon,
+  ChevronRight,
+  ChevronLeft
 } from 'lucide-react';
 import clsx from 'clsx';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { useTheme } from 'next-themes';
 
 interface NavItem {
   label: string;
@@ -28,67 +29,105 @@ interface NavItem {
   children?: NavItem[];
 }
 
-interface LeftNavigationBarProps {
-  onCreateData?: () => void;
-}
-
-const navItems: NavItem[] = [
-  { label: 'Landing Pages', icon: LayoutTemplate, href: '/landing-pages' },
-  { label: 'Forms', icon: FileText, href: '/forms' },
-  { label: 'AI Agents', icon: Bot, href: '/ai-agents' },
-  {
-    label: 'Data Extensions',
-    icon: Database,
-    href: '/data-extensions',
-    children: [
-      { label: 'Create Data', icon: PlusSquare, href: '/data-extensions/create' },
-      { label: 'My Data Extensions', icon: FolderClosed, href: '/data-extensions/mine' },
-      { label: 'All Data Extensions', icon: Layers2, href: '/data-extensions/all' },
-      { label: 'Analyze Data', icon: BarChart, href: '/data-extensions/analyze' },
-      { label: 'All Contacts', icon: UsersRound, href: '/contacts' }
-    ]
-  },
-  { label: 'Contacts', icon: Users, href: '/contacts' },
-  { label: 'Reports', icon: BarChart2, href: '/reports' },
-  { label: 'Dashboards', icon: LayoutDashboard, href: '/dashboards' }
-];
-
-export default function LeftNavigationBar({ onCreateData }: LeftNavigationBarProps) {
+export default function LeftNavigationBar() {
   const [collapsed, setCollapsed] = useState(false);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [hoverMenu, setHoverMenu] = useState<string | null>(null);
   const pathname = usePathname();
+  const router = useRouter();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const { theme, setTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+  if (!mounted) return null;
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  const navItems: NavItem[] = [
+    { label: 'Landing Pages', icon: LayoutTemplate, href: '/landing-pages' },
+    { label: 'Forms', icon: FileText, href: '/forms' },
+    { label: 'AI Agents', icon: Bot, href: '/ai-agents' },
+    {
+      label: 'Data Extensions',
+      icon: Database,
+      href: '/dataextension',
+      children: [
+        { label: 'All Data Extensions', icon: Layers2, href: '/dataextension' },
+        { label: 'My Data Extensions', icon: FolderClosed, href: '/data-extensions/mine' },
+        { label: 'Analyze Data', icon: BarChart, href: '/data-extensions/analyze' }
+      ]
+    },
+    {
+      label: 'Contacts',
+      icon: Users,
+      href: '/contacts',
+      children: [
+        { label: 'Create Contact', icon: PlusSquare, href: '/contact/create' }
+      ]
+    },
+    { label: 'Reports', icon: BarChart2, href: '/reports' },
+    { label: 'Dashboards', icon: LayoutDashboard, href: '/dashboards' }
+  ];
+
   const handleMouseEnter = (label: string) => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current);
-    }
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
     setHoverMenu(label);
   };
 
   const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => {
-      setHoverMenu(null);
-    }, 200);
+    timeoutRef.current = setTimeout(() => setHoverMenu(null), 200);
   };
 
-  const handleChildClick = (childLabel: string) => {
-    if (childLabel === 'Create Data' && onCreateData) {
-      onCreateData();
-    }
+  const handleChildClick = (childHref: string) => {
+    router.push(childHref);
   };
 
   return (
     <div
       className={clsx(
-        'h-screen flex flex-col shadow-sm transition-all duration-300 rounded-md border z-50 relative',
-        collapsed ? 'w-[60px]' : 'w-[220px]',
+        'h-screen flex flex-col shadow-sm transition-[width] duration-300 ease-in-out rounded-md border z-50 relative',
+        collapsed ? 'w-[75px]' : 'w-[200px]',
         'bg-white dark:bg-[#1f1f1f] border-gray-200 dark:border-gray-700'
       )}
     >
-      {/* Top Section: Nav Items */}
-      <div className="flex-1 overflow-y-auto flex flex-col gap-2 p-3 pl-2">
+      {/* Header */}
+      <div className="flex items-center justify-between px-1 pt-1 pb-1">
+        {!collapsed ? (
+          <div className="text-lg font-solway font-normal text-gray-500 dark:text-gray-400 tracking-normal pl-4">
+            Menu
+          </div>
+        ) : (
+          <div className="h-6" />
+        )}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className={clsx(
+            'w-[40px] h-[40px] flex items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors',
+            collapsed && 'mx-auto mt-[6px]'
+          )}
+          aria-label="Toggle Sidebar"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-6 h-6 text-gray-700 dark:text-gray-300"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Nav Items */}
+      <div className={clsx(
+        "flex-1 overflow-y-auto flex flex-col gap-2 pt-0",
+        collapsed ? "items-center p-3" : "p-3 pl-2"
+      )}>
         {navItems.map(({ label, icon: Icon, href, children }) => {
           const isActive = pathname === href || (children && children.some(child => pathname.startsWith(child.href)));
           const isOpen = openMenu === label;
@@ -97,10 +136,14 @@ export default function LeftNavigationBar({ onCreateData }: LeftNavigationBarPro
           return (
             <div key={label} className="group relative" onMouseLeave={handleMouseLeave}>
               <button
-                onClick={() => setOpenMenu(prev => (prev === label ? null : label))}
+                onClick={() => {
+                  if (!children) router.push(href);
+                  else setOpenMenu(prev => (prev === label ? null : label));
+                }}
                 onMouseEnter={() => handleMouseEnter(label)}
                 className={clsx(
-                  'flex items-center gap-3 text-sm w-full p-2 rounded-md transition-colors',
+                  'flex w-full gap-3 p-2 rounded-md transition-colors',
+                  collapsed ? 'justify-center' : 'items-center',
                   isActive
                     ? 'bg-[#E6F4F1] text-[#00332D] dark:bg-[#00332D] dark:text-white font-semibold'
                     : 'text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
@@ -110,7 +153,7 @@ export default function LeftNavigationBar({ onCreateData }: LeftNavigationBarPro
                 {!collapsed && <span>{label}</span>}
               </button>
 
-              {/* Expanded Submenu (Indented) */}
+              {/* Expanded Submenu */}
               {children && !collapsed && isOpen && (
                 <div className="ml-6 mt-1 flex flex-col gap-1">
                   {children.map(({ label: childLabel, icon: ChildIcon, href: childHref }) => (
@@ -119,7 +162,7 @@ export default function LeftNavigationBar({ onCreateData }: LeftNavigationBarPro
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        handleChildClick(childLabel);
+                        handleChildClick(childHref);
                       }}
                       className={clsx(
                         'flex items-center gap-2 text-sm p-2 rounded-md transition-colors',
@@ -135,12 +178,12 @@ export default function LeftNavigationBar({ onCreateData }: LeftNavigationBarPro
                 </div>
               )}
 
-              {/* Collapsed Submenu (Flyout) */}
+              {/* Flyout for Collapsed */}
               {children && collapsed && isHovering && (
                 <div
                   onMouseEnter={() => handleMouseEnter(label)}
                   onMouseLeave={handleMouseLeave}
-                  className="fixed left-[60px] top-auto mt-[-40px] bg-white dark:bg-[#111827] border rounded shadow-lg z-[999] w-56"
+                  className="fixed left-[75px] top-auto mt-[-40px] bg-white dark:bg-[#111827] border rounded shadow-lg z-[999] w-56"
                 >
                   {children.map(({ label: childLabel, icon: ChildIcon, href: childHref }) => (
                     <a
@@ -148,7 +191,7 @@ export default function LeftNavigationBar({ onCreateData }: LeftNavigationBarPro
                       href="#"
                       onClick={(e) => {
                         e.preventDefault();
-                        handleChildClick(childLabel);
+                        handleChildClick(childHref);
                       }}
                       className={clsx(
                         'flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-[#2a2a2a]',
@@ -167,29 +210,65 @@ export default function LeftNavigationBar({ onCreateData }: LeftNavigationBarPro
         })}
       </div>
 
-      {/* Bottom controls (Sticky with no shrink) */}
-      <div className="sticky bottom-0 bg-white dark:bg-[#1f1f1f] border-t border-gray-200 dark:border-gray-700 z-10">
-        <div
-          className={clsx(
-            'flex items-center justify-between',
-            collapsed ? 'p-3 justify-center' : 'px-4 py-3'
-          )}
-        >
-          <button className="flex items-center gap-2 text-sm text-[#00332D] dark:text-white hover:scale-105 transition-transform">
-            <Settings className="w-5 h-5" />
-            {!collapsed && <span>Settings</span>}
-          </button>
+      {/* Bottom Section with Split Hover */}
+      <div className="sticky bottom-0 bg-white dark:bg-[#1f1f1f] border-t border-gray-200 dark:border-gray-700 p-2">
+        <div className="flex flex-col gap-1">
 
-          <button
-            onClick={() => setCollapsed(!collapsed)}
-            className="hover:scale-110 transition-transform"
-          >
-            {collapsed ? (
-              <ChevronRight className="w-4 h-4 text-gray-500 dark:text-gray-300" />
-            ) : (
-              <ChevronLeft className="w-4 h-4 text-gray-500 dark:text-gray-300" />
+          {/* Theme Toggle Row */}
+          <div
+            className={clsx(
+              'w-full flex items-center justify-between text-sm px-3 py-2 rounded-md transition-colors group',
+              'text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
             )}
-          </button>
+            onClick={toggleTheme}
+          >
+            <span className="flex items-center gap-2 cursor-pointer">
+              <SunMoon className="w-5 h-5" />
+              {!collapsed && <span className="font-medium">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
+            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCollapsed(!collapsed);
+              }}
+              className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
+              aria-label="Toggle Sidebar"
+            >
+              {collapsed ? (
+                <ChevronLeft className="w-4 h-4 text-gray-400" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              )}
+            </button>
+          </div>
+
+          {/* Settings Row */}
+          <div
+            className={clsx(
+              'w-full flex items-center justify-between text-sm px-3 py-2 rounded-md transition-colors group',
+              'text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+            )}
+          >
+            <span className="flex items-center gap-2 cursor-pointer">
+              <Settings className="w-5 h-5" />
+              {!collapsed && <span className="font-medium">Settings</span>}
+            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setCollapsed(!collapsed);
+              }}
+              className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
+              aria-label="Toggle Sidebar"
+            >
+              {collapsed ? (
+                <ChevronLeft className="w-4 h-4 text-gray-400" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              )}
+            </button>
+          </div>
+
         </div>
       </div>
     </div>

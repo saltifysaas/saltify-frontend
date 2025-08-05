@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import { useDrag } from 'react-dnd';
+import clsx from 'clsx';
 import {
   ImageIcon,
   Maximize2,
@@ -12,7 +14,6 @@ import {
   CheckCircle,
   X
 } from 'lucide-react';
-import clsx from 'clsx';
 import { useFormBuilderStore } from './useFormBuilderStore';
 
 export default function FieldPalette() {
@@ -214,7 +215,20 @@ export default function FieldPalette() {
         </div>
       </section>
 
-      {/* Preview Modal */}
+      {/* 🧩 Form Elements (Draggable) */}
+      <section className="mt-6 space-y-2">
+        <h2 className="text-lg font-bold text-[#00332D] dark:text-white">Form Elements</h2>
+
+        {[
+          { id: 'text', label: 'Text Input' },
+          { id: 'email', label: 'Email Field' },
+          { id: 'phone', label: 'Phone Number' },
+        ].map((field) => (
+          <DraggableField key={field.id} field={field} />
+        ))}
+      </section>
+
+      {/* 🔍 Preview Modal */}
       {previewLogo && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-80 flex items-center justify-center p-6">
           <div className="relative bg-white dark:bg-[#1A1A1A] p-6 rounded-lg max-w-[90vw] max-h-[90vh] overflow-auto text-center">
@@ -263,6 +277,30 @@ export default function FieldPalette() {
           </div>
         </div>
       )}
+    </div>
+  );
+}
+
+// 🧲 Draggable Field Component
+function DraggableField({ field }: { field: { id: string; label: string } }) {
+  const [{ isDragging }, drag] = useDrag(() => ({
+    type: 'field',
+    item: { type: field.id },
+    collect: (monitor) => ({
+      isDragging: monitor.isDragging(),
+    }),
+  }));
+
+  return (
+    <div
+      ref={drag}
+      className={clsx(
+        'cursor-move p-2 rounded-md border text-sm transition-all',
+        isDragging ? 'opacity-40' : 'opacity-100',
+        'bg-[#f9fafb] dark:bg-[#2a2a2a] border-gray-300 dark:border-gray-700'
+      )}
+    >
+      {field.label}
     </div>
   );
 }

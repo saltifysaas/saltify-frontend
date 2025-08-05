@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 
 import { useState } from 'react';
+import { usePathname } from 'next/navigation';
 import TopNavigationBar from '@/components/navigation/TopNavigationBar';
 import LeftNavigationBar from '@/components/navigation/LeftNavigationBar';
 import ThemeToggle from '@/components/ui/ThemeToggle';
@@ -29,6 +30,14 @@ const templates = [
 
 export default function DataExtensionBuilder() {
   const [showModal, setShowModal] = useState(false);
+  const pathname = usePathname();
+
+  // Split path and format
+  const pathSegments = pathname
+    .split('/')
+    .filter(Boolean)
+    .map(segment => segment.replace(/-/g, ' '))
+    .map(segment => segment.charAt(0).toUpperCase() + segment.slice(1));
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-[#1f1f1f]">
@@ -38,9 +47,9 @@ export default function DataExtensionBuilder() {
         <LeftNavigationBar onCreateData={() => setShowModal(true)} />
 
         <main className="mx-auto w-full max-w-6xl p-6">
-          {/* Title */}
-          <h2 className="text-3xl font-bold mb-6 text-center text-[#00332D] dark:text-white">
-            Create Data Extension
+          {/* Breadcrumb Title */}
+          <h2 className="text-sm font-normal mb-6 text-left text-blue-600 text-[#00332D] dark:text-white">
+            {pathSegments.join(' › ')}
           </h2>
 
           {/* Search + +Data Extension Row */}
@@ -50,7 +59,7 @@ export default function DataExtensionBuilder() {
               <input
                 type="text"
                 placeholder="Search for Data Extension"
-                className="w-full p-4 pl-14 pr-12 rounded border border-gray-300 dark:border-gray-600 dark:bg-[#1f1f1f] text-black dark:text-white text-base"
+                className="w-full h-[40px] p-4 pl-14 pr-12 rounded border border-gray-300 dark:border-gray-600 dark:bg-[#1f1f1f] text-black dark:text-white text-base"
               />
               <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-500 dark:text-gray-300" />
               <XIcon className="absolute right-4 top-1/2 transform -translate-y-1/2 w-6 h-6 text-gray-400 hover:text-gray-600 cursor-pointer" />
@@ -59,7 +68,7 @@ export default function DataExtensionBuilder() {
             {/* + Data Extension Button */}
             <button
               onClick={() => setShowModal(true)}
-              className="flex items-center gap-3 px-10 py-4 bg-[#00332D] text-white rounded-md hover:bg-[#004d40] min-w-[240px] justify-center text-base font-medium"
+              className="flex items-center gap-3 px-10 h-[40px] py-4 bg-[#00332D] text-white rounded-md hover:bg-[#004d40] min-w-[240px] justify-center text-base font-medium"
             >
               <Plus className="w-6 h-6" />
               <span>Data Extension</span>
