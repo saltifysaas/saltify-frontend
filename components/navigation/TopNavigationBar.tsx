@@ -1,57 +1,59 @@
 'use client';
 
-import AppLauncher from './AppLauncher';
-import CreateButton from './CreateButton';
-import SearchBox from './SearchBox';
-import ProfileIcon from './ProfileIcon';
+import Link from 'next/link';
 import Image from 'next/image';
+import { Bell } from 'lucide-react';
+import ProfileIcon from './ProfileIcon';
+import SearchBox from './SearchBox';
 
 export default function TopNavigationBar() {
   return (
-    <div
-      className="mt-[2px] mb-[2px] mx-[8px] rounded-md border 
-      bg-white dark:bg-[#1F1F1F] 
-      text-[#00332D] dark:text-white 
-      border-gray-200 dark:border-[#2B2B2B] 
-      shadow-[0_2px_6px_rgba(0,0,0,0.08)] dark:shadow-[0_2px_6px_rgba(255,255,255,0.05)]"
-    >
-      <div className="flex items-center px-6 py-5 h-[72px]">
+    <header className="w-full border-b bg-white dark:bg-[#111827] shadow-sm">
+      <div className="max-w-screen-2xl mx-auto flex items-center justify-between px-4 py-4">
         
-        {/* Left: Logo */}
-        <div className="flex items-center gap-4 flex-[1]">
-          {/* Light Mode Logo */}
-          <Image
-            src="/logo/logo-green.svg"
-            alt="Saltify Logo"
-            width={150}
-            height={35}
-            className="block dark:hidden"
-          />
+        {/* Left: Logo + Divider */}
+        <div className="flex items-center gap-5">
+          <Link href="/" className="flex items-center">
+            <Image
+              src="/logo/logo-green.svg"
+              alt="SALTify Logo"
+              width={120}
+              height={30}
+              className="block dark:hidden"
+            />
+            <Image
+              src="/logo/logo-white.svg"
+              alt="SALTify Logo"
+              width={120}
+              height={30}
+              className="hidden dark:block"
+            />
+          </Link>
 
-          {/* Dark Mode Logo */}
-          <Image
-            src="/logo/logo-white.svg"
-            alt="Saltify Logo"
-            width={150}
-            height={28}
-            className="hidden dark:block"
-          />
+          {/* Thicker, taller divider */}
+          <div className="h-8 w-[2px] bg-gray-400 dark:bg-gray-600 rounded-sm" />
         </div>
 
         {/* Center: Search Box */}
-        <div className="flex justify-center">
-          <div className="w-full max-w-screen-xl">
-            <SearchBox />
-          </div>
+        <div className="flex-1 flex justify-center">
+          <SearchBox />
         </div>
 
-        {/* Right: Actions */}
-        <div className="flex justify-end items-center gap-4 flex-[1]">
-          <CreateButton />
-          <AppLauncher />
-          <ProfileIcon />
+        {/* Right: Divider + Icons */}
+        <div className="flex items-center gap-5">
+          {/* Divider on right side */}
+          <div className="h-8 w-[2px] bg-gray-400 dark:bg-gray-600 rounded-sm" />
+
+          <button
+            type="button"
+            className="hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-md"
+            aria-label="Notifications"
+          >
+            <Bell className="w-6 h-6 text-gray-700 dark:text-gray-200 stroke-[2.4]" />
+          </button>
+          <ProfileIcon className="w-8 h-8 text-gray-700 dark:text-gray-200 stroke-[2.4]" />
         </div>
       </div>
-    </div>
+    </header>
   );
 }

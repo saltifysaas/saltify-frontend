@@ -1,7 +1,7 @@
 'use client';
 
-import TopNavigationBar from '@/components/navigation/TopNavigationBar';
 import LeftNavigationBar from '@/components/navigation/LeftNavigationBar';
+import TopNavigationBar from '@/components/navigation/TopNavigationBar';
 import Breadcrumbs from '@/components/navigation/Breadcrumb';
 
 interface AppShellProps {
@@ -11,16 +11,15 @@ interface AppShellProps {
 
 export default function AppShell({ children, breadcrumbs }: AppShellProps) {
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-[#1f1f1f]">
-      <div className="ml-2 pt-[1px]">
+    <div className="min-h-screen bg-gray-100 dark:bg-[#1f1f1f] flex">
+      {/* Flush Left Navigation Bar */}
+      <LeftNavigationBar />
+
+      <div className="flex-1 flex flex-col">
+        {/* Full-width Top Navigation Bar */}
         <TopNavigationBar />
-      </div>
 
-      <div className="flex px-2 sm:px-4">
-        <div className="mt-[1px]">
-          <LeftNavigationBar />
-        </div>
-
+        {/* Page content */}
         <main className="flex-1">
           {/* ✅ Breadcrumb block */}
           {breadcrumbs && (

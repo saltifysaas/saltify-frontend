@@ -46,7 +46,7 @@ export default function WizardLayout({
 
         <main className="w-full max-w-6xl mx-auto">
           {/* Top Navigation */}
-          <div className="mb-2">
+          <div className="mb-1">
             {/* TODO: Replace with actual TopNavigationBar */}
           </div>
 

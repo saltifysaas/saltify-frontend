@@ -88,8 +88,8 @@ export default function LeftNavigationBar() {
   return (
     <div
       className={clsx(
-        'h-screen flex flex-col shadow-sm transition-[width] duration-300 ease-in-out rounded-md border z-50 relative',
-        collapsed ? 'w-[75px]' : 'w-[200px]',
+        'h-screen flex flex-col shadow-sm transition-[width] duration-300 ease-in-out border z-50 relative',
+        collapsed ? 'w-[64pt]' : 'w-[220px]',
         'bg-white dark:bg-[#1f1f1f] border-gray-200 dark:border-gray-700'
       )}
     >
@@ -210,67 +210,55 @@ export default function LeftNavigationBar() {
         })}
       </div>
 
-      {/* Bottom Section with Split Hover */}
-      <div className="sticky bottom-0 bg-white dark:bg-[#1f1f1f] border-t border-gray-200 dark:border-gray-700 p-2">
-        <div className="flex flex-col gap-1">
+      {/* Bottom Compact Items */}
+<div className="sticky bottom-0 bg-white dark:bg-[#1f1f1f] border-t border-gray-200 dark:border-gray-700 p-2">
+  <div className="flex flex-col gap-2 items-start">
 
-          {/* Theme Toggle Row */}
-          <div
-            className={clsx(
-              'w-full flex items-center justify-between text-sm px-3 py-2 rounded-md transition-colors group',
-              'text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
-            )}
-            onClick={toggleTheme}
-          >
-            <span className="flex items-center gap-2 cursor-pointer">
-              <SunMoon className="w-5 h-5" />
-              {!collapsed && <span className="font-medium">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
-            </span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setCollapsed(!collapsed);
-              }}
-              className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
-              aria-label="Toggle Sidebar"
-            >
-              {collapsed ? (
-                <ChevronLeft className="w-4 h-4 text-gray-400" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-              )}
-            </button>
-          </div>
+    {/* Theme Toggle Row */}
+    <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-md w-full hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors">
+      <button
+        onClick={toggleTheme}
+        className="flex items-center gap-2 text-[#00332D] dark:text-white"
+      >
+        <SunMoon className="w-5 h-5" />
+        {!collapsed && <span className="font-medium">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
+      </button>
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
+        aria-label="Toggle Sidebar"
+      >
+        {collapsed ? (
+          <ChevronLeft className="w-4 h-4 text-gray-400" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        )}
+      </button>
+    </div>
 
-          {/* Settings Row */}
-          <div
-            className={clsx(
-              'w-full flex items-center justify-between text-sm px-3 py-2 rounded-md transition-colors group',
-              'text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
-            )}
-          >
-            <span className="flex items-center gap-2 cursor-pointer">
-              <Settings className="w-5 h-5" />
-              {!collapsed && <span className="font-medium">Settings</span>}
-            </span>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setCollapsed(!collapsed);
-              }}
-              className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
-              aria-label="Toggle Sidebar"
-            >
-              {collapsed ? (
-                <ChevronLeft className="w-4 h-4 text-gray-400" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-              )}
-            </button>
-          </div>
+    {/* Settings Row */}
+    <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-md w-full hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors">
+      <button
+        className="flex items-center gap-2 text-[#00332D] dark:text-white"
+      >
+        <Settings className="w-5 h-5" />
+        {!collapsed && <span className="font-medium">Settings</span>}
+      </button>
+      <button
+        onClick={() => setCollapsed(!collapsed)}
+        className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
+        aria-label="Toggle Sidebar"
+      >
+        {collapsed ? (
+          <ChevronLeft className="w-4 h-4 text-gray-400" />
+        ) : (
+          <ChevronRight className="w-4 h-4 text-gray-400" />
+        )}
+      </button>
+    </div>
 
-        </div>
-      </div>
+  </div>
+</div>
     </div>
   );
 }
