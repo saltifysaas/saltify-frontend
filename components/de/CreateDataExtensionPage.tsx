@@ -52,9 +52,9 @@ const templates: TemplateCardProps[] = [
 
 function TemplateCard({ name, icon: Icon, description }: TemplateCardProps) {
   return (
-    <div className="bg-white dark:bg-[#111827] rounded-lg p-4 shadow-sm border hover:shadow-md transition-all cursor-pointer w-full">
+    <div className="bg-white dark:bg-[#111827] rounded-md p-4 shadow-sm border hover:shadow-md transition-all cursor-pointer w-full">
       <div className="flex items-center gap-3">
-        <div className="bg-green-100 text-green-800 p-2 rounded-full">
+        <div className="bg-green-100 text-green-800 p-2 rounded-md">
           <Icon className="w-5 h-5" />
         </div>
         <h3 className="text-lg font-semibold text-[#00332D] dark:text-white">
@@ -68,7 +68,7 @@ function TemplateCard({ name, icon: Icon, description }: TemplateCardProps) {
 
 export default function CreateDataExtensionPage() {
   return (
-    <div className="max-w-6xl mx-auto bg-white dark:bg-[#111827] rounded-2xl shadow-md border p-6 space-y-6 mt-6">
+    <div className="max-w-6xl mx-auto bg-white dark:bg-[#111827] rounded-md shadow-md border p-6 space-y-6 mt-6">
       {/* Action Buttons aligned to right */}
       <div className="flex justify-end">
         <div className="flex gap-3">

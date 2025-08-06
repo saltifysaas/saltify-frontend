@@ -1,34 +1,47 @@
 'use client';
 
+import { useState } from 'react';
+import { usePathname } from 'next/navigation';
+import clsx from 'clsx';
 import LeftNavigationBar from '@/components/navigation/LeftNavigationBar';
 import TopNavigationBar from '@/components/navigation/TopNavigationBar';
 import Breadcrumbs from '@/components/navigation/Breadcrumb';
 
-interface AppShellProps {
-  children: React.ReactNode;
-  breadcrumbs?: { label: string; href?: string }[];
-}
+export default function AppShell({ children }: { children: React.ReactNode }) {
+  const [collapsed, setCollapsed] = useState(false);
+  const pathname = usePathname();
 
-export default function AppShell({ children, breadcrumbs }: AppShellProps) {
+  // 🍞 Auto-generate breadcrumb from URL
+  const breadcrumbs = pathname
+    .split('/')
+    .filter(Boolean)
+    .map((segment, index, arr) => ({
+      label: segment.charAt(0).toUpperCase() + segment.slice(1),
+      href: '/' + arr.slice(0, index + 1).join('/'),
+    }));
+
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-[#1f1f1f] flex">
-      {/* Flush Left Navigation Bar */}
-      <LeftNavigationBar />
+    <div className="min-h-screen bg-gray-200 dark:bg-[#0f0f0f] p-2">
+      <div className="flex gap-1">
+        <LeftNavigationBar collapsed={collapsed} setCollapsed={setCollapsed} />
 
-      <div className="flex-1 flex flex-col">
-        {/* Full-width Top Navigation Bar */}
-        <TopNavigationBar />
+        <div className="flex flex-col w-full gap-x-1 gap-y-1">
+          <TopNavigationBar />
 
-        {/* Page content */}
-        <main className="flex-1">
-          {/* ✅ Breadcrumb block */}
-          {breadcrumbs && (
-            <div className="max-w-6xl mx-auto px-4 pt-4">
+          {/* 🧱 Main Content Area with breadcrumb inside */}
+          <main
+            className={clsx(
+              'flex-1 bg-white dark:bg-[#1a1a1a] rounded-md p-4 border border-gray-200 dark:border-gray-700 shadow-sm'
+            )}
+          >
+            {/* 🔗 Breadcrumb inside content box */}
+            <div className="mb-4">
               <Breadcrumbs items={breadcrumbs} />
             </div>
-          )}
-          {children}
-        </main>
+
+            {children}
+          </main>
+        </div>
       </div>
     </div>
   );

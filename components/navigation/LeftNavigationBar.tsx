@@ -29,8 +29,12 @@ interface NavItem {
   children?: NavItem[];
 }
 
-export default function LeftNavigationBar() {
-  const [collapsed, setCollapsed] = useState(false);
+interface Props {
+  collapsed: boolean;
+  setCollapsed: (value: boolean) => void;
+}
+
+export default function LeftNavigationBar({ collapsed, setCollapsed }: Props) {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const [hoverMenu, setHoverMenu] = useState<string | null>(null);
   const pathname = usePathname();
@@ -88,19 +92,39 @@ export default function LeftNavigationBar() {
   return (
     <div
       className={clsx(
-        'h-screen flex flex-col shadow-sm transition-[width] duration-300 ease-in-out border z-50 relative',
-        collapsed ? 'w-[64pt]' : 'w-[220px]',
-        'bg-white dark:bg-[#1f1f1f] border-gray-200 dark:border-gray-700'
+        'h-screen flex flex-col mt-[0pt] shadow-sm transition-[width] duration-300 ease-in-out border z-50 relative',
+        collapsed ? 'w-[72px]' : 'w-[220px]',
+        'bg-white dark:bg-[#1f1f1f] border-gray-200 dark:border-gray-700',
+        'rounded-md m-[2px] overflow-hidden',
       )}
     >
-      {/* Header */}
+{/* 🔰 Logo */}
+{/* 🔰 Wrapped Logo in Rounded Box */}
+<div className="flex items-center justify-center h-[70px] p-2">
+  <div className="bg-[#00332D] rounded-md flex items-center justify-center w-full h-full">
+    {collapsed ? (
+      <img
+        src="/logo/saltify-icon-trans/2.svg"
+        alt="Saltify Icon"
+        className="w-8 h-8"
+      />
+    ) : (
+      <img
+        src="/logo/logo-white.svg"
+        alt="Saltify Logo"
+        className="w-[140px] h-auto"
+      />
+    )}
+  </div>
+</div>
+      {/* Top Toggle Header */}
       <div className="flex items-center justify-between px-1 pt-1 pb-1">
         {!collapsed ? (
           <div className="text-lg font-solway font-normal text-gray-500 dark:text-gray-400 tracking-normal pl-4">
             Menu
           </div>
         ) : (
-          <div className="h-6" />
+          <div className="h-8" />
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
@@ -210,55 +234,54 @@ export default function LeftNavigationBar() {
         })}
       </div>
 
-      {/* Bottom Compact Items */}
-<div className="sticky bottom-0 bg-white dark:bg-[#1f1f1f] border-t border-gray-200 dark:border-gray-700 p-2">
-  <div className="flex flex-col gap-2 items-start">
+      {/* Bottom Section */}
+      <div className="sticky bottom-0 bg-white dark:bg-[#1f1f1f] border-t border-gray-200 dark:border-gray-700 p-2">
+        <div className="flex flex-col gap-2 items-start">
 
-    {/* Theme Toggle Row */}
-    <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-md w-full hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors">
-      <button
-        onClick={toggleTheme}
-        className="flex items-center gap-2 text-[#00332D] dark:text-white"
-      >
-        <SunMoon className="w-5 h-5" />
-        {!collapsed && <span className="font-medium">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
-      </button>
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
-        aria-label="Toggle Sidebar"
-      >
-        {collapsed ? (
-          <ChevronLeft className="w-4 h-4 text-gray-400" />
-        ) : (
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        )}
-      </button>
-    </div>
+          {/* Theme Toggle */}
+          <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-md w-full hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors">
+            <button
+              onClick={toggleTheme}
+              className="flex items-center gap-2 text-[#00332D] dark:text-white"
+            >
+              <SunMoon className="w-5 h-5" />
+              {!collapsed && <span className="font-medium">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
+            </button>
+            <button
+              onClick={() => setCollapsed(!collapsed)}
+              className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
+              aria-label="Toggle Sidebar"
+            >
+              {collapsed ? (
+                <ChevronLeft className="w-4 h-4 text-gray-400" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-gray-400" />
+              )}
+            </button>
+          </div>
 
-    {/* Settings Row */}
-    <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-md w-full hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors">
-      <button
-        className="flex items-center gap-2 text-[#00332D] dark:text-white"
-      >
-        <Settings className="w-5 h-5" />
-        {!collapsed && <span className="font-medium">Settings</span>}
-      </button>
-      <button
-        onClick={() => setCollapsed(!collapsed)}
-        className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
-        aria-label="Toggle Sidebar"
-      >
-        {collapsed ? (
-          <ChevronLeft className="w-4 h-4 text-gray-400" />
-        ) : (
-          <ChevronRight className="w-4 h-4 text-gray-400" />
-        )}
-      </button>
-    </div>
-
-  </div>
+          {/* Settings Button */}
+      {/* Settings Row */}
+<div className="flex items-center justify-between gap-2 px-3 py-2 rounded-md w-full hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors">
+  <button className="flex items-center gap-2 text-[#00332D] dark:text-white">
+    <Settings className="w-5 h-5" />
+    {!collapsed && <span className="font-medium">Settings</span>}
+  </button>
+  <button
+    onClick={() => setCollapsed(!collapsed)}
+    className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
+    aria-label="Toggle Sidebar"
+  >
+    {collapsed ? (
+      <ChevronLeft className="w-4 h-4 text-gray-400" />
+    ) : (
+      <ChevronRight className="w-4 h-4 text-gray-400" />
+    )}
+  </button>
 </div>
+
+        </div>
+      </div>
     </div>
   );
 }
