@@ -1,29 +1,15 @@
 'use client';
 
-import TopNavigationBar from '@/components/navigation/TopNavigationBar';
-import LeftNavigationBar from '@/components/navigation/LeftNavigationBar';
-import Breadcrumb from '@/components/navigation/Breadcrumb'; // ✅ Import Breadcrumb
-import CreateContactPage from '@/components/contact/CreateContactPage';
-import ThemeToggle from '@/components/ui/ThemeToggle';
+import AppShell from '@/components/layout/AppShell';
 
-export default function CreateContactRoutePage() {
+export default function ContactBuilderPage() {
   return (
-    <div className="min-h-screen bg-white dark:bg-[#1f1f1f]">
-      <TopNavigationBar />
-
-      <div className="flex gap-[1px] px-2 pb-2">
-        <LeftNavigationBar />
-
-        <main className="w-full max-w-6xl mx-auto p-6">
-          <Breadcrumb /> {/* ✅ Add Breadcrumb here */}
-
-          <CreateContactPage />
-        </main>
+    <AppShell>
+      <div className="p-6">
+        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-4">Create New Contact</h1>
+        <p className="text-gray-500 dark:text-gray-400">Use this form to build a contact record manually.</p>
+        {/* DE-driven form field builder comes here */}
       </div>
-
-      <div className="fixed bottom-4 left-4 z-50">
-        <ThemeToggle />
-      </div>
-    </div>
+    </AppShell>
   );
 }

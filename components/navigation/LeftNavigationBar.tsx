@@ -1,231 +1,186 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
 import {
-  LayoutTemplate,
+  LayoutDashboard,
   FileText,
   Bot,
   Database,
   Users,
-  BarChart2,
-  LayoutDashboard,
-  FolderClosed,
-  Layers2,
   BarChart,
-  PlusSquare,
-  Settings,
+  LayoutTemplate,
+  Settings as SettingsIcon,
   SunMoon,
+  ChevronLeft,
   ChevronRight,
-  ChevronLeft
+  Menu,
+  ChevronDown,
+  ChevronUp,
+  List,
+  Table,
+  User,
+  Filter,
 } from 'lucide-react';
 import clsx from 'clsx';
+import { useState } from 'react';
+import type { CSSProperties } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
 
-interface NavItem {
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  href: string;
-  children?: NavItem[];
-}
+import Tooltip from '../ui/Tooltip';
 
-interface Props {
+const NAV_ITEMS = [
+  { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
+  { label: 'Landing Pages', icon: LayoutTemplate, href: '/landingpages' },
+  { label: 'Forms', icon: FileText, href: '/forms' },
+  { label: 'AI Agents', icon: Bot, href: '/ai-agents' },
+  {
+    label: 'Contacts',
+    icon: Users,
+    children: [
+      { label: 'All Contacts', icon: List, href: '/contacts' },
+      { label: 'Segmentation', icon: Filter, href: '/contacts/segmentation' },
+      { label: 'Profiles', icon: User, href: '/contacts/profiles' },
+    ],
+  },
+  {
+    label: 'Data Extensions',
+    icon: Database,
+    children: [
+      { label: 'All Data Extensions', icon: List, href: '/data-extensions' },
+      { label: 'Data Tables', icon: Table, href: '/data-extensions/tables' },
+    ],
+  },
+  { label: 'Reports', icon: BarChart, href: '/reports' },
+];
+
+type Props = {
   collapsed: boolean;
-  setCollapsed: (value: boolean) => void;
-}
+  setCollapsed: (v: boolean | ((c: boolean) => boolean)) => void;
+  style?: CSSProperties;
+};
 
-export default function LeftNavigationBar({ collapsed, setCollapsed }: Props) {
-  const [openMenu, setOpenMenu] = useState<string | null>(null);
-  const [hoverMenu, setHoverMenu] = useState<string | null>(null);
+export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Props) {
   const pathname = usePathname();
   const router = useRouter();
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => setMounted(true), []);
-  if (!mounted) return null;
+  const { setTheme, theme, resolvedTheme } = useTheme() as any;
+  const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const toggleTheme = () => {
-    setTheme(theme === 'dark' ? 'light' : 'dark');
+    const current = resolvedTheme ?? theme;
+    setTheme(current === 'dark' ? 'light' : 'dark');
   };
 
-  const navItems: NavItem[] = [
-    { label: 'Landing Pages', icon: LayoutTemplate, href: '/landing-pages' },
-    { label: 'Forms', icon: FileText, href: '/forms' },
-    { label: 'AI Agents', icon: Bot, href: '/ai-agents' },
-    {
-      label: 'Data Extensions',
-      icon: Database,
-      href: '/dataextension',
-      children: [
-        { label: 'All Data Extensions', icon: Layers2, href: '/dataextension' },
-        { label: 'My Data Extensions', icon: FolderClosed, href: '/data-extensions/mine' },
-        { label: 'Analyze Data', icon: BarChart, href: '/data-extensions/analyze' }
-      ]
-    },
-    {
-      label: 'Contacts',
-      icon: Users,
-      href: '/contacts',
-      children: [
-        { label: 'Create Contact', icon: PlusSquare, href: '/contact/create' }
-      ]
-    },
-    { label: 'Reports', icon: BarChart2, href: '/reports' },
-    { label: 'Dashboards', icon: LayoutDashboard, href: '/dashboards' }
-  ];
+  const iconBox = (active = false) =>
+    clsx(
+      'w-11 h-11 rounded-md grid place-items-center transition-all duration-200',
+      active
+        ? 'bg-[#00332D] text-white'
+        : 'bg-white dark:bg-[#1c1f24] text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#242932]'
+    );
 
-  const handleMouseEnter = (label: string) => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setHoverMenu(label);
-  };
+  function InlineCollapseBtn({ forceVisible = false }: { forceVisible?: boolean }) {
+    return (
+      <button
+        onClick={() => setCollapsed((c) => !c)}
+        className={clsx(
+          'rounded-md transition focus:outline-none focus:ring-2 focus:ring-[#00332D]/30',
+          collapsed
+            ? iconBox(false)
+            : clsx(
+                'p-2 ml-2 hover:bg-gray-50 dark:hover:bg-[#1b1f25]',
+                forceVisible ? '' : 'opacity-0 group-hover:opacity-100'
+              )
+        )}
+        title={collapsed ? 'Expand' : 'Collapse'}
+        aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+      >
+        {collapsed ? <ChevronRight className="w-5 h-5 text-[#00332D]" /> : <ChevronLeft className="w-5 h-5 text-[#00332D]" />}
+      </button>
+    );
+  }
 
-  const handleMouseLeave = () => {
-    timeoutRef.current = setTimeout(() => setHoverMenu(null), 200);
-  };
-
-  const handleChildClick = (childHref: string) => {
-    router.push(childHref);
+  const handleParentClick = (label: string) => {
+    setOpenMenu((prev) => (prev === label ? null : label));
   };
 
   return (
-    <div
+    <aside
+      style={style}
       className={clsx(
-        'h-screen flex flex-col mt-[0pt] shadow-sm transition-[width] duration-300 ease-in-out border z-50 relative',
-        collapsed ? 'w-[72px]' : 'w-[220px]',
-        'bg-white dark:bg-[#1f1f1f] border-gray-200 dark:border-gray-700',
-        'rounded-md m-[2px] overflow-hidden',
+        'flex flex-col justify-between border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-[#111827] transition-all duration-300 rounded-md mt-[2px]',
+        'h-full'
       )}
     >
-{/* 🔰 Logo */}
-{/* 🔰 Wrapped Logo in Rounded Box */}
-<div className="flex items-center justify-center h-[70px] p-2">
-  <div className="bg-[#00332D] rounded-md flex items-center justify-center w-full h-full">
-    {collapsed ? (
-      <img
-        src="/logo/saltify-icon-trans/2.svg"
-        alt="Saltify Icon"
-        className="w-8 h-8"
-      />
-    ) : (
-      <img
-        src="/logo/logo-white.svg"
-        alt="Saltify Logo"
-        className="w-[140px] h-auto"
-      />
-    )}
-  </div>
-</div>
-      {/* Top Toggle Header */}
-      <div className="flex items-center justify-between px-1 pt-1 pb-1">
-        {!collapsed ? (
-          <div className="text-lg font-solway font-normal text-gray-500 dark:text-gray-400 tracking-normal pl-4">
-            Menu
-          </div>
-        ) : (
-          <div className="h-8" />
-        )}
+      {/* 🍔 Collapse / Expand header */}
+      <div className={clsx('mt-4', collapsed ? 'px-0' : 'px-3')}>
         <button
-          onClick={() => setCollapsed(!collapsed)}
+          onClick={() => setCollapsed((c) => !c)}
           className={clsx(
-            'w-[40px] h-[40px] flex items-center justify-center rounded-md hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors',
-            collapsed && 'mx-auto mt-[6px]'
+            'group w-full flex items-center rounded-md transition',
+            collapsed ? 'justify-center' : 'justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
           )}
-          aria-label="Toggle Sidebar"
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="w-6 h-6 text-gray-700 dark:text-gray-300"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            strokeWidth={2.5}
-          >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
+          {!collapsed && <span className="text-lg text-gray-700">Menu</span>}
+          {collapsed ? (
+            <span className={iconBox(false)}>
+              <Menu className="w-5 h-5" />
+            </span>
+          ) : (
+            <Menu className="w-5 h-5 text-[#00332D] dark:text-gray-200" />
+          )}
         </button>
       </div>
 
-      {/* Nav Items */}
-      <div className={clsx(
-        "flex-1 overflow-y-auto flex flex-col gap-2 pt-0",
-        collapsed ? "items-center p-3" : "p-3 pl-2"
-      )}>
-        {navItems.map(({ label, icon: Icon, href, children }) => {
-          const isActive = pathname === href || (children && children.some(child => pathname.startsWith(child.href)));
+      {/* 🧭 Nav list */}
+      <div className={clsx('flex-1 flex flex-col gap-1 py-2', collapsed ? 'items-center px-0' : 'items-stretch px-2')}>
+        {NAV_ITEMS.map(({ label, icon: Icon, href, children }) => {
+          const isActive = pathname === href;
           const isOpen = openMenu === label;
-          const isHovering = hoverMenu === label;
+
+          if (collapsed) {
+            return (
+              <Tooltip key={label} label={label}>
+                <button
+                  onClick={() => (children ? handleParentClick(label) : router.push(href))}
+                  className="group justify-center w-full flex"
+                >
+                  <span className={iconBox(isActive)}>
+                    <Icon className="w-5 h-5" />
+                  </span>
+                </button>
+              </Tooltip>
+            );
+          }
 
           return (
-            <div key={label} className="group relative" onMouseLeave={handleMouseLeave}>
+            <div key={label}>
               <button
-                onClick={() => {
-                  if (!children) router.push(href);
-                  else setOpenMenu(prev => (prev === label ? null : label));
-                }}
-                onMouseEnter={() => handleMouseEnter(label)}
+                onClick={() => (children ? handleParentClick(label) : router.push(href))}
                 className={clsx(
-                  'flex w-full gap-3 p-2 rounded-md transition-colors',
-                  collapsed ? 'justify-center' : 'items-center',
-                  isActive
-                    ? 'bg-[#E6F4F1] text-[#00332D] dark:bg-[#00332D] dark:text-white font-semibold'
-                    : 'text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+                  'relative w-full rounded-md transition-colors flex items-center gap-3 px-3 py-2',
+                  isActive ? 'bg-[#eaf0ff]' : 'hover:bg-gray-50 dark:hover:bg-[#1b1f25]'
                 )}
               >
-                <Icon className="w-5 h-5" />
-                {!collapsed && <span>{label}</span>}
+                {isActive && <span className="absolute left-0 top-0 h-full w-[2px] bg-[#00332D] rounded-l-md" />}
+                <Icon className={clsx('w-5 h-5', isActive ? 'text-[#00332D]' : 'text-[#00332D] dark:text-gray-200')} />
+                <span className={clsx('text-sm', isActive ? 'text-[#00332D] dark:text-white font-semibold' : 'text-[#00332D] dark:text-gray-200')}>{label}</span>
+                {children && (isOpen ? <ChevronUp className="ml-auto w-4 h-4" /> : <ChevronDown className="ml-auto w-4 h-4" />)}
               </button>
 
-              {/* Expanded Submenu */}
-              {children && !collapsed && isOpen && (
-                <div className="ml-6 mt-1 flex flex-col gap-1">
-                  {children.map(({ label: childLabel, icon: ChildIcon, href: childHref }) => (
-                    <a
-                      key={childLabel}
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleChildClick(childHref);
-                      }}
+              {isOpen && children && (
+                <div className="ml-8 mt-1 flex flex-col gap-1">
+                  {children.map((child) => (
+                    <button
+                      key={child.label}
+                      onClick={() => router.push(child.href)}
                       className={clsx(
-                        'flex items-center gap-2 text-sm p-2 rounded-md transition-colors',
-                        pathname === childHref
-                          ? 'bg-[#D1FADF] text-[#00332D] dark:bg-[#005f4b] dark:text-white'
-                          : 'text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+                        'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm hover:bg-gray-50 dark:hover:bg-[#1b1f25]',
+                        pathname === child.href ? 'bg-[#eaf0ff] text-[#00332D]' : 'text-[#00332D] dark:text-gray-200'
                       )}
                     >
-                      <ChildIcon className="w-4 h-4" />
-                      <span>{childLabel}</span>
-                    </a>
-                  ))}
-                </div>
-              )}
-
-              {/* Flyout for Collapsed */}
-              {children && collapsed && isHovering && (
-                <div
-                  onMouseEnter={() => handleMouseEnter(label)}
-                  onMouseLeave={handleMouseLeave}
-                  className="fixed left-[75px] top-auto mt-[-40px] bg-white dark:bg-[#111827] border rounded shadow-lg z-[999] w-56"
-                >
-                  {children.map(({ label: childLabel, icon: ChildIcon, href: childHref }) => (
-                    <a
-                      key={childLabel}
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        handleChildClick(childHref);
-                      }}
-                      className={clsx(
-                        'flex items-center gap-2 px-3 py-2 text-sm hover:bg-gray-100 dark:hover:bg-[#2a2a2a]',
-                        pathname === childHref
-                          ? 'font-semibold text-[#00332D] dark:text-white'
-                          : 'text-gray-700 dark:text-white'
-                      )}
-                    >
-                      <ChildIcon className="w-4 h-4" /> {childLabel}
-                    </a>
+                      <child.icon className="w-4 h-4" />
+                      {child.label}
+                    </button>
                   ))}
                 </div>
               )}
@@ -234,54 +189,46 @@ export default function LeftNavigationBar({ collapsed, setCollapsed }: Props) {
         })}
       </div>
 
-      {/* Bottom Section */}
-      <div className="sticky bottom-0 bg-white dark:bg-[#1f1f1f] border-t border-gray-200 dark:border-gray-700 p-2">
-        <div className="flex flex-col gap-2 items-start">
-
-          {/* Theme Toggle */}
-          <div className="flex items-center justify-between gap-2 px-3 py-2 rounded-md w-full hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors">
+      {/* ⚙️ Footer actions */}
+      <div className={clsx('p-2 mt-auto flex flex-col gap-2', collapsed && 'items-center')}>
+        <div className={clsx('w-full flex items-center', collapsed ? 'gap-1 justify-start' : 'group justify-between')}>
+          {collapsed ? (
+            <Tooltip label="Dark Mode">
+              <button onClick={toggleTheme} className={clsx('w-11 h-11 grid place-items-center', iconBox(false))}>
+                <SunMoon className="w-5 h-5" />
+              </button>
+            </Tooltip>
+          ) : (
             <button
               onClick={toggleTheme}
-              className="flex items-center gap-2 text-[#00332D] dark:text-white"
+              className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-50 dark:hover:bg-[#1b1f25] text-[#00332D] dark:text-gray-200"
             >
               <SunMoon className="w-5 h-5" />
-              {!collapsed && <span className="font-medium">{theme === 'dark' ? 'Light Mode' : 'Dark Mode'}</span>}
+              <span>Dark Mode</span>
             </button>
+          )}
+          <InlineCollapseBtn forceVisible />
+        </div>
+
+        <div className={clsx('w-full flex items-center', collapsed ? 'gap-1 justify-start' : 'group justify-between')}>
+          {collapsed ? (
+            <Tooltip label="Settings">
+              <button onClick={() => router.push('/settings')} className={clsx('w-11 h-11 grid place-items-center', iconBox(false))}>
+                <SettingsIcon className="w-5 h-5" />
+              </button>
+            </Tooltip>
+          ) : (
             <button
-              onClick={() => setCollapsed(!collapsed)}
-              className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
-              aria-label="Toggle Sidebar"
+              onClick={() => router.push('/settings')}
+              className="flex items-center gap-3 px-3 py-2 rounded-md hover:bg-gray-50 dark:hover:bg-[#1b1f25] text-[#00332D] dark:text-gray-200"
             >
-              {collapsed ? (
-                <ChevronLeft className="w-4 h-4 text-gray-400" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-gray-400" />
-              )}
+              <SettingsIcon className="w-5 h-5" />
+              <span>Settings</span>
             </button>
-          </div>
-
-          {/* Settings Button */}
-      {/* Settings Row */}
-<div className="flex items-center justify-between gap-2 px-3 py-2 rounded-md w-full hover:bg-gray-100 dark:hover:bg-[#2a2a2a] transition-colors">
-  <button className="flex items-center gap-2 text-[#00332D] dark:text-white">
-    <Settings className="w-5 h-5" />
-    {!collapsed && <span className="font-medium">Settings</span>}
-  </button>
-  <button
-    onClick={() => setCollapsed(!collapsed)}
-    className="p-1 rounded-md hover:bg-gray-200 dark:hover:bg-[#333] transition"
-    aria-label="Toggle Sidebar"
-  >
-    {collapsed ? (
-      <ChevronLeft className="w-4 h-4 text-gray-400" />
-    ) : (
-      <ChevronRight className="w-4 h-4 text-gray-400" />
-    )}
-  </button>
-</div>
-
+          )}
+          <InlineCollapseBtn forceVisible />
         </div>
       </div>
-    </div>
+    </aside>
   );
 }

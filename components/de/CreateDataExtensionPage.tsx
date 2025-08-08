@@ -57,7 +57,7 @@ function TemplateCard({ name, icon: Icon, description }: TemplateCardProps) {
         <div className="bg-green-100 text-green-800 p-2 rounded-md">
           <Icon className="w-5 h-5" />
         </div>
-        <h3 className="text-lg font-semibold text-[#00332D] dark:text-white">
+        <h3 className="text-lg font-semibold text-[#1A1A1A] dark:text-[#F1F5F4]">
           {name}
         </h3>
       </div>
@@ -68,28 +68,32 @@ function TemplateCard({ name, icon: Icon, description }: TemplateCardProps) {
 
 export default function CreateDataExtensionPage() {
   return (
-    <div className="max-w-6xl mx-auto bg-white dark:bg-[#111827] rounded-md shadow-md border p-6 space-y-6 mt-6">
-      {/* Action Buttons aligned to right */}
-      <div className="flex justify-end">
-        <div className="flex gap-3">
-          <button className="bg-transparent border border-[#00332D] text-[#00332D] px-4 py-2 rounded-md flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] dark:text-white dark:border-white">
-            <Plus className="w-4 h-4" /> Create
-          </button>
-          <button className="bg-transparent border border-[#00332D] text-[#00332D] px-4 py-2 rounded-md flex items-center gap-2 hover:bg-gray-100 dark:hover:bg-[#2a2a2a] dark:text-white dark:border-white">
-            <Upload className="w-4 h-4" /> Import
-          </button>
+    <div className="max-w-6xl mx-auto mt-6">
+      {/* 📦 White Card Box */}
+      <div className="bg-white dark:bg-[#111827] rounded-md shadow-md border p-6 space-y-6">
+
+        {/* 🔘 Top-right Action Buttons */}
+        <div className="flex justify-end w-full mb-2">
+          <div className="flex gap-3">
+            <button className="bg-[#009966] text-white px-4 py-2 rounded-md flex items-center gap-2 hover:bg-[#24A77B] transition">
+              <Plus className="w-4 h-4" /> Create
+            </button>
+            <button className="bg-white text-[#009966] border border-[#009966] px-4 py-2 rounded-md flex items-center gap-2 hover:bg-[#f5f5f5] dark:bg-[#1a1a1a] dark:hover:bg-[#2a2a2a] dark:text-white dark:border-white transition">
+              <Upload className="w-4 h-4" /> Import
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Template Section */}
-      <h2 className="text-lg font-semibold text-[#00332D] dark:text-white">
-        Pick from Template
-      </h2>
+        {/* 🧱 Template Section */}
+        <h2 className="text-lg font-semibold text-[#1A1A1A] dark:text-[#F1F5F4]">
+          Pick from Template
+        </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {templates.map((template) => (
-          <TemplateCard key={template.name} {...template} />
-        ))}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {templates.map((template) => (
+            <TemplateCard key={template.name} {...template} />
+          ))}
+        </div>
       </div>
     </div>
   );
