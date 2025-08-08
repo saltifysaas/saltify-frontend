@@ -15,5 +15,4 @@ export interface Contact {
   updatedAt?: string; // ISO
 }
 
-// Useful when creating a new contact from a form
 export type NewContact = Omit<Contact, 'id' | 'createdAt' | 'updatedAt'>;
