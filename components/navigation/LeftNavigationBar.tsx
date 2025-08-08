@@ -17,18 +17,30 @@ import {
   ChevronUp,
   List,
   Table,
-  User,
+  User as UserIcon,
   Filter,
+  type LucideIcon,
 } from 'lucide-react';
 import clsx from 'clsx';
-import { useState } from 'react';
-import type { CSSProperties } from 'react';
+import { useState, type CSSProperties } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useTheme } from 'next-themes';
-
 import Tooltip from '../ui/Tooltip';
 
-const NAV_ITEMS = [
+type ChildItem = {
+  label: string;
+  icon: LucideIcon;
+  href: string;
+};
+
+type NavItem = {
+  label: string;
+  icon: LucideIcon;
+  href?: string;
+  children?: ChildItem[];
+};
+
+const NAV_ITEMS: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
   { label: 'Landing Pages', icon: LayoutTemplate, href: '/landingpages' },
   { label: 'Forms', icon: FileText, href: '/forms' },
@@ -39,7 +51,7 @@ const NAV_ITEMS = [
     children: [
       { label: 'All Contacts', icon: List, href: '/contacts' },
       { label: 'Segmentation', icon: Filter, href: '/contacts/segmentation' },
-      { label: 'Profiles', icon: User, href: '/contacts/profiles' },
+      { label: 'Profiles', icon: UserIcon, href: '/contacts/profiles' },
     ],
   },
   {
@@ -62,11 +74,14 @@ type Props = {
 export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Props) {
   const pathname = usePathname();
   const router = useRouter();
-  const { setTheme, theme, resolvedTheme } = useTheme() as any;
+
+  // ✅ Proper typing from next-themes (no `any`)
+  const { setTheme, theme, resolvedTheme } = useTheme();
+
   const [openMenu, setOpenMenu] = useState<string | null>(null);
 
   const toggleTheme = () => {
-    const current = resolvedTheme ?? theme;
+    const current = (resolvedTheme ?? theme) as string | undefined;
     setTheme(current === 'dark' ? 'light' : 'dark');
   };
 
@@ -86,10 +101,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
           'rounded-md transition focus:outline-none focus:ring-2 focus:ring-[#00332D]/30',
           collapsed
             ? iconBox(false)
-            : clsx(
-                'p-2 ml-2 hover:bg-gray-50 dark:hover:bg-[#1b1f25]',
-                forceVisible ? '' : 'opacity-0 group-hover:opacity-100'
-              )
+            : clsx('p-2 ml-2 hover:bg-gray-50 dark:hover:bg-[#1b1f25]', forceVisible ? '' : 'opacity-0 group-hover:opacity-100')
         )}
         title={collapsed ? 'Expand' : 'Collapse'}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -115,10 +127,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
       <div className={clsx('mt-4', collapsed ? 'px-0' : 'px-3')}>
         <button
           onClick={() => setCollapsed((c) => !c)}
-          className={clsx(
-            'group w-full flex items-center rounded-md transition',
-            collapsed ? 'justify-center' : 'justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
-          )}
+          className={clsx('group w-full flex items-center rounded-md transition', collapsed ? 'justify-center' : 'justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]')}
         >
           {!collapsed && <span className="text-lg text-gray-700">Menu</span>}
           {collapsed ? (
@@ -134,14 +143,14 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
       {/* 🧭 Nav list */}
       <div className={clsx('flex-1 flex flex-col gap-1 py-2', collapsed ? 'items-center px-0' : 'items-stretch px-2')}>
         {NAV_ITEMS.map(({ label, icon: Icon, href, children }) => {
-          const isActive = pathname === href;
+          const isActive = !!href && pathname === href;
           const isOpen = openMenu === label;
 
           if (collapsed) {
             return (
               <Tooltip key={label} label={label}>
                 <button
-                  onClick={() => (children ? handleParentClick(label) : router.push(href))}
+                  onClick={() => (children ? handleParentClick(label) : href ? router.push(href) : undefined)}
                   className="group justify-center w-full flex"
                 >
                   <span className={iconBox(isActive)}>
@@ -155,7 +164,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
           return (
             <div key={label}>
               <button
-                onClick={() => (children ? handleParentClick(label) : router.push(href))}
+                onClick={() => (children ? handleParentClick(label) : href ? router.push(href) : undefined)}
                 className={clsx(
                   'relative w-full rounded-md transition-colors flex items-center gap-3 px-3 py-2',
                   isActive ? 'bg-[#eaf0ff]' : 'hover:bg-gray-50 dark:hover:bg-[#1b1f25]'
@@ -163,25 +172,31 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
               >
                 {isActive && <span className="absolute left-0 top-0 h-full w-[2px] bg-[#00332D] rounded-l-md" />}
                 <Icon className={clsx('w-5 h-5', isActive ? 'text-[#00332D]' : 'text-[#00332D] dark:text-gray-200')} />
-                <span className={clsx('text-sm', isActive ? 'text-[#00332D] dark:text-white font-semibold' : 'text-[#00332D] dark:text-gray-200')}>{label}</span>
+                <span className={clsx('text-sm', isActive ? 'text-[#00332D] dark:text-white font-semibold' : 'text-[#00332D] dark:text-gray-200')}>
+                  {label}
+                </span>
                 {children && (isOpen ? <ChevronUp className="ml-auto w-4 h-4" /> : <ChevronDown className="ml-auto w-4 h-4" />)}
               </button>
 
               {isOpen && children && (
                 <div className="ml-8 mt-1 flex flex-col gap-1">
-                  {children.map((child) => (
-                    <button
-                      key={child.label}
-                      onClick={() => router.push(child.href)}
-                      className={clsx(
-                        'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm hover:bg-gray-50 dark:hover:bg-[#1b1f25]',
-                        pathname === child.href ? 'bg-[#eaf0ff] text-[#00332D]' : 'text-[#00332D] dark:text-gray-200'
-                      )}
-                    >
-                      <child.icon className="w-4 h-4" />
-                      {child.label}
-                    </button>
-                  ))}
+                  {children.map((child) => {
+                    const ChildIcon = child.icon;
+                    const childActive = pathname === child.href;
+                    return (
+                      <button
+                        key={child.label}
+                        onClick={() => router.push(child.href)}
+                        className={clsx(
+                          'flex items-center gap-2 px-3 py-1.5 rounded-md text-sm hover:bg-gray-50 dark:hover:bg-[#1b1f25]',
+                          childActive ? 'bg-[#eaf0ff] text-[#00332D]' : 'text-[#00332D] dark:text-gray-200'
+                        )}
+                      >
+                        <ChildIcon className="w-4 h-4" />
+                        {child.label}
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </div>
