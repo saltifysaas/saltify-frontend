@@ -2,7 +2,6 @@
 
 import { useTheme } from 'next-themes';
 import { ChevronLeft, ChevronRight, Settings, SunMoon } from 'lucide-react';
-import clsx from 'clsx';
 
 interface SidebarFooterProps {
   collapsed: boolean;

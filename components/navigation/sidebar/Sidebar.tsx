@@ -5,8 +5,6 @@ import { Menu } from 'lucide-react';
 
 import SidebarWrapper from './SidebarWrapper';
 import SidebarGroup from './SidebarGroup';
-import SidebarItem from './SidebarItem';
-import SidebarSubItem from './SidebarSubItem';
 import SidebarFooter from './SidebarFooter';
 
 type Props = {
