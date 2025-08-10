@@ -1,22 +1,25 @@
+// components/navigation/sidebar/Sidebar.tsx
 'use client';
 
 import type { CSSProperties } from 'react';
 import { Menu } from 'lucide-react';
 
-import SidebarWrapper from './SidebarWrapper';
-import SidebarGroup from './SidebarGroup';
-import SidebarFooter from './SidebarFooter';
+import SidebarWrapper from '@/components/navigation/sidebar/SidebarWrapper';
+import SidebarGroup from '@/components/navigation/sidebar/SidebarGroup';
 
 type Props = {
   collapsed: boolean;
   setCollapsed: (v: boolean | ((c: boolean) => boolean)) => void;
   style?: CSSProperties;
+  children?: React.ReactNode;
 };
 
-export default function Sidebar({ collapsed, setCollapsed, style }: Props) {
+export default function Sidebar({ collapsed, setCollapsed, style, children }: Props) {
+  // SidebarWrapper expects (val: boolean) => void
+  const setCollapsedBool = (val: boolean) => setCollapsed(val);
+
   return (
-    <SidebarWrapper collapsed={collapsed} style={style}>
-      {/* Header group (uses icon prop) */}
+    <SidebarWrapper collapsed={collapsed} setCollapsed={setCollapsedBool} style={style}>
       <SidebarGroup
         label="Menu"
         collapsed={collapsed}
@@ -24,12 +27,7 @@ export default function Sidebar({ collapsed, setCollapsed, style }: Props) {
         icon={Menu}
         className="mt-4 mx-3"
       />
-
-      {/* TODO: render your actual items here, or keep whatever you already have */}
-      {/* <SidebarItem ... /> */}
-      {/* <SidebarSubItem ... /> */}
-
-      <SidebarFooter collapsed={collapsed} setCollapsed={setCollapsed} />
+      {children}
     </SidebarWrapper>
   );
 }

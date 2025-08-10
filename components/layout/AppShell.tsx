@@ -3,10 +3,10 @@
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
 import clsx from 'clsx';
+import Link from 'next/link';
 
 import LeftNavigationBar from '@/components/navigation/LeftNavigationBar';
 import TopNavigationBar from '@/components/navigation/TopNavigationBar';
-import Breadcrumbs from '@/components/navigation/Breadcrumb';
 import {
   SIDEBAR_EXPANDED,
   SIDEBAR_COLLAPSED,
@@ -15,7 +15,16 @@ import {
 } from '@/lib/ui/constants';
 import useCollapsed from '@/components/hooks/useCollapsed';
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+type Crumb = { label: string; href: string };
+
+export default function AppShell({
+  children,
+  breadcrumbs,
+}: {
+  children: React.ReactNode;
+  /** Optional page-provided breadcrumbs */
+  breadcrumbs?: Crumb[];
+}) {
   const [collapsed, setCollapsed] = useCollapsed(false);
   const pathname = usePathname();
 
@@ -33,14 +42,16 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
     ? `${sidebarWidth}px`
     : sidebarWidth || '220px';
 
-  // 🔗 Breadcrumbs
-  const breadcrumbs = pathname
+  // 🔗 Breadcrumbs (use prop if provided, else derive from pathname)
+  const derivedBreadcrumbs: Crumb[] = pathname
     .split('/')
     .filter(Boolean)
     .map((segment, index, arr) => ({
       label: segment.charAt(0).toUpperCase() + segment.slice(1),
       href: '/' + arr.slice(0, index + 1).join('/'),
     }));
+
+  const crumbs = breadcrumbs ?? derivedBreadcrumbs;
 
   return (
     <div className="h-screen bg-gray-200 dark:bg-[#0f0f0f] p-2">
@@ -51,13 +62,12 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           gridTemplateRows: `${safeHeader} minmax(0, 1fr)`,
           gap: safeGap,
           transition: 'grid-template-columns .2s ease',
-
         }}
       >
         {/* Logo (row 1, col 1) */}
         <div
           className={clsx(
-            'rounded-md bg-[#00332D] flex items-center justify-center mb-[2px] mt-[1.5px]',
+            'rounded-md bg-[#00332D] flex items-center justify-center]',
             'overflow-hidden transition-[height] duration-200'
           )}
           style={{ height: safeHeader, willChange: 'height' }}
@@ -100,7 +110,35 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
           )}
         >
           <div className="mb-4">
-            <Breadcrumbs items={breadcrumbs} />
+            <nav aria-label="Breadcrumb" className="text-sm">
+              <ol className="list-none p-0 m-0 flex items-center gap-2 text-gray-600 dark:text-gray-400">
+                <li>
+                  <Link href="/" className="hover:text-gray-900 dark:hover:text-white">
+                    Home
+                  </Link>
+                </li>
+                {crumbs.map((item, idx) => {
+                  const last = idx === crumbs.length - 1;
+                  return (
+                    <li key={item.href} className="flex items-center gap-2">
+                      <span className="opacity-50">/</span>
+                      {last ? (
+                        <span className="text-gray-900 dark:text-gray-100">
+                          {item.label}
+                        </span>
+                      ) : (
+                        <Link
+                          href={item.href}
+                          className="hover:text-gray-900 dark:hover:text-white"
+                        >
+                          {item.label}
+                        </Link>
+                      )}
+                    </li>
+                  );
+                })}
+              </ol>
+            </nav>
           </div>
           {children}
         </main>

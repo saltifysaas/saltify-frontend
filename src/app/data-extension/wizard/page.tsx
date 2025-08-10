@@ -6,7 +6,6 @@ import { useRouter } from 'next/navigation';
 
 import AppShell from '@/components/layout/AppShell';
 import WizardLayout from '@/components/wizard/WizardLayout';
-import Breadcrumbs from '@/components/navigation/Breadcrumb'; // ✅ Make sure this exists
 
 const wizardSteps = [
   { key: 'name', label: 'Name' },
@@ -16,8 +15,8 @@ const wizardSteps = [
 
 const breadcrumbItems = [
   { label: 'Home', href: '/' },
-  { label: 'Data Extensions', href: '/dataextension' },
-  { label: 'Create', href: '/dataextension/wizard' },
+  { label: 'Data Extensions', href: '/data-extension' },
+  { label: 'Create', href: '/data-extension/wizard' },
 ];
 
 export default function DataExtensionWizardPage() {
@@ -30,16 +29,15 @@ export default function DataExtensionWizardPage() {
   const handleNext = () => {
     if (!deName.trim()) return alert('Please enter a name');
     // TODO: Save name/description/tag to store
-    router.push('/dataextension/wizard/attributes');
+    router.push('/data-extension/wizard/attributes');
   };
 
   return (
-    <AppShell>
+    <AppShell breadcrumbs={breadcrumbItems}>
       <WizardLayout
         title="Create a Data Extension"
         steps={wizardSteps}
         currentStep={0}
-        breadcrumbs={<Breadcrumbs items={breadcrumbItems} />}
       >
         <div className="space-y-6">
           {/* Name */}

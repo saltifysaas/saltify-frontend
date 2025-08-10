@@ -1,6 +1,7 @@
+// components/forms/FieldPalette.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import clsx from 'clsx';
 import {
@@ -285,15 +286,19 @@ export default function FieldPalette() {
 function DraggableField({ field }: { field: { id: string; label: string } }) {
   const [{ isDragging }, drag] = useDrag(() => ({
     type: 'field',
-    item: { type: field.id },
+    item: { type: field.id, label: field.label },
     collect: (monitor) => ({
       isDragging: monitor.isDragging(),
     }),
   }));
 
+  // ✅ react-dnd ref fix
+  const dragRef = useRef<HTMLDivElement | null>(null);
+  drag(dragRef);
+
   return (
     <div
-      ref={drag}
+      ref={dragRef}
       className={clsx(
         'cursor-move p-2 rounded-md border text-sm transition-all',
         isDragging ? 'opacity-40' : 'opacity-100',

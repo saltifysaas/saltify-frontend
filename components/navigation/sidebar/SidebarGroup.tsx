@@ -1,63 +1,44 @@
+// components/navigation/sidebar/SidebarGroup.tsx
 'use client';
 
-import { useState } from 'react';
+import { type ReactNode } from 'react';
 import clsx from 'clsx';
-import { useRouter } from 'next/navigation';
+import { type LucideIcon } from 'lucide-react';
 
-interface SidebarGroupProps {
-  icon: React.ElementType;
+export interface SidebarGroupProps {
   label: string;
-  href?: string;
-  children?: React.ReactNode;
   collapsed: boolean;
-  active?: boolean;
+  icon?: LucideIcon;
+  className?: string;
+  children?: ReactNode;
+  onToggle?: () => void; // ✅ make toggle optional
 }
 
 export default function SidebarGroup({
-  icon: Icon,
   label,
-  href,
-  children,
   collapsed,
-  active = false,
+  icon: Icon,
+  className,
+  children,
+  onToggle,
 }: SidebarGroupProps) {
-  const [open, setOpen] = useState(false);
-  const router = useRouter();
-
-  const handleClick = () => {
-    if (href) router.push(href);
-    else setOpen((prev) => !prev);
-  };
-
   return (
-    <div
-      onMouseEnter={() => collapsed && setOpen(true)}
-      onMouseLeave={() => collapsed && setOpen(false)}
-      className={clsx(
-        'group',
-        collapsed && 'relative hover:bg-gray-100 dark:hover:bg-[#2a2a2a] rounded-md'
-      )}
-    >
+    <div className={clsx('w-full', className)}>
       <button
-        onClick={handleClick}
+        type="button"
+        onClick={onToggle}
         className={clsx(
-          'flex items-center gap-3 text-sm p-2 w-full rounded-md transition-colors',
-          active
-            ? 'bg-gray-100 dark:bg-[#2a2a2a] text-primary font-medium'
-            : 'text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+          'w-full flex items-center gap-2 rounded-md border px-2 py-2',
+          'bg-white hover:bg-gray-50 dark:bg-[#1f1f1f] dark:hover:bg-[#2a2a2a] border-gray-200 dark:border-gray-700',
+          onToggle ? 'cursor-pointer' : 'cursor-default'
         )}
+        aria-label={onToggle ? 'Toggle Sidebar' : label}
       >
-        <Icon className="w-5 h-5 shrink-0" />
-        {!collapsed && <span>{label}</span>}
+        {Icon ? <Icon className="h-4 w-4" /> : null}
+        {!collapsed && <span className="text-sm">{label}</span>}
       </button>
 
-      {/* 🔽 Children */}
-      {!collapsed && open && children}
-      {collapsed && open && (
-        <div className="absolute left-full top-0 ml-1 bg-white dark:bg-[#111827] rounded shadow-md z-10 w-48">
-          {children}
-        </div>
-      )}
+      {!collapsed && children ? <div className="mt-2">{children}</div> : null}
     </div>
   );
 }
