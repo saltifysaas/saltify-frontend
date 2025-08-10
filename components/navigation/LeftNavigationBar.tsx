@@ -175,7 +175,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
                 <span className={clsx('text-sm', isActive ? 'text-[#00332D] dark:text-white font-semibold' : 'text-[#00332D] dark:text-gray-200')}>
                   {label}
                 </span>
-                {children && (isOpen ? <ChevronUp className="ml-auto w-4 h-4" /> : <ChevronDown className="ml-auto w-4 h-4" />)}
+                {children && (isOpen ? <ChevronUp className="ml-auto shrink-0 w-4 h-4" /> : <ChevronDown className="ml-auto shrink-0 w-4 h-4" />)}
               </button>
 
               {isOpen && children && (
