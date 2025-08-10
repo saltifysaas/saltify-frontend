@@ -68,7 +68,8 @@ export default function AppShell({
         <div
           className={clsx(
             'rounded-md bg-[#00332D] flex items-center justify-center]',
-            'overflow-hidden transition-[height] duration-200'
+            'overflow-hidden transition-[height] duration-200',
+            'grid place-items-center' 
           )}
           style={{ height: safeHeader, willChange: 'height' }}
           aria-label="Brand"
