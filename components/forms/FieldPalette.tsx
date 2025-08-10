@@ -1,8 +1,6 @@
-/* eslint-disable @next/next/no-img-element */
 'use client';
 
 import { useState } from 'react';
-import { useRef } from 'react';
 import { useDrag } from 'react-dnd';
 import clsx from 'clsx';
 import {
@@ -293,13 +291,9 @@ function DraggableField({ field }: { field: { id: string; label: string } }) {
     }),
   }));
 
-  // ✅ Fix: Connectors are not Refs. Use a real ref and connect it.
-  const ref = useRef<HTMLDivElement | null>(null);
-  drag(ref);
-
   return (
     <div
-      ref={ref}
+      ref={drag}
       className={clsx(
         'cursor-move p-2 rounded-md border text-sm transition-all',
         isDragging ? 'opacity-40' : 'opacity-100',
