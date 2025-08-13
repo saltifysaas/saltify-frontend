@@ -1,21 +1,36 @@
-'use client';
-
-import { useParams } from 'next/navigation';
 import AppShell from '@/components/layout/AppShell';
+import ContactDetailClient from '@/components/contact/ContactDetailClient';
 
-export default function ContactRecordPage() {
-  const params = useParams();
-  const contactId = params?.id;
+type PageProps = {
+  params: { id: string };
+};
+
+// Replace with real DB/Supabase fetch
+async function getContact(id: string) {
+  return {
+    id,
+    name: 'John Doe',
+    email: 'john@example.com',
+    phone: '+1 555-0101',
+    company: 'Acme Inc.',
+    title: 'Senior Manager',
+    location: 'New York, USA',
+    createdAt: '2024-12-01T10:30:00.000Z',
+    updatedAt: '2025-02-20T08:12:00.000Z',
+    tags: ['Prospect', 'Newsletter'],
+  };
+}
+
+// This file is a Server Component by default
+export default async function ContactRecordPage({ params }: PageProps) {
+  const contact = await getContact(params.id);
+
+  // Optionally handle 404:
+  // if (!contact) notFound();
 
   return (
     <AppShell>
-      <div className="p-6">
-        <h1 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
-          Contact Details
-        </h1>
-        <p className="text-gray-500 dark:text-gray-400">ID: {contactId}</p>
-        {/* Tabs, Info Cards, Timeline, etc. */}
-      </div>
+      <ContactDetailClient contact={contact} />
     </AppShell>
   );
 }

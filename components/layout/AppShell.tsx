@@ -5,7 +5,7 @@ import Image from 'next/image';
 import clsx from 'clsx';
 import Link from 'next/link';
 
-import LeftNavigationBar from '@/components/navigation/LeftNavigationBar';
+import LeftNavigationBar from '@/components/navigation/sidebar/LeftNavigationBar';
 import TopNavigationBar from '@/components/navigation/TopNavigationBar';
 import {
   SIDEBAR_EXPANDED,

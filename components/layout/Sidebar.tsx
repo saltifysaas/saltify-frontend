@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import SidebarLogo from './SidebarLogo';
-import LeftNavigationBar from '@/components/navigation/LeftNavigationBar';
+import LeftNavigationBar from '@/components/navigation/sidebar/LeftNavigationBar';
 
 export default function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);

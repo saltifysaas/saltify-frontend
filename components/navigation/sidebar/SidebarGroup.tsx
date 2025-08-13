@@ -1,44 +1,92 @@
-// components/navigation/sidebar/SidebarGroup.tsx
 'use client';
 
-import { type ReactNode } from 'react';
 import clsx from 'clsx';
-import { type LucideIcon } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useMemo } from 'react';
+import SidebarItem from './SidebarItem';
+import SidebarSubItem from './SidebarSubItem';
 
-export interface SidebarGroupProps {
+type Child = {
   label: string;
-  collapsed: boolean;
-  icon?: LucideIcon;
-  className?: string;
-  children?: ReactNode;
-  onToggle?: () => void; // ✅ make toggle optional
-}
+  icon: React.ComponentType<{ className?: string }>;
+  href: string;
+};
 
 export default function SidebarGroup({
   label,
+  icon,
+  href,
+  childrenItems,
   collapsed,
-  icon: Icon,
-  className,
-  children,
-  onToggle,
-}: SidebarGroupProps) {
-  return (
-    <div className={clsx('w-full', className)}>
-      <button
-        type="button"
-        onClick={onToggle}
-        className={clsx(
-          'w-full flex items-center gap-2 rounded-md border px-2 py-2',
-          'bg-white hover:bg-gray-50 dark:bg-[#1f1f1f] dark:hover:bg-[#2a2a2a] border-gray-200 dark:border-gray-700',
-          onToggle ? 'cursor-pointer' : 'cursor-default'
-        )}
-        aria-label={onToggle ? 'Toggle Sidebar' : label}
-      >
-        {Icon ? <Icon className="h-4 w-4" /> : null}
-        {!collapsed && <span className="text-sm">{label}</span>}
-      </button>
+  pathname,
+  isOpen,
+  setOpen,
+}: {
+  label: string;
+  icon: React.ComponentType<{ className?: string }>;
+  href?: string;
+  childrenItems?: Child[];
+  collapsed: boolean;
+  pathname: string;
+  isOpen: boolean;
+  setOpen: (label: string | null) => void;
+}) {
+  const hasChildren = !!childrenItems?.length;
 
-      {!collapsed && children ? <div className="mt-2">{children}</div> : null}
+  const activeParent = !!href && (pathname === href || pathname.startsWith(href + '/'));
+  const someChildActive = useMemo(() => {
+    if (!childrenItems?.length) return false;
+    return childrenItems.some(
+      (c) => pathname === c.href || pathname.startsWith(c.href + '/')
+    );
+  }, [childrenItems, pathname]);
+
+  const active = activeParent || someChildActive;
+
+  return (
+    <div>
+      <div className="flex items-center">
+        <SidebarItem
+          label={label}
+          icon={icon}
+          href={href}
+          active={active}
+          collapsed={collapsed}
+          onClick={
+            !href && hasChildren
+              ? () => setOpen(isOpen ? null : label)
+              : undefined
+          }
+        />
+        {!collapsed && hasChildren && (
+          <button
+            onClick={() => setOpen(isOpen ? null : label)}
+            className="ml-auto mr-2 text-gray-500 hover:text-gray-800 dark:text-gray-400 dark:hover:text-gray-200"
+            aria-expanded={isOpen}
+            aria-label={isOpen ? 'Collapse' : 'Expand'}
+          >
+            {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+          </button>
+        )}
+      </div>
+
+      {!collapsed && isOpen && hasChildren && (
+        <div className="ml-8 mt-1 flex flex-col gap-1">
+          {childrenItems!.map((child) => {
+            const childActive =
+              pathname === child.href || pathname.startsWith(child.href + '/');
+            return (
+              <SidebarSubItem
+                key={child.label}
+                label={child.label}
+                icon={child.icon}
+                href={child.href}
+                active={childActive}
+              />
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

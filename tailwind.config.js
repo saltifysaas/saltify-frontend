@@ -66,11 +66,11 @@ module.exports = {
         // ✅ Centralized UI palette for AppShell & LeftNavigationBar
         ui: {
           navigationLight: '#ffffff',
-          navigationDark: '#303030',
+          navigationDark: '#272727',
           activeLight: '#ffffff',
           activeDark: '#333333',
           pageLight: '#ffffff',
-          pageDark: '#1a1a1a',
+          pageDark: '#303030',
           appBgLight: '#f3f4f6',
           appBgDark: '#4A4A4A',
           borderLight: '#ffffff',
