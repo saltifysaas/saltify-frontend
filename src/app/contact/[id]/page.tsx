@@ -1,9 +1,7 @@
+// src/app/contact/[id]/page.tsx
 import AppShell from '@/components/layout/AppShell';
 import ContactDetailClient from '@/components/contact/ContactDetailClient';
-
-type PageProps = {
-  params: { id: string };
-};
+// import { notFound } from 'next/navigation'; // optional if you want 404
 
 // Replace with real DB/Supabase fetch
 async function getContact(id: string) {
@@ -21,12 +19,16 @@ async function getContact(id: string) {
   };
 }
 
-// This file is a Server Component by default
-export default async function ContactRecordPage({ params }: PageProps) {
+// Server Component by default
+export default async function ContactRecordPage({
+  params,
+}: {
+  params: { id: string };
+}) {
   const contact = await getContact(params.id);
 
   // Optionally handle 404:
-  // if (!contact) notFound();
+  // if (!contact) return notFound();
 
   return (
     <AppShell>
