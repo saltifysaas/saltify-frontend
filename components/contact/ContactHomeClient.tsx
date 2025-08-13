@@ -1,20 +1,69 @@
 'use client';
 
+import Link from 'next/link';
+import { useMemo } from 'react';
+import { useRouter } from 'next/navigation';
 import ModuleHomeHeader from '@/components/module/ModuleHomeHeader';
 import ModuleListView, { Column } from '@/components/module/ModuleListView';
 import { Download, Trash2, Settings } from 'lucide-react';
 
 type Contact = {
-  id: string;
+  id?: string;           // may be missing
+  externalId?: string;   // optional alt id
   name: string;
   email: string;
   company?: string;
-  createdAt?: string; // ISO
+  createdAt?: string;    // ISO
 };
 
+// ---- helpers (no deps) ----
+const slugify = (s: string) =>
+  s
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const deriveRouteId = (row: Contact, idx: number): string => {
+  if (row.id && row.id.trim()) return row.id;
+  if (row.externalId && row.externalId.trim()) return row.externalId;
+  if (row.email && row.email.trim()) return `email-${encodeURIComponent(row.email)}`;
+  if (row.name && row.name.trim()) return `${slugify(row.name)}-${idx}`;
+  return `row-${idx}`;
+};
+
+const contactDetailPath = (rid: string) => `/contact/${rid}`; // change to `/contacts/${rid}` if your route is plural
+
+type ContactRow = Contact & { _rid: string };
+
 export default function ContactHomeClient({ data }: { data: Contact[] }) {
-  const columns: Column<Contact>[] = [
-    { key: 'name', label: 'Name', sortable: true, widthClass: 'w-64' },
+  const router = useRouter();
+
+  // add a safe route id for every row
+  const rows: ContactRow[] = useMemo(
+    () => data.map((r, i) => ({ ...r, _rid: deriveRouteId(r, i) })),
+    [data]
+  );
+
+  const columns: Column<ContactRow>[] = [
+    {
+      key: 'name',
+      label: 'Name',
+      sortable: true,
+      widthClass: 'w-64',
+      render: (v, row) => (
+        <Link
+          href={contactDetailPath(row._rid)}
+          className="text-blue-600 hover:underline"
+          onClick={(e) => {
+            // prevent row-level onClick from firing
+            e.stopPropagation();
+          }}
+        >
+          {String(v ?? '—')}
+        </Link>
+      ),
+    },
     { key: 'email', label: 'Email', sortable: true, widthClass: 'w-64' },
     { key: 'company', label: 'Company', sortable: true, widthClass: 'w-56' },
     {
@@ -22,7 +71,7 @@ export default function ContactHomeClient({ data }: { data: Contact[] }) {
       label: 'Created',
       sortable: true,
       widthClass: 'w-40',
-      render: (v) => (v ? new Date(v).toLocaleDateString() : '—'),
+      render: (v) => (v ? new Date(String(v)).toLocaleDateString() : '—'),
       sortAccessor: (row) => (row.createdAt ? new Date(row.createdAt) : null),
       align: 'right',
     },
@@ -41,30 +90,31 @@ export default function ContactHomeClient({ data }: { data: Contact[] }) {
         ]}
       />
 
-      {/* ⬇️ Added 2px spacing */}
       <div className="mt-[4px]">
-        <ModuleListView<Contact>
+        <ModuleListView<ContactRow>
           columns={columns}
-          data={data}
-          idKey="id"
+          data={rows}
+          idKey="_rid"                     // ✅ use the derived id for keys/selection
           initialPageSize={10}
-          renderBulkActions={(rows) => (
+          renderBulkActions={(sel) => (
             <>
               <button
                 className="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-700"
-                onClick={() => console.log('Export', rows.map(r => r.id))}
+                onClick={() => console.log('Export', sel.map((r) => r._rid))}
               >
                 Export Selected
               </button>
               <button
                 className="px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-700"
-                onClick={() => console.log('Delete', rows.map(r => r.id))}
+                onClick={() => console.log('Delete', sel.map((r) => r._rid))}
               >
                 Delete Selected
               </button>
             </>
           )}
-          onRowClick={(row) => console.log('Open', row.id)}
+          onRowClick={(row) => {
+            router.push(contactDetailPath(row._rid)); // ✅ navigate on row click
+          }}
         />
       </div>
     </>

@@ -23,38 +23,20 @@ interface ModuleListViewProps<T extends Row> {
   loading?: boolean;
   emptyMessage?: string;
   className?: string;
-
-  // Row interactions
   onRowClick?: (row: T) => void;
-
-  // Pagination (client-side)
   initialPageSize?: number; // default 10
   pageSizeOptions?: number[]; // default [10, 20, 50]
-
-  // Bulk actions bar (appears when rows selected)
   renderBulkActions?: (selectedRows: T[]) => React.ReactNode;
-
-  // Sticky header?
   stickyHeader?: boolean; // default true
 }
 
 function defaultCompare(a: unknown, b: unknown) {
-  const va =
-    a instanceof Date ? a.getTime() :
-    a === null || a === undefined ? '' :
-    a;
-  const vb =
-    b instanceof Date ? b.getTime() :
-    b === null || b === undefined ? '' :
-    b;
-
+  const va = a instanceof Date ? a.getTime() : a ?? '';
+  const vb = b instanceof Date ? b.getTime() : b ?? '';
   if (typeof va === 'string' && typeof vb === 'string') {
     return va.localeCompare(vb, undefined, { sensitivity: 'base', numeric: true });
   }
-  if (typeof va === 'number' && typeof vb === 'number') {
-    return va - vb;
-  }
-  // Fallback to string compare
+  if (typeof va === 'number' && typeof vb === 'number') return va - vb;
   return String(va).localeCompare(String(vb), undefined, { sensitivity: 'base', numeric: true });
 }
 
@@ -82,7 +64,7 @@ export default function ModuleListView<T extends Row>({
   // Selection (page-scoped)
   const [selected, setSelected] = useState<Record<string, boolean>>({});
 
-  // Derive sorted data
+  // Sorted data
   const sortedData = useMemo(() => {
     if (!sortKey || !sortDir) return data;
     const col = columns.find((c) => String(c.key) === sortKey);
@@ -101,7 +83,7 @@ export default function ModuleListView<T extends Row>({
     return copy;
   }, [data, columns, sortKey, sortDir]);
 
-  // Paginated slice
+  // Pagination slice
   const total = sortedData.length;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -109,9 +91,16 @@ export default function ModuleListView<T extends Row>({
   const endIdx = Math.min(startIdx + pageSize, total);
   const pageRows = sortedData.slice(startIdx, endIdx);
 
-  // Selected rows (current page only)
+  // Key handling
   const idKeyStr = String(idKey as string);
-  const pageIds = pageRows.map((r) => String((r as Record<string, unknown>)[idKeyStr]));
+  const getRowKey = (row: T, idxInPage: number) => {
+    const raw = (row as Record<string, unknown>)[idKeyStr];
+    // If id missing/empty, fallback to a stable page-aware key to avoid duplicates
+    return raw === null || raw === undefined || raw === '' ? `__row_${startIdx + idxInPage}` : String(raw);
+  };
+
+  // Selected rows (current page only)
+  const pageIds = pageRows.map((r, i) => getRowKey(r, i));
   const selectedCount = pageIds.filter((id) => selected[id]).length;
   const allPageSelected = pageIds.length > 0 && selectedCount === pageIds.length;
   const somePageSelected = selectedCount > 0 && selectedCount < pageIds.length;
@@ -151,8 +140,8 @@ export default function ModuleListView<T extends Row>({
   }
 
   const selectedRows = useMemo(
-    () => pageRows.filter((r) => selected[String((r as Record<string, unknown>)[idKeyStr])]),
-    [pageRows, selected, idKeyStr]
+    () => pageRows.filter((r, i) => selected[getRowKey(r, i)]),
+    [pageRows, selected] // getRowKey depends on startIdx which is part of pageRows slice
   );
 
   // UI
@@ -231,11 +220,11 @@ export default function ModuleListView<T extends Row>({
 
           <tbody>
             {pageRows.map((row, idx) => {
-              const idStr = String((row as Record<string, unknown>)[idKeyStr]);
+              const rowKey = getRowKey(row, idx); // ✅ stable unique key
               const clickable = !!onRowClick;
               return (
                 <tr
-                  key={idStr ?? idx}
+                  key={rowKey}
                   className={clsx(
                     'border-b border-gray-200 dark:border-gray-700',
                     clickable ? 'hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer' : 'hover:bg-gray-50/60 dark:hover:bg-gray-900/60'
@@ -247,9 +236,9 @@ export default function ModuleListView<T extends Row>({
                     <input
                       type="checkbox"
                       aria-label="Select row"
-                      checked={!!selected[idStr]}
+                      checked={!!selected[rowKey]}
                       onClick={(e) => e.stopPropagation()}
-                      onChange={() => toggleRow(idStr)}
+                      onChange={() => toggleRow(rowKey)}
                       className="h-4 w-4 accent-blue-600"
                     />
                   </td>
@@ -299,7 +288,6 @@ export default function ModuleListView<T extends Row>({
             onChange={(e) => {
               const next = Number(e.target.value);
               setPageSize(next);
-              // keep user on a valid page
               const nextTotalPages = Math.max(1, Math.ceil(total / next));
               setPage((p) => Math.min(p, nextTotalPages));
             }}
