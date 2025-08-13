@@ -1,6 +1,5 @@
 'use client';
 
-import clsx from 'clsx';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useMemo } from 'react';
 import SidebarItem from './SidebarItem';

@@ -8,13 +8,7 @@ import {
   Users,
   BarChart,
   LayoutTemplate,
-  Settings as SettingsIcon, // kept to match your existing import list
-  SunMoon,                 // kept to match your existing import list
-  ChevronLeft,
-  ChevronRight,
   Menu,
-  ChevronDown,
-  ChevronUp,
   List,
   Table,
   User as UserIcon,
@@ -26,6 +20,7 @@ import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { usePathname } from 'next/navigation';
 import Tooltip from '../../ui/Tooltip';
 import { SidebarWrapper, SidebarGroup, SidebarItem, SidebarFooter } from './index';
+
 
 type ChildItem = { label: string; icon: LucideIcon; href: string };
 type NavItem = { label: string; icon: LucideIcon; href?: string; children?: ChildItem[] };

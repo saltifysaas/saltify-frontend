@@ -13,7 +13,6 @@ export function useCollapsed(initial = false) {
       const saved = localStorage.getItem(STORAGE_KEY);
       if (saved !== null) setCollapsed(saved === 'true');
     } catch {}
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // persist on change

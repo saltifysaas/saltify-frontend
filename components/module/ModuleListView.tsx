@@ -4,21 +4,22 @@ import { useMemo, useState } from 'react';
 import clsx from 'clsx';
 
 type SortDir = 'asc' | 'desc' | null;
+type Row = Record<string, unknown>;
 
-export type Column<T extends Record<string, any>> = {
+export type Column<T extends Row> = {
   key: keyof T | string;
   label: string;
-  widthClass?: string;             // e.g. "w-64"
+  widthClass?: string; // e.g. "w-64"
   align?: 'left' | 'center' | 'right';
   sortable?: boolean;
-  render?: (value: any, row: T) => React.ReactNode;
+  render?: (value: unknown, row: T) => React.ReactNode;
   sortAccessor?: (row: T) => string | number | Date | null | undefined;
 };
 
-interface ModuleListViewProps<T extends Record<string, any>> {
+interface ModuleListViewProps<T extends Row> {
   columns: Column<T>[];
   data: T[];
-  idKey?: keyof T | string;        // key used for selection (default: "id")
+  idKey?: keyof T | string; // key used for selection (default: "id")
   loading?: boolean;
   emptyMessage?: string;
   className?: string;
@@ -27,29 +28,37 @@ interface ModuleListViewProps<T extends Record<string, any>> {
   onRowClick?: (row: T) => void;
 
   // Pagination (client-side)
-  initialPageSize?: number;        // default 10
-  pageSizeOptions?: number[];      // default [10, 20, 50]
+  initialPageSize?: number; // default 10
+  pageSizeOptions?: number[]; // default [10, 20, 50]
 
   // Bulk actions bar (appears when rows selected)
   renderBulkActions?: (selectedRows: T[]) => React.ReactNode;
 
   // Sticky header?
-  stickyHeader?: boolean;          // default true
+  stickyHeader?: boolean; // default true
 }
 
-function defaultCompare(a: any, b: any) {
-  // Normalize values for robust sorting
-  const va = a instanceof Date ? a.getTime() : a ?? '';
-  const vb = b instanceof Date ? b.getTime() : b ?? '';
+function defaultCompare(a: unknown, b: unknown) {
+  const va =
+    a instanceof Date ? a.getTime() :
+    a === null || a === undefined ? '' :
+    a;
+  const vb =
+    b instanceof Date ? b.getTime() :
+    b === null || b === undefined ? '' :
+    b;
+
   if (typeof va === 'string' && typeof vb === 'string') {
     return va.localeCompare(vb, undefined, { sensitivity: 'base', numeric: true });
   }
-  if (va < vb) return -1;
-  if (va > vb) return 1;
-  return 0;
+  if (typeof va === 'number' && typeof vb === 'number') {
+    return va - vb;
+  }
+  // Fallback to string compare
+  return String(va).localeCompare(String(vb), undefined, { sensitivity: 'base', numeric: true });
 }
 
-export default function ModuleListView<T extends Record<string, any>>({
+export default function ModuleListView<T extends Row>({
   columns,
   data,
   idKey = 'id',
@@ -76,11 +85,11 @@ export default function ModuleListView<T extends Record<string, any>>({
   // Derive sorted data
   const sortedData = useMemo(() => {
     if (!sortKey || !sortDir) return data;
-    const col = columns.find(c => String(c.key) === sortKey);
+    const col = columns.find((c) => String(c.key) === sortKey);
     const accessor = (row: T) => {
       if (col?.sortAccessor) return col.sortAccessor(row);
-      const raw = (row as any)[sortKey];
-      return raw;
+      const raw = (row as Record<string, unknown>)[sortKey];
+      return raw as unknown;
     };
     const copy = [...data];
     copy.sort((ra, rb) => {
@@ -101,8 +110,9 @@ export default function ModuleListView<T extends Record<string, any>>({
   const pageRows = sortedData.slice(startIdx, endIdx);
 
   // Selected rows (current page only)
-  const pageIds = pageRows.map((r) => String((r as any)[idKey]));
-  const selectedCount = pageIds.filter(id => selected[id]).length;
+  const idKeyStr = String(idKey as string);
+  const pageIds = pageRows.map((r) => String((r as Record<string, unknown>)[idKeyStr]));
+  const selectedCount = pageIds.filter((id) => selected[id]).length;
   const allPageSelected = pageIds.length > 0 && selectedCount === pageIds.length;
   const somePageSelected = selectedCount > 0 && selectedCount < pageIds.length;
 
@@ -119,34 +129,31 @@ export default function ModuleListView<T extends Record<string, any>>({
   }
 
   function toggleRow(idStr: string) {
-    setSelected(prev => ({ ...prev, [idStr]: !prev[idStr] }));
+    setSelected((prev) => ({ ...prev, [idStr]: !prev[idStr] }));
   }
 
   function toggleSelectAllPage() {
     if (allPageSelected) {
-      // unselect all in page
-      setSelected(prev => {
+      setSelected((prev) => {
         const next = { ...prev };
-        pageIds.forEach(id => delete next[id]);
+        pageIds.forEach((id) => delete next[id]);
         return next;
       });
     } else {
-      // select all in page
-      setSelected(prev => {
+      setSelected((prev) => {
         const next = { ...prev };
-        pageIds.forEach(id => { next[id] = true; });
+        pageIds.forEach((id) => {
+          next[id] = true;
+        });
         return next;
       });
     }
   }
 
   const selectedRows = useMemo(
-    () => pageRows.filter(r => selected[String((r as any)[idKey])]),
-    [pageRows, selected, idKey]
+    () => pageRows.filter((r) => selected[String((r as Record<string, unknown>)[idKeyStr])]),
+    [pageRows, selected, idKeyStr]
   );
-
-  // Reset to page 1 if pageSize changes or data length shrinks
-  // (lightweight guards handled implicitly by safePage calc)
 
   // UI
   if (loading) {
@@ -170,12 +177,8 @@ export default function ModuleListView<T extends Record<string, any>>({
       {/* Bulk actions */}
       {renderBulkActions && selectedRows.length > 0 && (
         <div className="flex items-center justify-between gap-3 px-3 py-2 mb-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0f172a]">
-          <div className="text-sm text-gray-700 dark:text-gray-200">
-            {selectedRows.length} selected
-          </div>
-          <div className="flex items-center gap-2">
-            {renderBulkActions(selectedRows)}
-          </div>
+          <div className="text-sm text-gray-700 dark:text-gray-200">{selectedRows.length} selected</div>
+          <div className="flex items-center gap-2">{renderBulkActions(selectedRows)}</div>
         </div>
       )}
 
@@ -190,7 +193,9 @@ export default function ModuleListView<T extends Record<string, any>>({
                     type="checkbox"
                     aria-label="Select all on page"
                     checked={allPageSelected}
-                    ref={(el) => { if (el) el.indeterminate = somePageSelected; }}
+                    ref={(el) => {
+                      if (el) el.indeterminate = somePageSelected;
+                    }}
                     onChange={toggleSelectAllPage}
                     className="h-4 w-4 accent-blue-600"
                   />
@@ -216,11 +221,7 @@ export default function ModuleListView<T extends Record<string, any>>({
                   >
                     <div className="inline-flex items-center gap-1">
                       <span>{col.label}</span>
-                      {col.sortable && (
-                        <span className="text-xs opacity-70">
-                          {isSorted ? (sortDir === 'asc' ? '▲' : '▼') : '↕'}
-                        </span>
-                      )}
+                      {col.sortable && <span className="text-xs opacity-70">{isSorted ? (sortDir === 'asc' ? '▲' : '▼') : '↕'}</span>}
                     </div>
                   </th>
                 );
@@ -230,16 +231,14 @@ export default function ModuleListView<T extends Record<string, any>>({
 
           <tbody>
             {pageRows.map((row, idx) => {
-              const idStr = String((row as any)[idKey]);
+              const idStr = String((row as Record<string, unknown>)[idKeyStr]);
               const clickable = !!onRowClick;
               return (
                 <tr
                   key={idStr ?? idx}
                   className={clsx(
                     'border-b border-gray-200 dark:border-gray-700',
-                    clickable
-                      ? 'hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer'
-                      : 'hover:bg-gray-50/60 dark:hover:bg-gray-900/60'
+                    clickable ? 'hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer' : 'hover:bg-gray-50/60 dark:hover:bg-gray-900/60'
                   )}
                   onClick={() => clickable && onRowClick!(row)}
                 >
@@ -257,7 +256,7 @@ export default function ModuleListView<T extends Record<string, any>>({
 
                   {columns.map((col) => {
                     const keyStr = String(col.key);
-                    const value = (row as any)[keyStr];
+                    const value = (row as Record<string, unknown>)[keyStr];
                     const align = col.align ?? 'left';
                     return (
                       <td
@@ -306,7 +305,9 @@ export default function ModuleListView<T extends Record<string, any>>({
             }}
           >
             {pageSizeOptions.map((opt) => (
-              <option key={opt} value={opt}>{opt} / page</option>
+              <option key={opt} value={opt}>
+                {opt} / page
+              </option>
             ))}
           </select>
 
