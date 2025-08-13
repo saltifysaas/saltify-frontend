@@ -1,7 +1,7 @@
 // src/app/contact/[id]/page.tsx
 import AppShell from '@/components/layout/AppShell';
 import ContactDetailClient from '@/components/contact/ContactDetailClient';
-// import { notFound } from 'next/navigation'; // optional if you want 404
+// import { notFound } from 'next/navigation'; // optional
 
 // Replace with real DB/Supabase fetch
 async function getContact(id: string) {
@@ -23,11 +23,12 @@ async function getContact(id: string) {
 export default async function ContactRecordPage({
   params,
 }: {
-  params: { id: string };
+  // NOTE: params is a Promise in your generated types
+  params: Promise<{ id: string }>;
 }) {
-  const contact = await getContact(params.id);
+  const { id } = await params;           // ✅ await params
+  const contact = await getContact(id);
 
-  // Optionally handle 404:
   // if (!contact) return notFound();
 
   return (
