@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 // components/forms/FieldPalette.tsx
 'use client';
 

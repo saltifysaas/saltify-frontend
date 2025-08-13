@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useCallback } from 'react';
 import clsx from 'clsx';
 
 type SortDir = 'asc' | 'desc' | null;
@@ -19,15 +19,15 @@ export type Column<T extends Row> = {
 interface ModuleListViewProps<T extends Row> {
   columns: Column<T>[];
   data: T[];
-  idKey?: keyof T | string; // key used for selection (default: "id")
+  idKey?: keyof T | string;
   loading?: boolean;
   emptyMessage?: string;
   className?: string;
   onRowClick?: (row: T) => void;
-  initialPageSize?: number; // default 10
-  pageSizeOptions?: number[]; // default [10, 20, 50]
+  initialPageSize?: number;
+  pageSizeOptions?: number[];
   renderBulkActions?: (selectedRows: T[]) => React.ReactNode;
-  stickyHeader?: boolean; // default true
+  stickyHeader?: boolean;
 }
 
 function defaultCompare(a: unknown, b: unknown) {
@@ -93,11 +93,15 @@ export default function ModuleListView<T extends Row>({
 
   // Key handling
   const idKeyStr = String(idKey as string);
-  const getRowKey = (row: T, idxInPage: number) => {
-    const raw = (row as Record<string, unknown>)[idKeyStr];
-    // If id missing/empty, fallback to a stable page-aware key to avoid duplicates
-    return raw === null || raw === undefined || raw === '' ? `__row_${startIdx + idxInPage}` : String(raw);
-  };
+  const getRowKey = useCallback(
+    (row: T, idxInPage: number) => {
+      const raw = (row as Record<string, unknown>)[idKeyStr];
+      return raw === null || raw === undefined || raw === ''
+        ? `__row_${startIdx + idxInPage}`
+        : String(raw);
+    },
+    [idKeyStr, startIdx]
+  );
 
   // Selected rows (current page only)
   const pageIds = pageRows.map((r, i) => getRowKey(r, i));
@@ -141,7 +145,7 @@ export default function ModuleListView<T extends Row>({
 
   const selectedRows = useMemo(
     () => pageRows.filter((r, i) => selected[getRowKey(r, i)]),
-    [pageRows, selected] // getRowKey depends on startIdx which is part of pageRows slice
+    [pageRows, selected, getRowKey]
   );
 
   // UI
@@ -220,7 +224,7 @@ export default function ModuleListView<T extends Row>({
 
           <tbody>
             {pageRows.map((row, idx) => {
-              const rowKey = getRowKey(row, idx); // ✅ stable unique key
+              const rowKey = getRowKey(row, idx);
               const clickable = !!onRowClick;
               return (
                 <tr
@@ -247,6 +251,16 @@ export default function ModuleListView<T extends Row>({
                     const keyStr = String(col.key);
                     const value = (row as Record<string, unknown>)[keyStr];
                     const align = col.align ?? 'left';
+
+                    // Safe default cell rendering:
+                    const cell =
+                      col.render?.(value, row) ??
+                      (value === null || value === undefined
+                        ? '—'
+                        : typeof value === 'object'
+                        ? JSON.stringify(value)
+                        : String(value));
+
                     return (
                       <td
                         key={keyStr}
@@ -263,7 +277,7 @@ export default function ModuleListView<T extends Row>({
                           }
                         }}
                       >
-                        {col.render ? col.render(value, row) : (value ?? '—')}
+                        {cell}
                       </td>
                     );
                   })}
