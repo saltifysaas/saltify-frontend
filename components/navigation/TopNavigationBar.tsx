@@ -5,7 +5,7 @@ import SearchBox from '@/components/navigation/SearchBox';
 
 export default function TopNavigationBar() {
   return (
-    <header className="h-[65px] flex items-center rounded-md mt-[1px] border-gray-200 justify-between px-8 bg-white dark:bg-[#1a1a1a] border-r border-gray-200 dark:border-gray-700">
+    <header className="h-[65px] flex items-center rounded-md mt-[1px] justify-between px-8 bg-white dark:bg-ui-navigationDark border-r border-gray-200 dark:border-gray-700">
       {/* 🔍 Centered Search Box */}
       <div className="flex-1 flex justify-center">
         <SearchBox className="w-full max-w-[700px]" />

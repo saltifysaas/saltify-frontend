@@ -90,7 +90,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
       'w-11 h-11 rounded-md grid place-items-center transition-all duration-200',
       active
         ? 'bg-[#00332D] text-white'
-        : 'bg-white dark:bg-[#1c1f24] text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#242932]'
+        : 'bg-white dark:bg-ui-navigationDark text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#242932]'
     );
 
   function InlineCollapseBtn({ forceVisible = false }: { forceVisible?: boolean }) {
@@ -106,7 +106,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
         title={collapsed ? 'Expand' : 'Collapse'}
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
-        {collapsed ? <ChevronRight className="w-5 h-5 text-[#00332D]" /> : <ChevronLeft className="w-5 h-5 text-[#00332D]" />}
+        {collapsed ? <ChevronRight className="w-5 h-5 ]" /> : <ChevronLeft className="w-5 h-5]" />}
       </button>
     );
   }
@@ -119,7 +119,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
     <aside
       style={style}
       className={clsx(
-        'flex flex-col justify-between border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-[#111827] transition-all duration-300 rounded-md mt-[2px]',
+        'flex flex-col justify-between border-r border-gray-200 dark:border-gray-700 bg-white dark:bg-ui-navigationDark transition-all duration-300 rounded-md mt-[2px]',
         'h-full'
       )}
     >
@@ -129,13 +129,13 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
           onClick={() => setCollapsed((c) => !c)}
           className={clsx('group w-full flex items-center rounded-md transition', collapsed ? 'justify-center' : 'justify-between px-3 py-2 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]')}
         >
-          {!collapsed && <span className="text-lg text-gray-700">Menu</span>}
+          {!collapsed && <span className="text-lg text-gray-700 dark:text-gray-400 ">Menu</span>}
           {collapsed ? (
             <span className={iconBox(false)}>
               <Menu className="w-5 h-5" />
             </span>
           ) : (
-            <Menu className="w-5 h-5 text-[#00332D] dark:text-gray-200" />
+            <Menu className="w-5 h-5 text-[#00332D] dark:text-gray-200 " />
           )}
         </button>
       </div>

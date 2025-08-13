@@ -54,7 +54,7 @@ export default function AppShell({
   const crumbs = breadcrumbs ?? derivedBreadcrumbs;
 
   return (
-    <div className="h-screen bg-gray-200 dark:bg-[#0f0f0f] p-2">
+    <div className="h-screen bg-gray-200 dark:bg-ui-appBgDark p-2">
       <div
         className="grid h-full"
         style={{
@@ -106,7 +106,7 @@ export default function AppShell({
         {/* Content (row 2, col 2) */}
         <main
           className={clsx(
-            'bg-white dark:bg-[#1a1a1a] rounded-md mt-[1.5px] ml-[1.5px] p-4 h-full min-h-0',
+            'bg-white dark:bg-ui-pageDark rounded-md mt-[1.5px] ml-[1.5px] p-4 h-full min-h-0',
             'shadow-sm overflow-auto'
           )}
         >

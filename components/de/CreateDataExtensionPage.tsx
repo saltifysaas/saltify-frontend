@@ -31,7 +31,7 @@ const templates: TemplateCardProps[] = [
 
 function TemplateCard({ name, icon: Icon, description }: TemplateCardProps) {
   return (
-    <div className="bg-white dark:bg-[#111827] rounded-md p-4 shadow-sm border hover:shadow-md transition-all cursor-pointer w-full">
+    <div className="bg-white dark:bg-ui-pageDark rounded-md p-4 shadow-sm border hover:shadow-md transition-all cursor-pointer w-full">
       <div className="flex items-center gap-3">
         <div className="bg-green-100 text-green-800 p-2 rounded-md">
           <Icon className="w-5 h-5" />
@@ -58,7 +58,7 @@ const CreateDataExtensionPage: React.FC<CreateDataExtensionPageProps> = ({ onClo
   return (
     <div className="max-w-6xl mx-auto mt-6">
       {/* 📦 White Card Box */}
-      <div className="bg-white dark:bg-[#111827] rounded-md shadow-md border p-6 space-y-6">
+      <div className="bg-white dark:bg-ui-sidebarDark rounded-md shadow-md border p-6 space-y-6">
         {/* 🔘 Top-right Action Buttons */}
         <div className="flex justify-end w-full mb-2">
           <div className="flex gap-3">

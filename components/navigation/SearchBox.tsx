@@ -15,7 +15,7 @@ export default function SearchBox({ className = '' }: { className?: string }) {
           bg-white text-[#00332D] placeholder:text-gray-400 
           focus:outline-none 
           border-[#00332d]
-          dark:bg-[#f8fffa] dark:text-white dark:placeholder:text-gray-400 dark:border-[#ffffff]"
+          dark:bg-ui-navigationDark dark:text-white dark:placeholder:text-gray-400 dark:border-gray-500"
       />
     </div>
   );
