@@ -1,10 +1,16 @@
-// next.config.js
-const path = require('path');
+// next.config.ts
+import path from 'path';
+import type { NextConfig } from 'next';
+import type { Configuration as WebpackConfig } from 'webpack';
 
-/** @type {import('next').NextConfig} */
-const nextConfig = {
-  webpack(config) {
-    config.resolve.alias['@'] = path.resolve(__dirname, 'src');
+const nextConfig: NextConfig = {
+  webpack(config: WebpackConfig, _context: any) {
+    // Ensure alias object exists, then set '@' → 'src'
+    config.resolve = config.resolve ?? {};
+    config.resolve.alias = {
+      ...(config.resolve.alias ?? {}),
+      '@': path.resolve(__dirname, 'src'),
+    };
     return config;
   },
 
@@ -16,4 +22,4 @@ const nextConfig = {
   },
 };
 
-module.exports = nextConfig;
+export default nextConfig;
