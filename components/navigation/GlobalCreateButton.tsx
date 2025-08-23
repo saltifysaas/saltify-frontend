@@ -133,13 +133,13 @@ export default function GlobalCreateButton() {
             // keep open while hovering menu; close on leave
             onMouseEnter={cancelClose}
             onMouseLeave={() => scheduleClose(120)}
-            className="fixed z-[1000] min-w-[220px] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#111827] shadow-2xl"
+            className="fixed z-[1000] min-w-[220px] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-ui-navigationDark shadow-2xl"
             style={{ top: pos.top, left: pos.left, transform: 'translateX(-100%)' }} // align right edge to button
           >
             {/* Title */}
             <div
               role="none"
-              className="px-3 py-2 text-xs font-semibold tracking-wide uppercase text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-[#0f172a] border-b border-gray-200 dark:border-gray-700"
+              className="px-3 py-2 text-xs font-semibold tracking-wide uppercase text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-ui-navigationDark border-b border-gray-200 dark:border-ui-borderDark"
             >
               Create
             </div>

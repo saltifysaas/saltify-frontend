@@ -37,7 +37,7 @@ export default function SidebarItem({
           'w-11 h-11 rounded-md grid place-items-center transition-all duration-200',
           active
             ? 'bg-[#00332D] text-white'
-            : 'bg-white dark:bg-ui-navigationDark text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-[#242932]'
+            : 'bg-white dark:bg-ui-navigationDark text-[#00332D] dark:text-white hover:bg-gray-100 dark:hover:bg-ui-appBgDark'
         )}
       >
         <Icon className="w-5 h-5" />
