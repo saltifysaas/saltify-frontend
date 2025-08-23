@@ -1,5 +1,7 @@
 'use client';
 
+import React, { useMemo } from 'react';
+
 export type Contact = {
   id: string;
   name: string;
@@ -8,12 +10,33 @@ export type Contact = {
   company?: string;
   title?: string;
   location?: string;
-  createdAt?: string;
-  updatedAt?: string;
+  createdAt?: string; // ISO string recommended
+  updatedAt?: string; // ISO string recommended
   tags?: string[];
 };
 
+// Deterministic formatter: en-GB + Asia/Kolkata + 24h
+const formatIST = (iso?: string) => {
+  if (!iso) return '—';
+  const ts = Date.parse(iso);
+  if (Number.isNaN(ts)) return '—';
+  const d = new Date(ts);
+  return new Intl.DateTimeFormat('en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false,
+    timeZone: 'Asia/Kolkata',
+  }).format(d);
+};
+
 export default function ContactDetailClient({ contact }: { contact: Contact }) {
+  const createdAtText = useMemo(() => formatIST(contact.createdAt), [contact.createdAt]);
+  const updatedAtText = useMemo(() => formatIST(contact.updatedAt), [contact.updatedAt]);
+
   return (
     <div className="flex flex-col gap-4">
       <header className="flex flex-col gap-1">
@@ -39,13 +62,13 @@ export default function ContactDetailClient({ contact }: { contact: Contact }) {
             <dd className="col-span-2">{contact.location ?? '—'}</dd>
 
             <dt className="text-gray-500 dark:text-gray-400">Created</dt>
-            <dd className="col-span-2">
-              {contact.createdAt ? new Date(contact.createdAt).toLocaleString() : '—'}
+            <dd className="col-span-2" suppressHydrationWarning>
+              <time dateTime={contact.createdAt ?? ''}>{createdAtText}</time>
             </dd>
 
             <dt className="text-gray-500 dark:text-gray-400">Updated</dt>
-            <dd className="col-span-2">
-              {contact.updatedAt ? new Date(contact.updatedAt).toLocaleString() : '—'}
+            <dd className="col-span-2" suppressHydrationWarning>
+              <time dateTime={contact.updatedAt ?? ''}>{updatedAtText}</time>
             </dd>
           </dl>
         </div>
