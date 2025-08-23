@@ -29,6 +29,7 @@ import React, {
   useRef,
   useState,
   useLayoutEffect,
+  useCallback,
   type CSSProperties,
 } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
@@ -78,6 +79,11 @@ function useMounted() {
   return mounted;
 }
 
+/** Typed CSS var helper (avoids any-casts) */
+type BrandVarStyle = React.CSSProperties & { ['--brand-bg']?: string };
+const brandBg = (active: boolean): BrandVarStyle | undefined =>
+  active ? { ['--brand-bg']: BRAND_BG } : undefined;
+
 /* ---------- Collapsed submenu (portal) ---------- */
 function CollapsedSubmenu({
   anchorEl,
@@ -107,7 +113,7 @@ function CollapsedSubmenu({
     placement: 'right',
   });
 
-  const compute = () => {
+  const compute = useCallback(() => {
     if (!menuRef.current) return;
     if (!document.body.contains(anchorEl)) {
       onRequestClose();
@@ -119,29 +125,25 @@ function CollapsedSubmenu({
     const gap = 0;
     let placement: 'right' | 'left' = 'right';
     let left = r.right + gap;
-
     if (left + menuRect.width > window.innerWidth - 8) {
       placement = 'left';
       left = r.left - menuRect.width - gap;
     }
-
-    // ✅ use menuRect.height (fix)
-    const maxTop = window.innerHeight - menuRect.height - 8;
+    const maxTop = window.innerHeight - menuRect.height - 8; // <- fixed height usage
     const top = Math.max(8, Math.min(r.top, maxTop));
-
     setPos({ top, left, placement });
     setReady(true);
-  };
+  }, [anchorEl, onRequestClose]);
 
   useLayoutEffect(() => {
     const raf = requestAnimationFrame(compute);
     return () => cancelAnimationFrame(raf);
-  }, [anchorEl]);
+  }, [compute]);
 
   useEffect(() => {
-    let rAf = 0;
+    let rAf: number | undefined;
     const onChange = () => {
-      cancelAnimationFrame(rAf);
+      if (rAf) cancelAnimationFrame(rAf);
       rAf = requestAnimationFrame(compute);
     };
     window.addEventListener('resize', onChange);
@@ -149,9 +151,9 @@ function CollapsedSubmenu({
     return () => {
       window.removeEventListener('resize', onChange);
       window.removeEventListener('scroll', onChange, true);
-      cancelAnimationFrame(rAf);
+      if (rAf) cancelAnimationFrame(rAf);
     };
-  }, [anchorEl]);
+  }, [compute]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onRequestClose();
@@ -252,7 +254,7 @@ function CollapsedSubmenu({
   );
 }
 
-/* ---------- Edge Handle (shrunk hover strip; no overlap) ---------- */
+/* ---------- Edge Handle (thin hover strip; no overlap) ---------- */
 function EdgeHandlePortal({
   anchorRef,
   collapsed,
@@ -268,8 +270,8 @@ function EdgeHandlePortal({
   const [rect, setRect] = useState<DOMRect | null>(null);
   const [visible, setVisible] = useState(false);
   const [posY, setPosY] = useState<number | null>(null);
-  const rafRef = useRef<number | null>(null);
-  const hideTimer = useRef<number | null>(null);
+  const rafRef = useRef<number | undefined>();
+  const hideTimer = useRef<number | undefined>();
 
   useEffect(() => {
     if (!anchorRef.current) return;
@@ -290,8 +292,8 @@ function EdgeHandlePortal({
 
   const BTN = 32;
   const half = BTN / 2;
-  const hoverWidth = 6; // ✅ minimal inner overlay to avoid blocking item hover
-  const containerLeft = rect.right - hoverWidth; // container mostly outside
+  const hoverWidth = 6; // minimal inner overlay to avoid blocking item hover
+  const containerLeft = rect.right - hoverWidth;
   const containerWidth = hoverWidth;
 
   const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(v, max));
@@ -312,7 +314,7 @@ function EdgeHandlePortal({
   };
   const hide = () => {
     if (hideTimer.current) window.clearTimeout(hideTimer.current);
-    hideTimer.current = window.setTimeout(() => setVisible(false), 120) as unknown as number;
+    hideTimer.current = window.setTimeout(() => setVisible(false), 120);
   };
 
   const containerStyle: React.CSSProperties = suppress
@@ -341,7 +343,7 @@ function EdgeHandlePortal({
         style={{
           position: 'absolute',
           top: top - rect.top,
-          left: -half, // ✅ button straddles the border (half outside)
+          left: -half, // button straddles the border (half outside)
           width: BTN,
           height: BTN,
           transform: visible ? 'translateX(0)' : 'translateX(8px)',
@@ -391,21 +393,21 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
   } | null>(null);
   const [edgeSuppressed, setEdgeSuppressed] = useState(false);
 
-  const closeTimer = useRef<number | null>(null);
+  const closeTimer = useRef<number | undefined>();
   const scheduleClose = (delay = 120) => {
     if (closeTimer.current) window.clearTimeout(closeTimer.current);
-    closeTimer.current = window.setTimeout(() => setPopover(null), delay) as unknown as number;
+    closeTimer.current = window.setTimeout(() => setPopover(null), delay);
   };
   const cancelClose = () => {
     if (closeTimer.current) window.clearTimeout(closeTimer.current);
   };
 
-  /* Theme state (instant icon swap) */
+  /* Theme state (instant icon/text swap) */
   const [dark, setDark] = useState(false);
   useEffect(() => {
     try {
       const el = document.documentElement;
-      let initial =
+      const initial =
         el.classList.contains('dark') ||
         localStorage.getItem('theme') === 'dark' ||
         (localStorage.getItem('theme') == null &&
@@ -493,11 +495,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
                               ? 'bg-[var(--brand-bg,#00332D)] text-white'
                               : 'text-[#00332D] dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
                           )}
-                          style={
-                            (childActive || leafActive)
-                              ? ({ ['--brand-bg' as any]: BRAND_BG } as any)
-                              : undefined
-                          }
+                          style={brandBg(childActive || leafActive)}
                           aria-label={label}
                         >
                           <Icon className="w-5 h-5" />
@@ -518,7 +516,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
                             ? 'bg-[var(--brand-bg,#00332D)] text-white'
                             : 'text-[#00332D] dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
                         )}
-                        style={leafActive ? ({ ['--brand-bg' as any]: BRAND_BG } as any) : undefined}
+                        style={brandBg(leafActive)}
                         aria-label={label}
                       >
                         <Icon className="w-5 h-5" />
@@ -543,7 +541,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
                           ? 'bg-[var(--brand-bg,#00332D)] text-white'
                           : 'hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-gray-100'
                       )}
-                      style={parentActive ? ({ ['--brand-bg' as any]: BRAND_BG } as any) : undefined}
+                      style={brandBg(parentActive)}
                     >
                       <span className="flex items-center gap-3 min-w-0">
                         <Icon className={clsx('w-5 h-5', parentActive && 'text-white')} />
@@ -573,7 +571,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
                                   ? 'bg-[var(--brand-bg,#00332D)] text-white'
                                   : 'hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-gray-100'
                               )}
-                              style={active ? ({ ['--brand-bg' as any]: BRAND_BG } as any) : undefined}
+                              style={brandBg(active)}
                             >
                               <CIcon className={clsx('w-5 h-5 shrink-0', active && 'text-white')} />
                               <span className={clsx('text-[15px] font-medium truncate', active && 'text-white')}>
@@ -599,7 +597,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
                       ? 'bg-[var(--brand-bg,#00332D)] text-white'
                       : 'hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-gray-100'
                   )}
-                  style={active ? ({ ['--brand-bg' as any]: BRAND_BG } as any) : undefined}
+                  style={brandBg(active)}
                 >
                   <Icon className={clsx('w-5 h-5', active && 'text-white')} />
                   <span className={clsx('text-[15px] font-medium truncate', active && 'text-white')}>
