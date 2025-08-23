@@ -45,7 +45,7 @@ const NAV_ITEMS: NavItem[] = [
     icon: Database,
     children: [
       // ✅ align with your app’s routes (switch to /data-extensions if that’s what you actually use)
-      { label: 'All Data Extensions', icon: List, href: '/dataextension' },
+      { label: 'All Data Extensions', icon: List, href: '/data-extension' },
       { label: 'Data Tables', icon: Table, href: '/dataextension/tables' },
     ],
   },

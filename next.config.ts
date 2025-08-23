@@ -13,13 +13,6 @@ const nextConfig: NextConfig = {
     };
     return config;
   },
-
-  async redirects() {
-    return [
-      { source: '/contact', destination: '/contact/home', permanent: true },
-      { source: '/contact/', destination: '/contact/home', permanent: true },
-    ];
-  },
 };
 
 export default nextConfig;

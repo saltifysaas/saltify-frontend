@@ -92,7 +92,7 @@ export default function ModuleHomeHeader({
           onClick={onCreate}
           className={clsx(
             'flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm',
-            !onCreate && 'opacity-50 cursor-default'
+            !onCreate && 'opacity-100 cursor-default'
           )}
         >
           <Plus size={16} />
@@ -105,7 +105,7 @@ export default function ModuleHomeHeader({
           onClick={onImport}
           className={clsx(
             'flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm',
-            !onImport && 'opacity-50 cursor-default'
+            !onImport && 'opacity-100 cursor-default'
           )}
         >
           <Upload size={16} />

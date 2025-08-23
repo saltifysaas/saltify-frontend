@@ -18,7 +18,7 @@ export type Column<T extends Row> = {
 
 interface ModuleListViewProps<T extends Row> {
   columns: Column<T>[];
-  data: T[];
+  data?: T[]; // ✅ made optional
   idKey?: keyof T | string;
   loading?: boolean;
   emptyMessage?: string;
@@ -42,7 +42,7 @@ function defaultCompare(a: unknown, b: unknown) {
 
 export default function ModuleListView<T extends Row>({
   columns,
-  data,
+  data = [], // ✅ default to []
   idKey = 'id',
   loading = false,
   emptyMessage = 'No records found',
@@ -83,13 +83,13 @@ export default function ModuleListView<T extends Row>({
     return copy;
   }, [data, columns, sortKey, sortDir]);
 
-  // Pagination slice
-  const total = sortedData.length;
+  // Pagination slice (safe handling)
+  const total = sortedData?.length ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(page, totalPages);
   const startIdx = (safePage - 1) * pageSize;
   const endIdx = Math.min(startIdx + pageSize, total);
-  const pageRows = sortedData.slice(startIdx, endIdx);
+  const pageRows = (sortedData ?? []).slice(startIdx, endIdx);
 
   // Key handling
   const idKeyStr = String(idKey as string);
@@ -109,6 +109,7 @@ export default function ModuleListView<T extends Row>({
   const allPageSelected = pageIds.length > 0 && selectedCount === pageIds.length;
   const somePageSelected = selectedCount > 0 && selectedCount < pageIds.length;
 
+  // Sorting toggle
   function toggleSort(key: string, enabled?: boolean) {
     if (!enabled) return;
     if (sortKey !== key) {
@@ -121,6 +122,7 @@ export default function ModuleListView<T extends Row>({
     else setSortDir('asc');
   }
 
+  // Row select toggles
   function toggleRow(idStr: string) {
     setSelected((prev) => ({ ...prev, [idStr]: !prev[idStr] }));
   }
@@ -148,7 +150,7 @@ export default function ModuleListView<T extends Row>({
     [pageRows, selected, getRowKey]
   );
 
-  // UI
+  // UI: Loading
   if (loading) {
     return (
       <div className="flex justify-center items-center py-10 text-gray-500 dark:text-gray-400">
@@ -157,6 +159,7 @@ export default function ModuleListView<T extends Row>({
     );
   }
 
+  // UI: Empty
   if (!loading && total === 0) {
     return (
       <div className="flex justify-center items-center py-10 text-gray-500 dark:text-gray-400">
@@ -165,19 +168,27 @@ export default function ModuleListView<T extends Row>({
     );
   }
 
+  // UI: Table
   return (
     <div className={clsx('flex flex-col', className)}>
       {/* Bulk actions */}
       {renderBulkActions && selectedRows.length > 0 && (
         <div className="flex items-center justify-between gap-3 px-3 py-2 mb-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-[#0f172a]">
-          <div className="text-sm text-gray-700 dark:text-gray-200">{selectedRows.length} selected</div>
+          <div className="text-sm text-gray-700 dark:text-gray-200">
+            {selectedRows.length} selected
+          </div>
           <div className="flex items-center gap-2">{renderBulkActions(selectedRows)}</div>
         </div>
       )}
 
       <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
         <table className="min-w-full text-sm">
-          <thead className={clsx('bg-gray-100 dark:bg-gray-800', stickyHeader && 'sticky top-0 z-10')}>
+          <thead
+            className={clsx(
+              'bg-gray-100 dark:bg-gray-800',
+              stickyHeader && 'sticky top-0 z-10'
+            )}
+          >
             <tr>
               {/* Select column */}
               <th className="px-3 py-2 w-[44px] text-left border-b border-gray-200 dark:border-gray-700">
@@ -214,7 +225,11 @@ export default function ModuleListView<T extends Row>({
                   >
                     <div className="inline-flex items-center gap-1">
                       <span>{col.label}</span>
-                      {col.sortable && <span className="text-xs opacity-70">{isSorted ? (sortDir === 'asc' ? '▲' : '▼') : '↕'}</span>}
+                      {col.sortable && (
+                        <span className="text-xs opacity-70">
+                          {isSorted ? (sortDir === 'asc' ? '▲' : '▼') : '↕'}
+                        </span>
+                      )}
                     </div>
                   </th>
                 );
@@ -231,7 +246,9 @@ export default function ModuleListView<T extends Row>({
                   key={rowKey}
                   className={clsx(
                     'border-b border-gray-200 dark:border-gray-700',
-                    clickable ? 'hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer' : 'hover:bg-gray-50/60 dark:hover:bg-gray-900/60'
+                    clickable
+                      ? 'hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer'
+                      : 'hover:bg-gray-50/60 dark:hover:bg-gray-900/60'
                   )}
                   onClick={() => clickable && onRowClick!(row)}
                 >
@@ -252,7 +269,6 @@ export default function ModuleListView<T extends Row>({
                     const value = (row as Record<string, unknown>)[keyStr];
                     const align = col.align ?? 'left';
 
-                    // Safe default cell rendering:
                     const cell =
                       col.render?.(value, row) ??
                       (value === null || value === undefined
@@ -271,8 +287,11 @@ export default function ModuleListView<T extends Row>({
                           align === 'right' && 'text-right'
                         )}
                         onClick={(e) => {
-                          // prevent row click from firing when interacting inside cells (links, buttons)
-                          if ((e.target as HTMLElement).closest('button,a,input,svg')) {
+                          if (
+                            (e.target as HTMLElement).closest(
+                              'button,a,input,svg'
+                            )
+                          ) {
                             e.stopPropagation();
                           }
                         }}
@@ -292,7 +311,8 @@ export default function ModuleListView<T extends Row>({
       <div className="flex flex-wrap items-center justify-between gap-3 mt-3">
         <div className="text-xs text-gray-600 dark:text-gray-300">
           Showing <span className="font-medium">{total === 0 ? 0 : startIdx + 1}</span>–
-          <span className="font-medium">{endIdx}</span> of <span className="font-medium">{total}</span>
+          <span className="font-medium">{endIdx}</span> of{' '}
+          <span className="font-medium">{total}</span>
         </div>
 
         <div className="flex items-center gap-2">
