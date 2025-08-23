@@ -79,12 +79,12 @@ function useMounted() {
   return mounted;
 }
 
-/** Typed CSS var helper (avoids any-casts) */
+/** Typed CSS var helper (no `any` casts) */
 type BrandVarStyle = React.CSSProperties & { ['--brand-bg']?: string };
 const brandBg = (active: boolean): BrandVarStyle | undefined =>
   active ? { ['--brand-bg']: BRAND_BG } : undefined;
 
-/* ---------- Collapsed submenu (portal) ---------- */
+/* ------------------ Collapsed submenu (portal) ------------------ */
 function CollapsedSubmenu({
   anchorEl,
   parentLabel,
@@ -129,7 +129,8 @@ function CollapsedSubmenu({
       placement = 'left';
       left = r.left - menuRect.width - gap;
     }
-    const maxTop = window.innerHeight - menuRect.height - 8; // <- fixed height usage
+
+    const maxTop = window.innerHeight - menuRect.height - 8; // correct height usage
     const top = Math.max(8, Math.min(r.top, maxTop));
     setPos({ top, left, placement });
     setReady(true);
@@ -141,9 +142,9 @@ function CollapsedSubmenu({
   }, [compute]);
 
   useEffect(() => {
-    let rAf: number | undefined;
+    let rAf: number | null = null;
     const onChange = () => {
-      if (rAf) cancelAnimationFrame(rAf);
+      if (rAf !== null) cancelAnimationFrame(rAf);
       rAf = requestAnimationFrame(compute);
     };
     window.addEventListener('resize', onChange);
@@ -151,7 +152,7 @@ function CollapsedSubmenu({
     return () => {
       window.removeEventListener('resize', onChange);
       window.removeEventListener('scroll', onChange, true);
-      if (rAf) cancelAnimationFrame(rAf);
+      if (rAf !== null) cancelAnimationFrame(rAf);
     };
   }, [compute]);
 
@@ -171,6 +172,7 @@ function CollapsedSubmenu({
     };
   }, [onRequestClose, anchorEl]);
 
+  // Hide edge chevron while submenu is engaged
   useEffect(() => {
     setEdgeSuppressed(true);
     return () => setEdgeSuppressed(false);
@@ -254,14 +256,18 @@ function CollapsedSubmenu({
   );
 }
 
-/* ---------- Edge Handle (thin hover strip; no overlap) ---------- */
+/* ------------------ Edge Handle (stable & suppressible) ------------------ */
+type DivRef =
+  | React.RefObject<HTMLDivElement | null>
+  | React.MutableRefObject<HTMLDivElement | null>;
+
 function EdgeHandlePortal({
   anchorRef,
   collapsed,
   toggle,
   suppress,
 }: {
-  anchorRef: React.RefObject<HTMLElement>;
+  anchorRef: DivRef;
   collapsed: boolean;
   toggle: () => void;
   suppress: boolean;
@@ -270,17 +276,22 @@ function EdgeHandlePortal({
   const [rect, setRect] = useState<DOMRect | null>(null);
   const [visible, setVisible] = useState(false);
   const [posY, setPosY] = useState<number | null>(null);
-  const rafRef = useRef<number | undefined>();
-  const hideTimer = useRef<number | undefined>();
+  const rafRef = useRef<number | null>(null);
+  const hideTimer = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!anchorRef.current) return;
-    const update = () => setRect(anchorRef.current!.getBoundingClientRect());
+    const node = anchorRef.current;
+    if (!node) return;
+
+    const update = () => setRect(node.getBoundingClientRect());
     update();
+
     const ro = new ResizeObserver(update);
-    ro.observe(anchorRef.current!);
+    ro.observe(node);
+
     window.addEventListener('scroll', update, true);
     window.addEventListener('resize', update);
+
     return () => {
       ro.disconnect();
       window.removeEventListener('scroll', update, true);
@@ -292,8 +303,8 @@ function EdgeHandlePortal({
 
   const BTN = 32;
   const half = BTN / 2;
-  const hoverWidth = 6; // minimal inner overlay to avoid blocking item hover
-  const containerLeft = rect.right - hoverWidth;
+  const hoverWidth = 6; // very thin inner strip so it doesn't block item hovers
+  const containerLeft = rect.right - hoverWidth; // half in / half out
   const containerWidth = hoverWidth;
 
   const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(v, max));
@@ -304,16 +315,16 @@ function EdgeHandlePortal({
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const y = e.clientY;
-    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => setPosY(y));
   };
 
   const show = () => {
-    if (hideTimer.current) window.clearTimeout(hideTimer.current);
+    if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
     setVisible(true);
   };
   const hide = () => {
-    if (hideTimer.current) window.clearTimeout(hideTimer.current);
+    if (hideTimer.current !== null) window.clearTimeout(hideTimer.current);
     hideTimer.current = window.setTimeout(() => setVisible(false), 120);
   };
 
@@ -343,7 +354,7 @@ function EdgeHandlePortal({
         style={{
           position: 'absolute',
           top: top - rect.top,
-          left: -half, // button straddles the border (half outside)
+          left: -half, // button straddles the border
           width: BTN,
           height: BTN,
           transform: visible ? 'translateX(0)' : 'translateX(8px)',
@@ -367,12 +378,13 @@ function EdgeHandlePortal({
   );
 }
 
-/* ---------- main ---------- */
+/* ------------------ main component ------------------ */
 export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Props) {
   const pathname = usePathname();
   const router = useRouter();
-  const anchorRef = useRef<HTMLDivElement | null>(null);
+  const anchorRef = useRef<HTMLDivElement | null>(null); // ref for the sidebar container
 
+  // Auto-open the group that matches current route
   const activeParentLabel = useMemo(() => {
     for (const item of NAV_ITEMS) {
       if (!item.children) continue;
@@ -386,6 +398,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
   const [openMenu, setOpenMenu] = useState<string | null>(activeParentLabel);
   useEffect(() => setOpenMenu(activeParentLabel), [activeParentLabel]);
 
+  // Collapsed-mode popover state
   const [popover, setPopover] = useState<{
     parentLabel: string;
     items: ChildItem[];
@@ -393,13 +406,14 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
   } | null>(null);
   const [edgeSuppressed, setEdgeSuppressed] = useState(false);
 
-  const closeTimer = useRef<number | undefined>();
+  // Shared close timer for stable hover transitions
+  const closeTimer = useRef<number | null>(null);
   const scheduleClose = (delay = 120) => {
-    if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    if (closeTimer.current !== null) window.clearTimeout(closeTimer.current);
     closeTimer.current = window.setTimeout(() => setPopover(null), delay);
   };
   const cancelClose = () => {
-    if (closeTimer.current) window.clearTimeout(closeTimer.current);
+    if (closeTimer.current !== null) window.clearTimeout(closeTimer.current);
   };
 
   /* Theme state (instant icon/text swap) */
