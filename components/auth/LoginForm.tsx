@@ -23,16 +23,15 @@ export default function LoginForm() {
       identifier: form.identifier,
       auth: useOtp ? form.otp : form.password,
     });
-
-    // TODO: route to password or OTP auth
   };
 
   return (
-<form onSubmit={handleSubmit} className="space-y-4 text-[#00332D]">
-  <p className="text-sm text-center text-gray-600">
-    Login to your <strong>Saltify</strong> account using email, mobile number, or any other service <span className="text-xs">(it’s secure & quick)</span>
-  </p>
-      {/* Input: Email or Mobile */}
+    <form onSubmit={handleSubmit} className="space-y-4 text-[#00332D]">
+      <p className="text-lg text-center text-gray-500">
+        Log in to your account <span className="text-xs"></span>
+      </p>
+
+      {/* Email or Mobile */}
       <input
         name="identifier"
         type="text"
@@ -43,9 +42,9 @@ export default function LoginForm() {
         className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
       />
 
-      {/* Password or OTP Field */}
+      {/* Password or OTP + compact link */}
       {!useOtp ? (
-        <>
+        <div className="space-y-2">
           <input
             name="password"
             type="password"
@@ -55,18 +54,18 @@ export default function LoginForm() {
             required
             className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
           />
-          <p className="text-right text-sm">
+          <div className="text-right -mt-1">
             <button
               type="button"
               onClick={() => setUseOtp(true)}
-              className="text-[#3B82F6] underline"
+              className="text-[#3B82F6] text-xs text-right underline leading-none"
             >
               Login using OTP instead
             </button>
-          </p>
-        </>
+          </div>
+        </div>
       ) : (
-        <>
+        <div className="space-y-2">
           <input
             name="otp"
             type="text"
@@ -76,25 +75,33 @@ export default function LoginForm() {
             required
             className="w-full p-3 rounded-md bg-transparent border border-[#14532d] text-white placeholder-gray-400 focus:outline-none"
           />
-          <p className="text-right text-sm">
+          <div className="text-right -mt-1">
             <button
               type="button"
               onClick={() => setUseOtp(false)}
-              className="text-[#3B82F6] underline"
+              className="text-[#3B82F6] text-xs text-right underline leading-none"
             >
               Use password instead
             </button>
-          </p>
-        </>
+          </div>
+        </div>
       )}
 
-      {/* Submit */}
-      <button
-        type="submit"
-        className="w-full bg-[#14532d] text-white font-semibold py-3 rounded-md hover:bg-[#00332D] transition"
-      >
-        Login
-      </button>
+      {/* Submit (reduced gap below the link) */}
+      <div className="-mt-2">
+        <button
+          type="submit"
+          className="
+            inline-flex w-full h-11 items-center justify-center
+            rounded-md border
+            bg-ui-buttonPrimaryBg text-ui-buttonPrimaryText border-ui-buttonPrimaryBorder
+            hover:bg-ui-buttonPrimaryHover
+            focus:outline-none focus:ring-2 focus:ring-ui-buttonPrimaryBorder
+          "
+        >
+          <span className="font-semibold leading-none">Login</span>
+        </button>
+      </div>
 
       {/* Divider */}
       <div className="flex items-center my-4">
@@ -113,16 +120,10 @@ export default function LoginForm() {
           <button
             key={provider.name}
             type="button"
-            onClick={() => console.log(`Login with ${provider.name}`)} // TODO: real auth
+            onClick={() => console.log(`Login with ${provider.name}`)}
             className="w-full flex items-center justify-center border border-gray-300 rounded-md py-2 hover:bg-gray-100 transition"
           >
-            <Image
-              src={provider.icon}
-              alt={provider.name}
-              width={20}
-              height={20}
-              className="mr-2"
-            />
+            <Image src={provider.icon} alt={provider.name} width={20} height={20} className="mr-2" />
             Login with {provider.name}
           </button>
         ))}

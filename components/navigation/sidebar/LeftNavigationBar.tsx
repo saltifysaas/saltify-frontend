@@ -654,7 +654,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
                   className={clsx(
                     'w-full flex items-center gap-3 rounded-md px-3 py-2 text-left',
                     active
-                      ? 'bg-[var(--brand-bg,#00332D)] text-white'
+                      ? 'bg-[#009966] text-white'
                       : 'hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-gray-100'
                   )}
                   style={brandBg(active)}

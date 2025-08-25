@@ -18,13 +18,11 @@ export default function RegisterForm() {
 
   const handleStart = (e: React.FormEvent) => {
     e.preventDefault();
-    // You can validate email/mobile format here if needed
-    console.log("Entered:", form.identifier);
+    // Validate identifier if needed
     setStep(2);
   };
 
   const handleRegister = () => {
-    // TODO: Final submit logic — validate password, hit backend, etc.
     if (form.password !== form.confirmPassword) {
       alert("Passwords do not match.");
       return;
@@ -34,12 +32,10 @@ export default function RegisterForm() {
 
   return (
     <form onSubmit={handleStart} className="space-y-4 text-[#00380e]">
-      {/* Intro Message */}
-      <p className="text-sm text-center text-gray-600">
-        Create your free <strong>Saltify</strong> Account using your email ID, mobile number, or any other service <span className="text-xs">(it’s free!)</span>
-      </p>
+      {/* Intro */}
+      <p className="text-lg text-center text-gray-500">Create your Account</p>
 
-      {/* Step 1: Ask for Email or Mobile */}
+      {/* STEP 1 */}
       {step === 1 && (
         <>
           <input
@@ -52,11 +48,19 @@ export default function RegisterForm() {
             className="w-full p-3 rounded-md bg-transparent border border-[#00380e] placeholder-gray-400 text-[#00380e] focus:outline-none"
           />
 
+          {/* Continue — centered text & primary style */}
           <button
             type="submit"
-            className="w-full bg-[#00380e] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
+            className="
+              inline-flex w-full h-11 items-center justify-center
+              rounded-md border
+              bg-ui-buttonPrimaryBg text-ui-buttonPrimaryText border-ui-buttonPrimaryBorder
+              hover:bg-ui-buttonPrimaryHover
+              focus:outline-none focus:ring-2 focus:ring-ui-buttonPrimaryBorder
+              transition
+            "
           >
-            Continue
+            <span className="font-semibold leading-none">Continue</span>
           </button>
 
           {/* Divider */}
@@ -66,7 +70,7 @@ export default function RegisterForm() {
             <div className="flex-1 h-px bg-gray-300" />
           </div>
 
-          {/* Third-party login */}
+          {/* Third-party */}
           <div className="space-y-2">
             {[
               { name: "Google", icon: "/icons/google.png" },
@@ -79,13 +83,7 @@ export default function RegisterForm() {
                 onClick={() => console.log(`Continue with ${provider.name}`)}
                 className="w-full flex items-center justify-center border border-gray-300 rounded-md py-2 hover:bg-gray-100 transition"
               >
-                <Image
-                  src={provider.icon}
-                  alt={provider.name}
-                  width={20}
-                  height={20}
-                  className="mr-2"
-                />
+                <Image src={provider.icon} alt={provider.name} width={20} height={20} className="mr-2" />
                 Continue with {provider.name}
               </button>
             ))}
@@ -93,7 +91,7 @@ export default function RegisterForm() {
         </>
       )}
 
-      {/* Step 2: Set Password */}
+      {/* STEP 2 */}
       {step === 2 && (
         <>
           <input
@@ -116,22 +114,27 @@ export default function RegisterForm() {
             className="w-full p-3 rounded-md bg-transparent border border-[#00380e] placeholder-gray-400 text-[#00380e] focus:outline-none"
           />
 
+          {/* Register — same primary styling as Continue/Login */}
           <button
             type="button"
             onClick={handleRegister}
-            className="w-full bg-[#00380e] text-white font-normal py-3 rounded-md hover:bg-[#166534] transition"
+            className="
+              inline-flex w-full h-11 items-center justify-center
+              rounded-md border
+              bg-ui-buttonPrimaryBg text-ui-buttonPrimaryText border-ui-buttonPrimaryBorder
+              hover:bg-ui-buttonPrimaryHover
+              focus:outline-none focus:ring-2 focus:ring-ui-buttonPrimaryBorder
+              transition
+            "
           >
-            Register
+            <span className="font-semibold leading-none">Register</span>
           </button>
         </>
       )}
 
-      {/* Already have account? */}
+      {/* Footer */}
       <p className="text-center text-sm mt-6">
-        Already have an account?{" "}
-        <Link href="/auth/login" className="underline">
-          Login
-        </Link>
+        Already have an account? <Link href="/auth/login" className="underline">Login</Link>
       </p>
     </form>
   );
