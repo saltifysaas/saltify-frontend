@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useEffect, useLayoutEffect, useState } from 'react';
 
 import LeftNavigationBar from '@/components/navigation/sidebar/LeftNavigationBar';
-import TopNavigationBar from '@/components/navigation/TopNavigationBar';
+import TopNavigationBar from '@/components/navigation/topnavigation/TopNavigationBar';
 import {
   SIDEBAR_EXPANDED,
   SIDEBAR_COLLAPSED,

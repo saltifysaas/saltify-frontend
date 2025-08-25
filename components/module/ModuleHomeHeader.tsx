@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Filter, Plus, Upload, MoreVertical } from 'lucide-react';
 import clsx from 'clsx';
-import SearchBox from '@/components/navigation/SearchBox';
+import SearchBox from '@/components/navigation/topnavigation/SearchBox';
 
 type ToolItem = {
   label: string;
@@ -20,12 +20,12 @@ interface ModuleHomeHeaderProps {
   onImport?: () => void;
 
   // Tools dropdown
-  tools?: ToolItem[]; // if omitted, shows menu button but empty list
+  tools?: ToolItem[];
   toolsButtonAriaLabel?: string;
 
   // Search
   showSearch?: boolean;
-  searchWidthClass?: string; // e.g. "w-[400px]" (defaults provided)
+  searchWidthClass?: string;
 }
 
 export default function ModuleHomeHeader({
@@ -52,23 +52,49 @@ export default function ModuleHomeHeader({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [open]);
 
+  // --- Base style shared by buttons (1pt stroke everywhere) ---
+  const baseBtn =
+    'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors ' +
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:rgba(0,153,102,0.4)] ' +
+    'disabled:opacity-50 disabled:pointer-events-none border-pt1';
+
+  // Primary — uses white border in light, #4A4A4A in dark
+  const primaryBtn = clsx(
+    baseBtn,
+    'bg-ui-buttonPrimaryBg text-ui-buttonPrimaryText border-ui-buttonPrimaryBorder hover:bg-ui-buttonPrimaryHover',
+    'dark:bg-ui-darkButtonPrimaryBg dark:text-ui-darkButtonPrimaryText dark:border-ui-darkButtonPrimaryBorder dark:hover:bg-ui-darkButtonPrimaryHover'
+  );
+
+  // Secondary — uses green border in light, white in dark
+  const secondaryBtn = clsx(
+    baseBtn,
+    'bg-ui-buttonSecondaryBg text-ui-buttonSecondaryText border-ui-buttonSecondaryBorder hover:bg-ui-buttonSecondaryHover',
+    'dark:bg-ui-darkButtonSecondaryBg dark:text-ui-darkButtonSecondaryText dark:border-ui-darkButtonSecondaryBorder dark:hover:bg-ui-darkButtonSecondaryHover'
+  );
+
+  // Ghost (Filter, Tools) → neutral hover surfaces
+  const ghostIconBtn = clsx(
+    'p-2 rounded-lg transition-colors border border-transparent',
+    'hover:bg-ui-hoverBG dark:hover:bg-ui-hoverBGDark',
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[color:rgba(0,153,102,0.4)]',
+    'disabled:opacity-50 disabled:pointer-events-none'
+  );
+
+  const headerWrap = clsx(
+    'flex items-center justify-between rounded-md gap-4 border-b px-4 py-3',
+    'border-[color:var(--border-color)]',
+    'bg-ui-appBgLight dark:bg-ui-navigationDark'
+  );
+
   return (
-    <div
-      className={clsx(
-        'flex items-center justify-between rounded-md gap-4 border-b border-gray-200 dark:border-gray-700 bg-ui-appBgLight dark:bg-ui-navigationDark px-4 py-3',
-        className
-      )}
-    >
+    <div className={clsx(headerWrap, className)}>
       {/* Left: Filter */}
       <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={onFilter}
-          className={clsx(
-            'p-2 rounded-lg',
-            'hover:bg-gray-100 dark:hover:bg-gray-800',
-            !onFilter && 'opacity-50 cursor-default'
-          )}
+          disabled={!onFilter}
+          className={ghostIconBtn}
           aria-label="Filter"
         >
           <Filter size={18} />
@@ -86,27 +112,23 @@ export default function ModuleHomeHeader({
 
       {/* Right: Actions */}
       <div className="flex items-center gap-2">
-        {/* Create */}
+        {/* Create (Primary) */}
         <button
           type="button"
           onClick={onCreate}
-          className={clsx(
-            'flex items-center gap-1 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-sm',
-            !onCreate && 'opacity-100 cursor-default'
-          )}
+          disabled={!onCreate}
+          className={primaryBtn}
         >
           <Plus size={16} />
           Create
         </button>
 
-        {/* Import */}
+        {/* Import (Secondary) */}
         <button
           type="button"
           onClick={onImport}
-          className={clsx(
-            'flex items-center gap-1 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-lg text-sm',
-            !onImport && 'opacity-100 cursor-default'
-          )}
+          disabled={!onImport}
+          className={secondaryBtn}
         >
           <Upload size={16} />
           Import
@@ -120,7 +142,7 @@ export default function ModuleHomeHeader({
             aria-expanded={open}
             aria-label={toolsButtonAriaLabel}
             onClick={() => setOpen((v) => !v)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+            className={ghostIconBtn}
           >
             <MoreVertical size={18} />
           </button>
@@ -128,12 +150,14 @@ export default function ModuleHomeHeader({
           {open && (
             <div
               role="menu"
-              className="absolute right-0 mt-2 min-w-[160px] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-[#111827] shadow-lg overflow-hidden z-20"
+              className={clsx(
+                'absolute right-0 mt-2 min-w-[180px] z-20 overflow-hidden rounded-lg border',
+                'border-[color:var(--border-color)]',
+                'bg-popover text-popover-foreground shadow-lg'
+              )}
             >
               {tools.length === 0 ? (
-                <div className="px-3 py-2 text-sm text-gray-500 dark:text-gray-400">
-                  No tools
-                </div>
+                <div className="px-3 py-2 text-sm opacity-70">No tools</div>
               ) : (
                 <ul className="py-1">
                   {tools.map((item, idx) => {
@@ -147,7 +171,10 @@ export default function ModuleHomeHeader({
                             setOpen(false);
                             item.onClick();
                           }}
-                          className="w-full flex items-center  gap-2 px-3 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-800 dark:text-gray-100"
+                          className={clsx(
+                            'w-full flex items-center gap-2 px-3 py-2 text-left text-sm',
+                            'hover:bg-ui-hoverBG dark:hover:bg-ui-hoverBGDark'
+                          )}
                         >
                           {Icon ? <Icon size={16} className="shrink-0" /> : null}
                           <span>{item.label}</span>

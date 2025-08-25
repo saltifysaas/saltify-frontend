@@ -3,7 +3,7 @@
 import FieldPalette from '@/components/forms/FieldPalette';
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
-import TopNavigationBar from '@/components/navigation/TopNavigationBar';
+import TopNavigationBar from '@/components/navigation/topnavigation/TopNavigationBar';
 
 export default function FormBuilderPage() {
   const [darkMode, setDarkMode] = useState(false);

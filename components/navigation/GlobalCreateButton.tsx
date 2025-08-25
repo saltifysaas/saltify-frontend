@@ -24,12 +24,12 @@ function Portal({ children }: { children: React.ReactNode }) {
 type Item = { label: string; href: string; icon: React.ComponentType<{ className?: string }> };
 
 const RAW_ITEMS: Item[] = [
-  { label: 'Agent',         href: '/ai-agents/create',           icon: Bot },
-  { label: 'Contact',       href: '/contacts/create',            icon: UserPlus },
-  { label: 'Data Extension',href: '/data-extension/create',      icon: Database },
-  { label: 'Data Table',    href: '/dataextension/tables/create',icon: TableIcon },
-  { label: 'Form',          href: '/forms/create',               icon: FileText },
-  { label: 'Landing Page',  href: '/landingpages/create',        icon: LayoutTemplate },
+  { label: 'Agent',          href: '/ai-agents/create',            icon: Bot },
+  { label: 'Contact',        href: '/contacts/create',             icon: UserPlus },
+  { label: 'Data Extension', href: '/data-extension/create',       icon: Database },
+  { label: 'Data Table',     href: '/dataextension/tables/create', icon: TableIcon },
+  { label: 'Form',           href: '/forms/create',                icon: FileText },
+  { label: 'Landing Page',   href: '/landingpages/create',         icon: LayoutTemplate },
 ];
 
 // alphabetical, case-insensitive
@@ -42,15 +42,13 @@ export default function GlobalCreateButton() {
   const hoverTimer = useRef<number | null>(null);
   const router = useRouter();
 
-  // compute popup position relative to button
   const computePos = () => {
     const el = btnRef.current;
     if (!el) return;
     const r = el.getBoundingClientRect();
-    setPos({ top: r.bottom + 8, left: r.right }); // 8px gap below/right of button
+    setPos({ top: r.bottom + 8, left: r.right });
   };
 
-  // open/close helpers with small hover delay
   const openMenu = () => {
     computePos();
     setOpen(true);
@@ -65,7 +63,6 @@ export default function GlobalCreateButton() {
     if (hoverTimer.current) window.clearTimeout(hoverTimer.current);
   };
 
-  // close on outside click
   useEffect(() => {
     function onDocClick(e: MouseEvent) {
       if (!open) return;
@@ -79,14 +76,12 @@ export default function GlobalCreateButton() {
     return () => document.removeEventListener('mousedown', onDocClick);
   }, [open]);
 
-  // close on Escape
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && closeMenu();
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
   }, []);
 
-  // recompute position as needed
   useEffect(() => {
     if (!open) return;
     computePos();
@@ -113,15 +108,20 @@ export default function GlobalCreateButton() {
         }}
         onMouseLeave={() => scheduleClose(160)}
         className={clsx(
-          'p-2 rounded-lg',
-          'hover:bg-gray-100 dark:hover:bg-gray-800',
-          'text-[#00332D] dark:text-white',
-          'transition-colors'
+          'w-9 h-9 grid place-items-center rounded-md transition-colors',
+          'hover:bg-ui-hoverBG dark:hover:bg-ui-hoverBGDark',
+          'text-[#00332D] dark:text-white'
         )}
         title="Create"
       >
-        {/* rotate to make an “X” when open */}
-        <Plus className={clsx('w-5 h-5 transition-transform duration-200', open && 'rotate-45')} />
+        {/* ➕ Plus that rotates into an ✕ when menu is open */}
+        <Plus
+          className={clsx(
+            'w-7 h-7 transition-transform duration-200',
+            open && 'rotate-45'
+          )}
+          strokeWidth={2.5} // slightly thicker for visual weight
+        />
       </button>
 
       {open && (
@@ -130,21 +130,17 @@ export default function GlobalCreateButton() {
             id="global-create-menu"
             role="menu"
             aria-label="Create"
-            // keep open while hovering menu; close on leave
             onMouseEnter={cancelClose}
             onMouseLeave={() => scheduleClose(120)}
             className="fixed z-[1000] min-w-[220px] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-ui-navigationDark shadow-2xl"
-            style={{ top: pos.top, left: pos.left, transform: 'translateX(-100%)' }} // align right edge to button
+            style={{ top: pos.top, left: pos.left, transform: 'translateX(-100%)' }}
           >
-            {/* Title */}
             <div
               role="none"
               className="px-3 py-2 text-xs font-semibold tracking-wide uppercase text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-ui-navigationDark border-b border-gray-200 dark:border-ui-borderDark"
             >
               Create
             </div>
-
-            {/* Items */}
             <ul className="py-1">
               {ITEMS.map(({ label, href, icon: Icon }) => (
                 <li key={label}>

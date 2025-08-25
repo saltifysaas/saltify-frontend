@@ -11,7 +11,7 @@ import {
   LayoutDashboard,
   MoreHorizontal
 } from "lucide-react";
-import AppLauncher from "@/components/navigation/AppLauncher";
+import AppLauncher from "@/components/navigation/topnavigation/AppLauncher";
 import SearchInput from "@/components/ui/SearchInput";
 import { useState } from "react";
 

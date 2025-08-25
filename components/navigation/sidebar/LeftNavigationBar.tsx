@@ -130,7 +130,7 @@ function CollapsedSubmenu({
       left = r.left - menuRect.width - gap;
     }
 
-    const maxTop = window.innerHeight - menuRect.height - 8; // correct height usage
+    const maxTop = window.innerHeight - menuRect.height - 8;
     const top = Math.max(8, Math.min(r.top, maxTop));
     setPos({ top, left, placement });
     setReady(true);
@@ -303,8 +303,8 @@ function EdgeHandlePortal({
 
   const BTN = 32;
   const half = BTN / 2;
-  const hoverWidth = 6; // very thin inner strip so it doesn't block item hovers
-  const containerLeft = rect.right - hoverWidth; // half in / half out
+  const hoverWidth = 6;
+  const containerLeft = rect.right - hoverWidth;
   const containerWidth = hoverWidth;
 
   const clamp = (v: number, min: number, max: number) => Math.max(min, Math.min(v, max));
@@ -354,7 +354,7 @@ function EdgeHandlePortal({
         style={{
           position: 'absolute',
           top: top - rect.top,
-          left: -half, // button straddles the border
+          left: -half,
           width: BTN,
           height: BTN,
           transform: visible ? 'translateX(0)' : 'translateX(8px)',
@@ -364,7 +364,7 @@ function EdgeHandlePortal({
         className={clsx(
           'rounded-full shadow-sm',
           'bg-white dark:bg-[#0f172a]',
-          'hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500/60'
+          'hover:shadow-md focus:outline-none focus:ring-2'
         )}
       >
         {collapsed ? (
@@ -506,10 +506,9 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
                           className={clsx(
                             'w-11 h-11 rounded-md grid place-items-center',
                             (childActive || leafActive)
-                              ? 'bg-[var(--brand-bg,#00332D)] text-white'
+                              ? 'bg-[#009966] text-white' // AB: collapsed active fill
                               : 'text-[#00332D] dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
                           )}
-                          style={brandBg(childActive || leafActive)}
                           aria-label={label}
                         >
                           <Icon className="w-5 h-5" />
@@ -527,10 +526,9 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
                         className={clsx(
                           'w-11 h-11 rounded-md grid place-items-center',
                           leafActive
-                            ? 'bg-[var(--brand-bg,#00332D)] text-white'
+                            ? 'bg-[#009966] text-white' // AB: collapsed active fill
                             : 'text-[#00332D] dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
                         )}
-                        style={brandBg(leafActive)}
                         aria-label={label}
                       >
                         <Icon className="w-5 h-5" />
@@ -544,51 +542,98 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
               if (children?.length) {
                 const isOpen = openMenu === label;
                 const parentActive = childActive || leafActive;
+                const light = !dark; // use runtime dark flag
+                const BAR_COLOR = '#00332D';   // AB: parent ruler
 
                 return (
                   <div key={label} className="w-full">
+                    {/* Parent button */}
                     <button
                       onClick={() => setOpenMenu((cur) => (cur === label ? null : label))}
                       className={clsx(
-                        'w-full flex items-center justify-between rounded-md px-3 py-2',
+                        'relative w-full flex items-center justify-between rounded-md px-3 py-2 transition-colors',
                         parentActive
-                          ? 'bg-[var(--brand-bg,#00332D)] text-white'
+                          ? (light
+                              ? 'bg-transparent text-[#00332D]' // Light: ruler-only
+                              : 'bg-[var(--brand-bg,#00332D)] text-white') // Dark: keep filled
                           : 'hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-gray-100'
                       )}
-                      style={brandBg(parentActive)}
+                      style={light ? undefined : brandBg(parentActive)}
                     >
+                      {/* Left vertical ruler (only light mode + active parent) */}
+                      {parentActive && light && (
+                        <span
+                          className="absolute left-0 top-1 bottom-1 w-[3px] rounded-sm"
+                          style={{ backgroundColor: BAR_COLOR }}
+                        />
+                      )}
+
                       <span className="flex items-center gap-3 min-w-0">
-                        <Icon className={clsx('w-5 h-5', parentActive && 'text-white')} />
-                        <span className={clsx('text-[15px] font-medium truncate', parentActive && 'text-white')}>
+                        <Icon
+                          className={clsx(
+                            'w-5 h-5',
+                            parentActive
+                              ? (light ? 'text-[#00332D]' : 'text-white')
+                              : 'text-[#00332D] dark:text-gray-200'
+                          )}
+                        />
+                        <span
+                          className={clsx(
+                            'text-[15px] font-medium truncate',
+                            parentActive
+                              ? (light ? 'text-[#00332D]' : 'text-white')
+                              : 'text-gray-900 dark:text-gray-100'
+                          )}
+                        >
                           {label}
                         </span>
                       </span>
+
                       {isOpen ? (
-                        <ChevronUp className={clsx('w-4 h-4 shrink-0', parentActive && 'text-white')} />
+                        <ChevronUp
+                          className={clsx(
+                            'w-4 h-4 shrink-0',
+                            parentActive ? (light ? 'text-[#00332D]' : 'text-white') : 'text-gray-500 dark:text-gray-300'
+                          )}
+                        />
                       ) : (
-                        <ChevronDown className={clsx('w-4 h-4 shrink-0', parentActive && 'text-white')} />
+                        <ChevronDown
+                          className={clsx(
+                            'w-4 h-4 shrink-0',
+                            parentActive ? (light ? 'text-[#00332D]' : 'text-white') : 'text-gray-500 dark:text-gray-300'
+                          )}
+                        />
                       )}
                     </button>
 
+                    {/* Child items */}
                     {isOpen && (
                       <div className="mt-1 pl-8 pr-2 flex flex-col gap-1">
                         {children.map(({ label: clabel, icon: CIcon, href: chref }) => {
-                          const active =
-                            pathname === chref || pathname.startsWith(chref + '/');
+                          const active = pathname === chref || pathname.startsWith(chref + '/');
                           return (
                             <button
                               key={chref}
                               onClick={() => go(chref)}
                               className={clsx(
-                                'w-full flex items-center gap-3 rounded-md px-3 py-2 text-left',
+                                'w-full flex items-center gap-3 rounded-md px-3 py-2 text-left transition-colors',
                                 active
-                                  ? 'bg-[var(--brand-bg,#00332D)] text-white'
+                                  ? 'bg-[#009966] text-white' // AB: child fill
                                   : 'hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-gray-100'
                               )}
-                              style={brandBg(active)}
                             >
-                              <CIcon className={clsx('w-5 h-5 shrink-0', active && 'text-white')} />
-                              <span className={clsx('text-[15px] font-medium truncate', active && 'text-white')}>
+                              <CIcon
+                                className={clsx(
+                                  'w-5 h-5 shrink-0',
+                                  active ? 'text-white' : 'text-[#00332D] dark:text-gray-200'
+                                )}
+                              />
+                              <span
+                                className={clsx(
+                                  'text-[15px] font-medium truncate',
+                                  active ? 'text-white' : 'text-[#00332D] dark:text-gray-200'
+                                )}
+                              >
                                 {clabel}
                               </span>
                             </button>
@@ -600,6 +645,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
                 );
               }
 
+              // Leaf (no children) when expanded – unchanged
               const active = leafActive;
               return (
                 <button
