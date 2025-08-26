@@ -18,7 +18,7 @@ export type Column<T extends Row> = {
 
 interface ModuleListViewProps<T extends Row> {
   columns: Column<T>[];
-  data?: T[]; // ✅ made optional
+  data?: T[];
   idKey?: keyof T | string;
   loading?: boolean;
   emptyMessage?: string;
@@ -42,7 +42,7 @@ function defaultCompare(a: unknown, b: unknown) {
 
 export default function ModuleListView<T extends Row>({
   columns,
-  data = [], // ✅ default to []
+  data = [],
   idKey = 'id',
   loading = false,
   emptyMessage = 'No records found',
@@ -53,18 +53,14 @@ export default function ModuleListView<T extends Row>({
   renderBulkActions,
   stickyHeader = true,
 }: ModuleListViewProps<T>) {
-  // Sorting
   const [sortKey, setSortKey] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<SortDir>(null);
 
-  // Pagination
   const [pageSize, setPageSize] = useState(initialPageSize);
-  const [page, setPage] = useState(1); // 1-based
+  const [page, setPage] = useState(1);
 
-  // Selection (page-scoped)
   const [selected, setSelected] = useState<Record<string, boolean>>({});
 
-  // Sorted data
   const sortedData = useMemo(() => {
     if (!sortKey || !sortDir) return data;
     const col = columns.find((c) => String(c.key) === sortKey);
@@ -83,7 +79,6 @@ export default function ModuleListView<T extends Row>({
     return copy;
   }, [data, columns, sortKey, sortDir]);
 
-  // Pagination slice (safe handling)
   const total = sortedData?.length ?? 0;
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
   const safePage = Math.min(page, totalPages);
@@ -91,25 +86,20 @@ export default function ModuleListView<T extends Row>({
   const endIdx = Math.min(startIdx + pageSize, total);
   const pageRows = (sortedData ?? []).slice(startIdx, endIdx);
 
-  // Key handling
   const idKeyStr = String(idKey as string);
   const getRowKey = useCallback(
     (row: T, idxInPage: number) => {
       const raw = (row as Record<string, unknown>)[idKeyStr];
-      return raw === null || raw === undefined || raw === ''
-        ? `__row_${startIdx + idxInPage}`
-        : String(raw);
+      return raw == null || raw === '' ? `__row_${startIdx + idxInPage}` : String(raw);
     },
     [idKeyStr, startIdx]
   );
 
-  // Selected rows (current page only)
   const pageIds = pageRows.map((r, i) => getRowKey(r, i));
   const selectedCount = pageIds.filter((id) => selected[id]).length;
   const allPageSelected = pageIds.length > 0 && selectedCount === pageIds.length;
   const somePageSelected = selectedCount > 0 && selectedCount < pageIds.length;
 
-  // Sorting toggle
   function toggleSort(key: string, enabled?: boolean) {
     if (!enabled) return;
     if (sortKey !== key) {
@@ -122,7 +112,6 @@ export default function ModuleListView<T extends Row>({
     else setSortDir('asc');
   }
 
-  // Row select toggles
   function toggleRow(idStr: string) {
     setSelected((prev) => ({ ...prev, [idStr]: !prev[idStr] }));
   }
@@ -150,7 +139,6 @@ export default function ModuleListView<T extends Row>({
     [pageRows, selected, getRowKey]
   );
 
-  // UI: Loading
   if (loading) {
     return (
       <div className="flex justify-center items-center py-10 text-gray-500 dark:text-gray-400">
@@ -159,7 +147,6 @@ export default function ModuleListView<T extends Row>({
     );
   }
 
-  // UI: Empty
   if (!loading && total === 0) {
     return (
       <div className="flex justify-center items-center py-10 text-gray-500 dark:text-gray-400">
@@ -168,7 +155,6 @@ export default function ModuleListView<T extends Row>({
     );
   }
 
-  // UI: Table
   return (
     <div className={clsx('flex flex-col', className)}>
       {/* Bulk actions */}
@@ -182,16 +168,12 @@ export default function ModuleListView<T extends Row>({
       )}
 
       <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-gray-700">
-        <table className="min-w-full text-sm">
-          <thead
-            className={clsx(
-              'bg-gray-100 dark:bg-gray-800',
-              stickyHeader && 'sticky top-0 z-10'
-            )}
-          >
+        {/* ⬇️ keep the className "table-saltify" so global.css styles apply */}
+        <table className="table-saltify w-full text-sm">
+          <thead className={clsx(stickyHeader && 'sticky top-0 z-10')}>
             <tr>
               {/* Select column */}
-              <th className="px-3 py-2 w-[44px] text-left border-b border-gray-200 dark:border-gray-700">
+              <th className="px-3 py-2 w-[44px] text-left border-b">
                 <label className="inline-flex items-center gap-2 cursor-pointer select-none">
                   <input
                     type="checkbox"
@@ -201,7 +183,8 @@ export default function ModuleListView<T extends Row>({
                       if (el) el.indeterminate = somePageSelected;
                     }}
                     onChange={toggleSelectAllPage}
-                    className="h-4 w-4 accent-blue-600"
+                    className="h-4 w-4"
+                    /* no inline accentColor — let .table-saltify CSS control it */
                   />
                 </label>
               </th>
@@ -214,7 +197,7 @@ export default function ModuleListView<T extends Row>({
                   <th
                     key={keyStr}
                     className={clsx(
-                      'px-4 py-2 border-b border-gray-200 dark:border-gray-700 font-medium text-gray-700 dark:text-gray-200 whitespace-nowrap',
+                      'px-4 py-2 border-b font-medium whitespace-nowrap',
                       col.widthClass,
                       align === 'center' && 'text-center',
                       align === 'right' && 'text-right',
@@ -245,10 +228,8 @@ export default function ModuleListView<T extends Row>({
                 <tr
                   key={rowKey}
                   className={clsx(
-                    'border-b border-gray-200 dark:border-gray-700',
-                    clickable
-                      ? 'hover:bg-gray-50 dark:hover:bg-gray-900 cursor-pointer'
-                      : 'hover:bg-gray-50/60 dark:hover:bg-gray-900/60'
+                    'border-b',               // let global.css handle hover color
+                    clickable && 'cursor-pointer'
                   )}
                   onClick={() => clickable && onRowClick!(row)}
                 >
@@ -260,7 +241,8 @@ export default function ModuleListView<T extends Row>({
                       checked={!!selected[rowKey]}
                       onClick={(e) => e.stopPropagation()}
                       onChange={() => toggleRow(rowKey)}
-                      className="h-4 w-4 accent-blue-600"
+                      className="h-4 w-4"
+                      /* no inline accentColor — let .table-saltify CSS control it */
                     />
                   </td>
 
@@ -271,7 +253,7 @@ export default function ModuleListView<T extends Row>({
 
                     const cell =
                       col.render?.(value, row) ??
-                      (value === null || value === undefined
+                      (value == null
                         ? '—'
                         : typeof value === 'object'
                         ? JSON.stringify(value)
@@ -287,11 +269,7 @@ export default function ModuleListView<T extends Row>({
                           align === 'right' && 'text-right'
                         )}
                         onClick={(e) => {
-                          if (
-                            (e.target as HTMLElement).closest(
-                              'button,a,input,svg'
-                            )
-                          ) {
+                          if ((e.target as HTMLElement).closest('button,a,input,svg')) {
                             e.stopPropagation();
                           }
                         }}
@@ -317,7 +295,7 @@ export default function ModuleListView<T extends Row>({
 
         <div className="flex items-center gap-2">
           <select
-            className="h-8 rounded-md border border-gray-300 dark:border-gray-700 bg-white dark:bg-[#111827] text-sm px-2"
+            className="saltify-select"
             value={pageSize}
             onChange={(e) => {
               const next = Number(e.target.value);
