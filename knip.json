@@ -1,0 +1,25 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": [
+    "src/app/**/*.{ts,tsx}",
+    "app/**/*.{ts,tsx}"
+  ],
+  "project": [
+    "components/**/*.{ts,tsx}",
+    "lib/**/*.{ts,tsx}",
+    "hooks/**/*.{ts,tsx}",
+    "src/**/*.{ts,tsx}",
+    "types/**/*.ts"
+  ],
+  "ignore": [
+    "src/app/**/{page,layout,template,loading,not-found,error,route}.{ts,tsx}",
+    "**/*.d.ts",
+    "**/*.module.css"
+  ],
+  "ignoreDependencies": [
+    "@fontsource/solway",
+    "@fontsource/ubuntu",
+    "eslint",
+    "eslint-config-next"
+  ]
+}
