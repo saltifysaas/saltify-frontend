@@ -1,7 +1,10 @@
-// app/api/profile/route.ts
+// src/app/api/profile/route.ts
 import { NextResponse } from 'next/server';
 import { cookies, headers } from 'next/headers';
-import { supaAdmin } from '@/src/lib/supabaseAdmin';
+import { supaAdmin } from '@/lib/supabaseAdmin';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 type ProfileRow = {
   id: string;
@@ -17,7 +20,6 @@ type ProfileRow = {
   signature: string | null;
   avatar_url: string | null;
   cover_url: string | null;
-  // optional future counters
   followers?: number | null;
   following?: number | null;
 };
@@ -47,11 +49,6 @@ function pickUpdatable(input: Record<string, unknown>) {
   return out;
 }
 
-// Resolve "current user" in dev:
-// - ?userId=... query takes precedence
-// - X-User-Id header
-// - cookie "uid"
-// - fallback to latest created user (local dev convenience)
 async function resolveUserId(url: URL): Promise<string | null> {
   const h = headers();
   const c = cookies();
@@ -65,7 +62,8 @@ async function resolveUserId(url: URL): Promise<string | null> {
   const ck = c.get('uid')?.value;
   if (ck) return ck;
 
-  const latest = await supaAdmin
+  const db = supaAdmin();
+  const latest = await db
     .from('users')
     .select('id')
     .order('created_at', { ascending: false })
@@ -79,11 +77,10 @@ export async function GET(req: Request) {
   try {
     const url = new URL(req.url);
     const userId = await resolveUserId(url);
-    if (!userId) {
-      return NextResponse.json({ error: 'No user found' }, { status: 404 });
-    }
+    if (!userId) return NextResponse.json({ error: 'No user found' }, { status: 404 });
 
-    const sel = await supaAdmin
+    const db = supaAdmin();
+    const sel = await db
       .from('users')
       .select(
         [
@@ -100,18 +97,14 @@ export async function GET(req: Request) {
           'signature',
           'avatar_url',
           'cover_url',
-        ].join(','),
+        ].join(',')
       )
       .eq('id', userId)
       .single();
 
-    if (sel.error) {
-      return NextResponse.json({ error: sel.error.message }, { status: 500 });
-    }
+    if (sel.error) return NextResponse.json({ error: sel.error.message }, { status: 500 });
 
     const profile: ProfileRow = sel.data as ProfileRow;
-
-    // optional counters with safe defaults
     (profile as Record<string, unknown>).followers ??= 0;
     (profile as Record<string, unknown>).following ??= 0;
     (profile as Record<string, unknown>).is_self = true;
@@ -127,27 +120,17 @@ export async function PATCH(req: Request) {
   try {
     const url = new URL(req.url);
     const userId = await resolveUserId(url);
-    if (!userId) {
-      return NextResponse.json({ error: 'No user found' }, { status: 404 });
-    }
+    if (!userId) return NextResponse.json({ error: 'No user found' }, { status: 404 });
 
     const body = (await req.json()) as Record<string, unknown>;
     const update = pickUpdatable(body);
-
     if (Object.keys(update).length === 0) {
       return NextResponse.json({ error: 'No valid fields' }, { status: 400 });
     }
 
-    const upd = await supaAdmin
-      .from('users')
-      .update(update)
-      .eq('id', userId)
-      .select('id')
-      .single();
-
-    if (upd.error) {
-      return NextResponse.json({ error: upd.error.message }, { status: 500 });
-    }
+    const db = supaAdmin();
+    const upd = await db.from('users').update(update).eq('id', userId).select('id').single();
+    if (upd.error) return NextResponse.json({ error: upd.error.message }, { status: 500 });
 
     return NextResponse.json({ ok: true });
   } catch (err) {

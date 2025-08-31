@@ -1,7 +1,10 @@
-// app/api/register/phone/send-otp/route.ts
+// src/app/api/register/phone/send-otp/route.ts
 import { NextResponse } from 'next/server';
 import crypto from 'node:crypto';
-import { supaAdmin } from '@/lib/supabaseAdmin';
+import { supaAdmin } from '@/src/lib/supabaseAdmin';
+
+export const runtime = 'nodejs';
+export const dynamic = 'force-dynamic';
 
 const OTP_LEN = Number(process.env.OTP_LENGTH || 6);
 const OTP_TTL_SEC = Number(process.env.OTP_TTL || 5 * 60); // 5 min
@@ -9,16 +12,15 @@ const RESEND_COOLDOWN_SEC = Number(process.env.OTP_RESEND_COOLDOWN || 45);
 const PURPOSE = 'register';
 
 const PEPPER = process.env.OTP_PEPPER || '';
-const DEBUG_STORE = process.env.DEBUG_STORE_OTP === '1';  // write code to debug_code column
-const DEBUG_RETURN = process.env.DEBUG_RETURN_OTP === '1'; // include dev_code in JSON (dev only)
-const DEBUG_SHOW = process.env.DEBUG_SHOW_OTP === '1';     // console.log the OTP (dev only)
+const DEBUG_STORE = process.env.DEBUG_STORE_OTP === '1';
+const DEBUG_RETURN = process.env.DEBUG_RETURN_OTP === '1';
+const DEBUG_SHOW = process.env.DEBUG_SHOW_OTP === '1';
 
 function isE164(phone: string) {
   return /^\+[1-9]\d{6,14}$/.test(phone);
 }
 
 function randomOtp(len = OTP_LEN) {
-  // cryptographically strong numeric code
   const buf = crypto.randomBytes(len);
   let out = '';
   for (let i = 0; i < len; i++) out += (buf[i] % 10).toString();
@@ -37,8 +39,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Invalid phone (must be E.164, e.g. +9198...)' }, { status: 400 });
     }
 
-    // 1) Check cooldown (if a record exists and was sent too recently)
-    const existing = await supaAdmin
+    const db = supaAdmin();
+
+    // 1) cooldown check
+    const existing = await db
       .from('otp_codes')
       .select('id,last_sent_at')
       .eq('phone', phone)
@@ -46,7 +50,6 @@ export async function POST(req: Request) {
       .maybeSingle();
 
     if (existing.error && existing.error.code !== 'PGRST116') {
-      // PGRST116: No rows found
       throw existing.error;
     }
 
@@ -62,13 +65,13 @@ export async function POST(req: Request) {
       }
     }
 
-    // 2) Generate & hash
+    // 2) generate
     const code = randomOtp();
     const code_hash = hashCode(code);
     const expires_at = new Date(Date.now() + OTP_TTL_SEC * 1000).toISOString();
 
-    // 3) Upsert (avoid unique constraint blows)
-    const upsert = await supaAdmin
+    // 3) upsert
+    const upsert = await db
       .from('otp_codes')
       .upsert(
         {
@@ -81,32 +84,23 @@ export async function POST(req: Request) {
           verified: false,
           verification_token: null,
           verification_expires_at: null,
-          // dev-only raw copy (never enable in prod)
           debug_code: DEBUG_STORE ? code : null,
         },
-        {
-          onConflict: 'phone,purpose',
-          ignoreDuplicates: false,
-        }
+        { onConflict: 'phone,purpose', ignoreDuplicates: false }
       )
       .select('id')
       .single();
 
     if (upsert.error) throw upsert.error;
 
-    // 4) Send SMS here (provider-specific) – or just log in dev
     if (DEBUG_SHOW) {
       // eslint-disable-next-line no-console
       console.log(`[OTP] ${phone} → ${code}`);
     }
 
-    // 5) Respond
-    return NextResponse.json({
-      ok: true,
-      ...(DEBUG_RETURN ? { dev_code: code } : {}),
-    });
-  } catch (err: any) {
-    const msg = err?.message || 'Failed to send OTP';
+    return NextResponse.json({ ok: true, ...(DEBUG_RETURN ? { dev_code: code } : {}) });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : 'Failed to send OTP';
     return NextResponse.json({ error: msg }, { status: 500 });
   }
 }
