@@ -1,6 +1,6 @@
 import ModuleHomeHeader from '@/components/module/ModuleHomeHeader';
 import { MOCK_SEGMENTS } from '@/utils/mockData';
-import SegmentsClient from './SegmentsClient';
+import SegmentsClient from '@/components/segments/SegmentsClient';
 
 export default function SegmentsHome() {
   return (
