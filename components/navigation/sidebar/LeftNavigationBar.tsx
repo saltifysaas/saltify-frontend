@@ -1,18 +1,7 @@
 'use client';
 
 import {
-  LayoutDashboard,
-  FileText,
-  Bot,
-  Database,
-  Users,
-  BarChart,
-  LayoutTemplate,
   Menu,
-  List,
-  Table,
-  User as UserIcon,
-  Filter,
   ChevronLeft,
   ChevronRight,
   ChevronDown,
@@ -37,33 +26,13 @@ import { createPortal } from 'react-dom';
 import Tooltip from '../../ui/Tooltip';
 import { SidebarWrapper } from './index';
 
-type ChildItem = { label: string; icon: LucideIcon; href: string };
-type NavItem = { label: string; icon: LucideIcon; href?: string; children?: ChildItem[] };
+// modular registry + user toggles
+import { enabledModules, type ChildItem as ModuleChildItem } from '@/config/modules';
+import { useModuleFlags } from '@/components/hooks/useModuleFlags';
 
-const NAV_ITEMS: NavItem[] = [
-  { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
-  { label: 'Landing Pages', icon: LayoutTemplate, href: '/landingpages' },
-  { label: 'Forms', icon: FileText, href: '/forms' },
-  { label: 'AI Agents', icon: Bot, href: '/ai-agents' },
-  {
-    label: 'Contacts',
-    icon: Users,
-    children: [
-      { label: 'All Contacts', icon: List, href: '/contact/home' },
-      { label: 'Segmentation', icon: Filter, href: '/contacts/segmentation' },
-      { label: 'Profiles', icon: UserIcon, href: '/contacts/profiles' },
-    ],
-  },
-  {
-    label: 'Data Extensions',
-    icon: Database,
-    children: [
-      { label: 'All Data Extensions', icon: List, href: '/data-extension' },
-      { label: 'Data Tables', icon: Table, href: '/dataextension/tables' },
-    ],
-  },
-  { label: 'Reports', icon: BarChart, href: '/reports' },
-];
+// local aliases
+type ChildItem = ModuleChildItem;
+type NavItem = { label: string; icon: LucideIcon; href?: string; children?: ChildItem[] };
 
 type Props = {
   collapsed: boolean;
@@ -190,8 +159,14 @@ function CollapsedSubmenu({
       {ready && (
         <div
           style={bridgeStyle}
-          onMouseEnter={() => { cancelClose(); setEdgeSuppressed(true); }}
-          onMouseLeave={() => { scheduleClose(120); setEdgeSuppressed(false); }}
+          onMouseEnter={() => {
+            cancelClose();
+            setEdgeSuppressed(true);
+          }}
+          onMouseLeave={() => {
+            scheduleClose(120);
+            setEdgeSuppressed(false);
+          }}
         />
       )}
       <div
@@ -199,20 +174,20 @@ function CollapsedSubmenu({
         role="menu"
         aria-label={parentLabel}
         className={
-          // ⬇️ Match LeftSidebar surfaces
-          "fixed z-[1000] min-w-[220px] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-ui-navigationDark shadow-2xl overflow-hidden transition-opacity " +
-          (ready ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none")
+          'fixed z-[1000] min-w-[220px] rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-ui-navigationDark shadow-2xl overflow-hidden transition-opacity ' +
+          (ready ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none')
         }
         style={{ top: pos.top, left: pos.left }}
-        onMouseEnter={() => { cancelClose(); setEdgeSuppressed(true); }}
-        onMouseLeave={() => { scheduleClose(120); setEdgeSuppressed(false); }}
+        onMouseEnter={() => {
+          cancelClose();
+          setEdgeSuppressed(true);
+        }}
+        onMouseLeave={() => {
+          scheduleClose(120);
+          setEdgeSuppressed(false);
+        }}
       >
-        <div
-          className={
-            // ⬇️ Header uses same dark surface (not blue)
-            "px-3 py-2 text-xs font-semibold tracking-wide uppercase text-gray-500 dark:text-gray-300 bg-gray-50 dark:bg-ui-navigationDark border-b border-gray-200 dark:border-gray-700"
-          }
-        >
+        <div className="px-3 py-2 text-xs font-semibold tracking-wide uppercase text-gray-500 dark:text-gray-300 bg-gray-50 dark:bg-ui-navigationDark border-b border-gray-200 dark:border-gray-700">
           {parentLabel}
         </div>
         <ul className="py-1">
@@ -221,10 +196,7 @@ function CollapsedSubmenu({
               <button
                 role="menuitem"
                 onClick={() => onNavigate(href)}
-                className={
-                  // ⬇️ Keep your dark hover used elsewhere
-                  "w-full flex items-center gap-3 px-3 py-2 text-left text-[15px] font-medium hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-gray-100"
-                }
+                className="w-full flex items-center gap-3 px-3 py-2 text-left text-[15px] font-medium hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-gray-100"
               >
                 <Icon className="w-4 h-4" />
                 <span className="truncate">{label}</span>
@@ -364,7 +336,20 @@ function EdgeHandlePortal({
 export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Props) {
   const pathname = usePathname();
   const router = useRouter();
-  const anchorRef = useRef<HTMLDivElement | null>(null); // ref for the sidebar container
+  const anchorRef = useRef<HTMLDivElement | null>(null);
+
+  // derive nav items (Settings stays hardcoded in footer, not part of toggles)
+  const { map: enabledMap } = useModuleFlags();
+  const NAV_ITEMS: NavItem[] = useMemo(
+    () =>
+      enabledModules(enabledMap).map((m) => ({
+        label: m.label,
+        icon: m.icon,
+        href: m.href,
+        children: m.children as ChildItem[] | undefined,
+      })),
+    [enabledMap]
+  );
 
   // Auto-open the group that matches current route
   const activeParentLabel = useMemo(() => {
@@ -375,7 +360,7 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
       }
     }
     return null;
-  }, [pathname]);
+  }, [pathname, NAV_ITEMS]);
 
   const [openMenu, setOpenMenu] = useState<string | null>(activeParentLabel);
   useEffect(() => setOpenMenu(activeParentLabel), [activeParentLabel]);
@@ -463,123 +448,125 @@ export default function LeftNavigationBar({ collapsed, setCollapsed, style }: Pr
               const leafActive = !!href && (pathname === href || pathname.startsWith(href + '/'));
 
               /* -------- Collapsed -------- */
-             /* -------- Collapsed -------- */
-if (collapsed) {
-  if (children?.length) {
-    return (
-      <Tooltip key={label} label={label}>
-        <div
-          className="w-full flex justify-center"
-          onMouseEnter={(e) => {
-            cancelClose();
-            setPopover({ parentLabel: label, items: children, anchorEl: e.currentTarget as HTMLElement });
-          }}
-          onMouseLeave={() => scheduleClose(160)}
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); if (href) go(href); }}
-        >
-          <button
-            className={clsx(
-              'w-11 h-11 rounded-md grid place-items-center transition-colors',
-              (childActive || leafActive)
-                ? 'bg-ui-darkButtonPrimaryBg text-white'      // ✅ unified active fill
-                : 'text-[#00332D] dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
-            )}
-            aria-label={label}
-          >
-            <Icon className="w-5 h-5" />
-          </button>
-        </div>
-      </Tooltip>
-    );
-  }
+              if (collapsed) {
+                if (children?.length) {
+                  return (
+                    <Tooltip key={label} label={label}>
+                      <div
+                        className="w-full flex justify-center"
+                        onMouseEnter={(e) => {
+                          cancelClose();
+                          setPopover({ parentLabel: label, items: children, anchorEl: e.currentTarget as HTMLElement });
+                        }}
+                        onMouseLeave={() => scheduleClose(160)}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          if (href) go(href);
+                        }}
+                      >
+                        <button
+                          className={clsx(
+                            'w-11 h-11 rounded-md grid place-items-center transition-colors',
+                            (childActive || leafActive)
+                              ? 'bg-ui-darkButtonPrimaryBg text-white'
+                              : 'text-[#00332D] dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+                          )}
+                          aria-label={label}
+                        >
+                          <Icon className="w-5 h-5" />
+                        </button>
+                      </div>
+                    </Tooltip>
+                  );
+                }
 
-  // leaf in collapsed
-  return (
-    <Tooltip key={label} label={label}>
-      <div className="w-full flex justify-center">
-        <button
-          onClick={() => go(href)}
-          className={clsx(
-            'w-11 h-11 rounded-md grid place-items-center transition-colors',
-            leafActive
-              ? 'bg-ui-darkButtonPrimaryBg text-white'        // ✅ unified active fill
-              : 'text-[#00332D] dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
-          )}
-          aria-label={label}
-        >
-          <Icon className="w-5 h-5" />
-        </button>
-      </div>
-    </Tooltip>
-  );
-}
+                // leaf in collapsed
+                return (
+                  <Tooltip key={label} label={label}>
+                    <div className="w-full flex justify-center">
+                      <button
+                        onClick={() => go(href)}
+                        className={clsx(
+                          'w-11 h-11 rounded-md grid place-items-center transition-colors',
+                          leafActive
+                            ? 'bg-ui-darkButtonPrimaryBg text-white'
+                            : 'text-[#00332D] dark:text-gray-100 hover:bg-gray-100 dark:hover:bg-[#2a2a2a]'
+                        )}
+                        aria-label={label}
+                      >
+                        <Icon className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </Tooltip>
+                );
+              }
 
-/* -------- Expanded -------- */
-if (children?.length) {
-  const isOpen = openMenu === label;
-  const parentActive = childActive || leafActive;
+              /* -------- Expanded -------- */
+              if (children?.length) {
+                const isOpen = openMenu === label;
+                const parentActive = childActive || leafActive;
 
-  return (
-    <div key={label} className="w-full">
-      <button
-        onClick={() => setOpenMenu((cur) => (cur === label ? null : label))}
-        className={clsx(
-          'relative w-full flex items-center justify-between rounded-md px-3 py-2 transition-colors',
-          'hover:bg-gray-100 dark:hover:bg-[#2a2a2a]',
-          // keep text normal; don't mute when active
-          'text-gray-900 dark:text-gray-100'
-        )}
-      >
-        {/* ✅ left vertical ruler when this parent group is active */}
-        {parentActive && (
-          <span
-            className="absolute left-0 top-1 bottom-1 w-[3px] rounded-sm"
-            style={{ backgroundColor: 'var(--btn-primary-bg)' }} // same as ui-darkButtonPrimaryBg
-          />
-        )}
+                return (
+                  <div key={label} className="w-full">
+                    <button
+                      onClick={() => setOpenMenu((cur) => (cur === label ? null : label))}
+                      className={clsx(
+                        'relative w-full flex items-center justify-between rounded-md px-3 py-2 transition-colors',
+                        'hover:bg-gray-100 dark:hover:bg-[#2a2a2a]',
+                        'text-gray-900 dark:text-gray-100'
+                      )}
+                    >
+                      {/* left vertical ruler when parent active */}
+                      {parentActive && (
+                        <span
+                          className="absolute left-0 top-1 bottom-1 w-[3px] rounded-sm"
+                          style={{ backgroundColor: 'var(--btn-primary-bg)' }}
+                        />
+                      )}
 
-        <span className="flex items-center gap-3 min-w-0">
-          <Icon className="w-5 h-5 text-[#00332D] dark:text-gray-200" />
-          <span className="text-[15px] font-medium truncate">{label}</span>
-        </span>
+                      <span className="flex items-center gap-3 min-w-0">
+                        <Icon className="w-5 h-5 text-[#00332D] dark:text-gray-200" />
+                        <span className="text-[15px] font-medium truncate">{label}</span>
+                      </span>
 
-        {isOpen ? (
-          <ChevronUp className="w-4 h-4 shrink-0 text-gray-500 dark:text-gray-300" />
-        ) : (
-          <ChevronDown className="w-4 h-4 shrink-0 text-gray-500 dark:text-gray-300" />
-        )}
-      </button>
+                      {isOpen ? (
+                        <ChevronUp className="w-4 h-4 shrink-0 text-gray-500 dark:text-gray-300" />
+                      ) : (
+                        <ChevronDown className="w-4 h-4 shrink-0 text-gray-500 dark:text-gray-300" />
+                      )}
+                    </button>
 
-      {/* children */}
-      {isOpen && (
-        <div className="mt-1 pl-8 pr-2 flex flex-col gap-1">
-          {children.map(({ label: clabel, icon: CIcon, href: chref }) => {
-            const active = pathname === chref || pathname.startsWith(chref + '/');
-            return (
-              <button
-                key={chref}
-                onClick={() => go(chref)}
-                className={clsx(
-                  'w-full flex items-center gap-3 rounded-md px-3 py-2 text-left transition-colors',
-                  active
-                    ? 'bg-ui-darkButtonPrimaryBg text-white'      // ✅ unified active fill
-                    : 'hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-gray-100'
-                )}
-              >
-                <CIcon className={clsx('w-5 h-5 shrink-0', active ? 'text-white' : 'text-[#00332D] dark:text-gray-200')} />
-                <span className={clsx('text-[15px] font-medium truncate', active ? 'text-white' : 'text-[#00332D] dark:text-gray-200')}>
-                  {clabel}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-//-------------------------------//
-   // Leaf (no children) when expanded – unchanged
+                    {/* children */}
+                    {isOpen && (
+                      <div className="mt-1 pl-8 pr-2 flex flex-col gap-1">
+                        {children.map(({ label: clabel, icon: CIcon, href: chref }) => {
+                          const active = pathname === chref || pathname.startsWith(chref + '/');
+                          return (
+                            <button
+                              key={chref}
+                              onClick={() => go(chref)}
+                              className={clsx(
+                                'w-full flex items-center gap-3 rounded-md px-3 py-2 text-left transition-colors',
+                                active
+                                  ? 'bg-ui-darkButtonPrimaryBg text-white'
+                                  : 'hover:bg-gray-100 dark:hover:bg-[#2a2a2a] text-gray-900 dark:text-gray-100'
+                              )}
+                            >
+                              <CIcon className={clsx('w-5 h-5 shrink-0', active ? 'text-white' : 'text-[#00332D] dark:text-gray-200')} />
+                              <span className={clsx('text-[15px] font-medium truncate', active ? 'text-white' : 'text-[#00332D] dark:text-gray-200')}>
+                                {clabel}
+                              </span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                );
+              }
+
+              // Leaf (no children) when expanded – unchanged
               const active = leafActive;
               return (
                 <button
@@ -615,6 +602,7 @@ if (children?.length) {
                 >
                   {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </button>
+                {/* Settings is NOT toggleable here; role-based later */}
                 <button
                   type="button"
                   onClick={() => router.push('/settings')}
@@ -639,6 +627,7 @@ if (children?.length) {
                   {dark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                   <span className="text-sm">{dark ? 'Light' : 'Dark'} Mode</span>
                 </button>
+                {/* Settings is NOT toggleable here; role-based later */}
                 <button
                   type="button"
                   onClick={() => router.push('/settings')}

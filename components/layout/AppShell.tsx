@@ -8,13 +8,13 @@ import { useEffect, useLayoutEffect, useState } from 'react';
 
 import LeftNavigationBar from '@/components/navigation/sidebar/LeftNavigationBar';
 import TopNavigationBar from '@/components/navigation/topnavigation/TopNavigationBar';
+
 import {
   SIDEBAR_EXPANDED,
   SIDEBAR_COLLAPSED,
   HEADER_HEIGHT,
   GRID_GAP,
 } from '@/lib/ui/constants';
-// import useCollapsed from '@/components/hooks/useCollapsed'; // ⛔️ remove the hook to avoid hidden auto-expands
 
 type Crumb = { label: string; href: string };
 
@@ -25,10 +25,8 @@ export default function AppShell({
   breadcrumbs,
 }: {
   children: React.ReactNode;
-  /** Optional page-provided breadcrumbs */
   breadcrumbs?: Crumb[];
 }) {
-  // ✅ Authoritative, persistent state (no hidden effects)
   const [collapsed, setCollapsed] = useState<boolean>(() => {
     if (typeof window === 'undefined') return false;
     try {
@@ -40,7 +38,6 @@ export default function AppShell({
 
   const pathname = usePathname();
 
-  // Keep localStorage in sync with the user's explicit choice (hamburger)
   useEffect(() => {
     try {
       if (collapsed) localStorage.setItem(PERSIST_KEY, '1');
@@ -48,7 +45,6 @@ export default function AppShell({
     } catch {}
   }, [collapsed]);
 
-  // Enforce the persisted preference BEFORE paint on mount (prevents any flicker)
   useLayoutEffect(() => {
     try {
       if (localStorage.getItem(PERSIST_KEY) === '1') {
@@ -57,7 +53,6 @@ export default function AppShell({
     } catch {}
   }, []);
 
-  // Also re-enforce on every route change (in case anything tries to flip it)
   useLayoutEffect(() => {
     try {
       if (localStorage.getItem(PERSIST_KEY) === '1') {
@@ -66,17 +61,14 @@ export default function AppShell({
     } catch {}
   }, [pathname]);
 
-  // ✅ safe constants (avoid NaN)
   const safeHeader =
     typeof HEADER_HEIGHT === 'number' ? `${HEADER_HEIGHT}px` : HEADER_HEIGHT || '64px';
-
   const safeGap = typeof GRID_GAP === 'number' ? `${GRID_GAP}px` : GRID_GAP || '8px';
 
   const sidebarWidth = collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED;
   const safeSidebar =
     typeof sidebarWidth === 'number' ? `${sidebarWidth}px` : sidebarWidth || '220px';
 
-  // 🔗 Breadcrumbs (use prop if provided, else derive from pathname)
   const derivedBreadcrumbs: Crumb[] = pathname
     .split('/')
     .filter(Boolean)
@@ -128,7 +120,7 @@ export default function AppShell({
         <div className="rounded-md mt-[1px] overflow-hidden h-full">
           <LeftNavigationBar
             collapsed={collapsed}
-            setCollapsed={setCollapsed} // ✅ hamburger is the ONLY way to toggle this
+            setCollapsed={setCollapsed}
             style={{ width: '100%', height: '100%' }}
           />
         </div>
