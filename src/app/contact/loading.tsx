@@ -1,5 +1,14 @@
+'use client';
+
+import AutomationLoadingPage from '@/components/automation/AutomationLoadingPage';
+
 export default function Loading() {
   return (
-    <div className="p-4 text-sm text-gray-500 dark:text-gray-400">Loading contact…</div>
+    <AutomationLoadingPage
+      title="Loading contacts"
+      subtitle="Fetching profiles, preferences & segments…"
+      steps={['Bootstrapping', 'Validating schema', 'Fetching records', 'Indexing', 'Ready']}
+      auto
+    />
   );
 }
