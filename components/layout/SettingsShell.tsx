@@ -1,3 +1,4 @@
+// components/layout/SettingsShell.tsx
 'use client';
 
 import { usePathname } from 'next/navigation';
@@ -24,13 +25,12 @@ const PERSIST_KEY = 'saltify-stick-collapsed';
 const HELP_VIS_KEY = 'saltify-help-visible';
 
 // fine-tune alignment with your tabs divider
-const PARTITION_OFFSET = 14; // previously 10 → +2 “points”
-const RAIL_INSET = 8;        // (kept for reference; vertical line removed)
+const PARTITION_OFFSET = 14;
 
 export default function SettingsShell({
   children,
   summary,
-  tabsBarHeight = 58, // value measured & passed from SettingsClient
+  tabsBarHeight = 58,
 }: {
   children: React.ReactNode;
   summary?: { title: string; bullets: string[] };
@@ -77,9 +77,8 @@ export default function SettingsShell({
 
   const gridCols = helpVisible ? `${safeSidebar} 1fr ${safeSidebar}` : `${safeSidebar} 1fr`;
 
-  // Build the external help URL from the current help title
   const helpUrl = useMemo(() => {
-    const raw = summary?.title?.toLowerCase() || 'settings';
+    const raw = (summary?.title || 'settings').toLowerCase();
     return `https://help.saltifysaas.com/settings/${encodeURIComponent(raw)}`;
   }, [summary?.title]);
 
@@ -94,12 +93,8 @@ export default function SettingsShell({
           transition: 'grid-template-columns .2s ease',
         }}
       >
-        {/* Brand */}
-        <div
-          className={clsx('rounded-md bg-[#00332D] grid place-items-center overflow-hidden')}
-          style={{ height: safeHeader }}
-          aria-label="Brand"
-        >
+        {/* Brand (row 1, col 1) */}
+        <div className="rounded-md bg-[#00332D] grid place-items-center overflow-hidden h-full box-border" aria-label="Brand">
           <Image
             src={collapsed ? '/logo/saltify-icon-trans/2.svg' : '/logo/logo-white.svg'}
             alt="Saltify"
@@ -110,18 +105,18 @@ export default function SettingsShell({
           />
         </div>
 
-        {/* Top nav */}
+        {/* Top nav (row 1, col 2) — span 2 when help is visible */}
         <div
           className={clsx(
-            'rounded-md mt-[1.5px] ml-[1.5px] overflow-hidden',
+            'rounded-md overflow-hidden h-full box-border bg-white dark:bg-ui-pageDark shadow-sm',
             helpVisible ? 'col-span-2' : 'col-span-1'
           )}
         >
           <TopNavigationBar />
         </div>
 
-        {/* Sidebar */}
-        <div className="rounded-md mt-[1px] overflow-hidden h-full">
+        {/* Sidebar (row 2, col 1) */}
+        <div className="rounded-md overflow-hidden h-full">
           <LeftNavigationBar
             collapsed={collapsed}
             setCollapsed={setCollapsed}
@@ -129,14 +124,13 @@ export default function SettingsShell({
           />
         </div>
 
-        {/* MAIN (no padding; padding moved to inner wrapper so buttons align) */}
+        {/* MAIN (row 2, col 2) */}
         <main
           className={clsx(
-            'bg-white dark:bg-ui-pageDark rounded-md mt-[1.5px] ml-[1.5px] h-full min-h-0',
+            'bg-white dark:bg-ui-pageDark rounded-md h-full min-h-0',
             'shadow-sm overflow-auto relative'
           )}
         >
-          {/* Show « Help — pop from right seam (aligned with Hide) */}
           {!helpVisible && (
             <button
               onClick={() => setHelpVisible(true)}
@@ -150,17 +144,16 @@ export default function SettingsShell({
             </button>
           )}
 
-          {/* Inner content wrapper with padding */}
           <div className="p-4">
             {children}
           </div>
         </main>
 
-        {/* RIGHT RAIL */}
+        {/* RIGHT RAIL (row 2, col 3) */}
         {helpVisible && (
           <aside
             className={clsx(
-              'bg-white dark:bg-ui-pageDark rounded-md mt-[1.5px] p-0 h-full min-h-0',
+              'bg-white dark:bg-ui-pageDark rounded-md p-0 h-full min-h-0',
               'shadow-sm flex flex-col relative overflow-visible'
             )}
             style={{ width: safeSidebar }}
@@ -172,7 +165,7 @@ export default function SettingsShell({
               aria-hidden
             />
 
-            {/* External link (open in new page) — BEFORE Hide button */}
+            {/* External link */}
             <Link
               href={helpUrl}
               target="_blank"
@@ -182,13 +175,13 @@ export default function SettingsShell({
               className="absolute z-30 rounded-md border px-2 py-1 text-xs
                          bg-white dark:bg-ui-pageDark shadow hover:bg-gray-50 dark:hover:bg-ui-appBgDark/60
                          flex items-center gap-1"
-              style={{ top: 18, right: 64 }} // leave room for Hide button
+              style={{ top: 18, right: 64 }}
             >
               <ExternalLink className="h-4 w-4" />
               <span className="sr-only">Open in new page</span>
             </Link>
 
-            {/* Hide — inside, flush with right border */}
+            {/* Hide */}
             <button
               onClick={() => setHelpVisible(false)}
               className="absolute z-30 rounded-l-md border px-3 py-1 text-xs

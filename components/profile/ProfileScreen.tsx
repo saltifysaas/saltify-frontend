@@ -52,7 +52,6 @@ function ProfileSkeleton() {
 }
 
 export default function ProfileScreen({ userId }: Props) {
-  const [mounted, setMounted] = useState(false);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [savingPic, setSavingPic] = useState<'avatar' | 'cover' | null>(null);
@@ -61,46 +60,49 @@ export default function ProfileScreen({ userId }: Props) {
   const avatarInputRef = useRef<HTMLInputElement>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => setMounted(true), []);
-
   useEffect(() => {
-    if (!mounted) return;
+    let cancelled = false;
     (async () => {
       try {
         const qs = userId ? `?userId=${encodeURIComponent(userId)}` : '';
         const res = await fetch(`/api/profile${qs}`, { headers: { Accept: 'application/json' } });
+        if (!res.ok) throw new Error(`/api/profile ${res.status}`);
         const data = (await res.json()) as { profile: Profile };
-        setProfile(data.profile);
-      } catch {
-        setProfile({
-          id: 'demo',
-          first_name: 'Alex',
-          last_name: 'Doe',
-          email: 'alex@example.com',
-          job_title: 'Growth Lead',
-          mobile: '+1 555 123 4567',
-          signature: 'Best regards,\nAlex',
-          salutation: 'mr',
-          gender: 'male',
-          avatar_url: '',
-          cover_url: '',
-          followers: 12,
-          following: 7,
-          is_self: true,
-          is_following: false,
-        });
+        if (!cancelled) setProfile(data.profile);
+      } catch (err) {
+        // Fallback demo profile so page always renders
+        if (!cancelled) {
+          setProfile({
+            id: 'demo',
+            first_name: 'Alex',
+            last_name: 'Doe',
+            email: 'alex@example.com',
+            job_title: 'Growth Lead',
+            mobile: '+1 555 123 4567',
+            signature: 'Best regards,\nAlex',
+            salutation: 'mr',
+            gender: 'male',
+            avatar_url: '',
+            cover_url: '',
+            followers: 12,
+            following: 7,
+            is_self: true,
+            is_following: false,
+          });
+        }
+        // Optional: console.error(err);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     })();
-  }, [mounted, userId]);
+    return () => { cancelled = true; };
+  }, [userId]);
 
   const fullName = useMemo(
     () => [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || 'Unnamed user',
     [profile]
   );
 
-  if (!mounted) return <ProfileSkeleton />;
   if (loading || !profile) return <ProfileSkeleton />;
 
   async function patch(field: keyof Profile, val: string) {
@@ -108,11 +110,12 @@ export default function ProfileScreen({ userId }: Props) {
     const next = { ...profile, [field]: val };
     setProfile(next);
     try {
-      await fetch('/api/profile', {
+      const res = await fetch('/api/profile', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [field]: val }),
       });
+      if (!res.ok) throw new Error('PATCH failed');
     } catch {
       setProfile(prev);
     }
@@ -124,9 +127,9 @@ export default function ProfileScreen({ userId }: Props) {
     setSavingPic(kind);
     try {
       const res = await fetch(`/api/profile/${kind}`, { method: 'POST', body: fd });
+      if (!res.ok) throw new Error('upload failed');
       const { url } = (await res.json()) as { url: string };
       void patch(kind === 'avatar' ? 'avatar_url' : 'cover_url', url);
-    } catch {
     } finally {
       setSavingPic(null);
     }
@@ -139,18 +142,19 @@ export default function ProfileScreen({ userId }: Props) {
     const followers = Math.max(0, (profile.followers || 0) + (isFollowing ? 1 : -1));
     setProfile({ ...profile, is_following: isFollowing, followers });
     try {
-      await fetch('/api/profile/follow', {
+      const res = await fetch('/api/profile/follow', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ userId: profile.id, follow: isFollowing }),
       });
+      if (!res.ok) throw new Error('follow failed');
     } catch {
       setProfile(prev);
     }
   }
 
   return (
-    <div className="pb-16" suppressHydrationWarning>
+    <div className="pb-16">
       {/* Cover */}
       <div className="relative h-48 md:h-56 w-full bg-gradient-to-br from-emerald-100 to-cyan-100 dark:from-neutral-800 dark:to-neutral-900 overflow-hidden rounded-lg">
         {profile.cover_url && (
@@ -258,61 +262,38 @@ export default function ProfileScreen({ userId }: Props) {
         </div>
       </div>
 
-{/* DETAILS: single card with Edit toggle (no overlap) */}
-<div className="px-6 mt-6">
-  <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4">
-    {/* header row */}
-    <div className="flex items-center justify-between mb-3">
-      <div className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Details</div>
-      <button
-        type="button"
-        className="inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800"
-        onClick={() => setDetailsEditing((v) => !v)}
-        title={detailsEditing ? 'Done' : 'Edit'}
-      >
-        {detailsEditing ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
-        {detailsEditing ? 'Done' : 'Edit'}
-      </button>
-    </div>
+      {/* DETAILS */}
+      <div className="px-6 mt-6">
+        <div className="bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-lg p-4">
+          <div className="flex items-center justify-between mb-3">
+            <div className="text-sm font-medium text-neutral-700 dark:text-neutral-300">Details</div>
+            <button
+              type="button"
+              className="inline-flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg border border-neutral-200 dark:border-neutral-700 hover:bg-neutral-50 dark:hover:bg-neutral-800"
+              onClick={() => setDetailsEditing((v) => !v)}
+              title={detailsEditing ? 'Done' : 'Edit'}
+            >
+              {detailsEditing ? <Check className="w-4 h-4" /> : <Pencil className="w-4 h-4" />}
+              {detailsEditing ? 'Done' : 'Edit'}
+            </button>
+          </div>
 
-    {/* fields grid */}
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-3">
-      <Editable
-        label="Salutation"
-        type="select"
-        value={profile.salutation ?? ''}
-        options={SALUTATIONS}
-        onSave={(v) => patch('salutation', v)}
-        editing={detailsEditing}
-      />
-      <Editable
-        label="Gender"
-        type="select"
-        value={profile.gender ?? ''}
-        options={GENDERS}
-        onSave={(v) => patch('gender', v)}
-        editing={detailsEditing}
-      />
-      <Editable label="First name" value={profile.first_name ?? ''} onSave={(v) => patch('first_name', v)} editing={detailsEditing} />
-      <Editable label="Last name" value={profile.last_name ?? ''} onSave={(v) => patch('last_name', v)} editing={detailsEditing} />
-      <Editable label="Email" type="email" value={profile.email ?? ''} onSave={(v) => patch('email', v)} editing={detailsEditing} />
-      <Editable label="Mobile" type="tel" value={profile.mobile ?? ''} onSave={(v) => patch('mobile', v)} editing={detailsEditing} />
-      <Editable label="Alternate contact" value={profile.alt_contact ?? ''} onSave={(v) => patch('alt_contact', v)} editing={detailsEditing} />
-      <Editable label="Job title" value={profile.job_title ?? ''} onSave={(v) => patch('job_title', v)} editing={detailsEditing} />
-      <Editable label="Role (internal)" value={profile.role_internal ?? ''} onSave={(v) => patch('role_internal', v)} editing={detailsEditing} />
-      <Editable
-        label="Email signature"
-        type="textarea"
-        value={profile.signature ?? ''}
-        onSave={(v) => patch('signature', v)}
-        editing={detailsEditing}
-      />
-    </div>
-  </div>
-</div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-3">
+            <Editable label="Salutation" type="select" value={profile.salutation ?? ''} options={SALUTATIONS} onSave={(v) => patch('salutation', v)} editing={detailsEditing} />
+            <Editable label="Gender" type="select" value={profile.gender ?? ''} options={GENDERS} onSave={(v) => patch('gender', v)} editing={detailsEditing} />
+            <Editable label="First name" value={profile.first_name ?? ''} onSave={(v) => patch('first_name', v)} editing={detailsEditing} />
+            <Editable label="Last name" value={profile.last_name ?? ''} onSave={(v) => patch('last_name', v)} editing={detailsEditing} />
+            <Editable label="Email" type="email" value={profile.email ?? ''} onSave={(v) => patch('email', v)} editing={detailsEditing} />
+            <Editable label="Mobile" type="tel" value={profile.mobile ?? ''} onSave={(v) => patch('mobile', v)} editing={detailsEditing} />
+            <Editable label="Alternate contact" value={profile.alt_contact ?? ''} onSave={(v) => patch('alt_contact', v)} editing={detailsEditing} />
+            <Editable label="Job title" value={profile.job_title ?? ''} onSave={(v) => patch('job_title', v)} editing={detailsEditing} />
+            <Editable label="Role (internal)" value={profile.role_internal ?? ''} onSave={(v) => patch('role_internal', v)} editing={detailsEditing} />
+            <Editable label="Email signature" type="textarea" value={profile.signature ?? ''} onSave={(v) => patch('signature', v)} editing={detailsEditing} />
+          </div>
+        </div>
+      </div>
 
-
-      {/* Activity + Contact (unchanged) */}
+      {/* Activity + Contact */}
       <div className="px-6 mt-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2">
           <div className="rounded-lg border border-neutral-200 dark:border-neutral-800 bg-white dark:bg-neutral-900">

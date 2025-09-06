@@ -1,3 +1,4 @@
+// components/navigation/topnavigation/TopNavigationBar.tsx
 'use client';
 
 import SearchBox from '@/components/navigation/topnavigation/SearchBox';
@@ -14,7 +15,8 @@ export default function TopNavigationBar() {
   const iconCls = 'w-6 h-6 text-[#00332D] dark:text-white';
 
   return (
-    <header className="relative z-50 h-[65px] flex items-center rounded-md mt-[1px] justify-between px-8 bg-white dark:bg-ui-navigationDark border-r border-gray-200 dark:border-gray-700">
+    // No bg/rounded/border/margins here — parent wrapper handles the card look & exact height
+    <header className="h-full w-full box-border flex items-center justify-between px-8">
       <div className="flex-1 flex justify-center">
         <SearchBox className="w-full max-w-[700px]" />
       </div>

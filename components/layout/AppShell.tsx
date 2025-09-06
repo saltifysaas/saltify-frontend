@@ -1,10 +1,11 @@
+// components/layout/AppShell.tsx
 'use client';
 
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Image from 'next/image';
-import clsx from 'clsx';
 import Link from 'next/link';
-import { useEffect, useLayoutEffect, useState } from 'react';
+import clsx from 'clsx';
 
 import LeftNavigationBar from '@/components/navigation/sidebar/LeftNavigationBar';
 import TopNavigationBar from '@/components/navigation/topnavigation/TopNavigationBar';
@@ -47,17 +48,13 @@ export default function AppShell({
 
   useLayoutEffect(() => {
     try {
-      if (localStorage.getItem(PERSIST_KEY) === '1') {
-        setCollapsed(true);
-      }
+      if (localStorage.getItem(PERSIST_KEY) === '1') setCollapsed(true);
     } catch {}
   }, []);
 
   useLayoutEffect(() => {
     try {
-      if (localStorage.getItem(PERSIST_KEY) === '1') {
-        setCollapsed(true);
-      }
+      if (localStorage.getItem(PERSIST_KEY) === '1') setCollapsed(true);
     } catch {}
   }, [pathname]);
 
@@ -93,11 +90,8 @@ export default function AppShell({
         {/* Logo (row 1, col 1) */}
         <div
           className={clsx(
-            'rounded-md bg-[#00332D] flex items-center justify-center]',
-            'overflow-hidden transition-[height] duration-200',
-            'grid place-items-center'
+            'rounded-md bg-[#00332D] grid place-items-center overflow-hidden h-full box-border'
           )}
-          style={{ height: safeHeader, willChange: 'height' }}
           aria-label="Brand"
           title={collapsed ? 'Saltify (collapsed)' : 'Saltify'}
         >
@@ -112,12 +106,12 @@ export default function AppShell({
         </div>
 
         {/* Top nav (row 1, col 2) */}
-        <div className="rounded-md mt-[1.5px] ml-[1.5px] overflow-hidden">
+        <div className="rounded-md overflow-hidden h-full box-border bg-white dark:bg-ui-pageDark shadow-sm">
           <TopNavigationBar />
         </div>
 
         {/* Sidebar (row 2, col 1) */}
-        <div className="rounded-md mt-[1px] overflow-hidden h-full">
+        <div className="rounded-md overflow-hidden h-full">
           <LeftNavigationBar
             collapsed={collapsed}
             setCollapsed={setCollapsed}
@@ -128,7 +122,7 @@ export default function AppShell({
         {/* Content (row 2, col 2) */}
         <main
           className={clsx(
-            'bg-white dark:bg-ui-pageDark rounded-md mt-[1.5px] ml-[1.5px] p-4 h-full min-h-0',
+            'bg-white dark:bg-ui-pageDark rounded-md p-4 h-full min-h-0',
             'shadow-sm overflow-auto'
           )}
         >
